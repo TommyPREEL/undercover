@@ -205,6 +205,12 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     <button class="mode-btn" id="mode-btn-anime" onclick="setMode('anime')">
       <span class="mode-icon">📺</span><span class="mode-label">Anime Titles</span><span class="mode-sub">One Piece vs Naruto</span>
     </button>
+    <button class="mode-btn" id="mode-btn-lol" onclick="setMode('lol')">
+      <span class="mode-icon">🏆</span><span class="mode-label">League of Legends</span><span class="mode-sub">Zed vs Talon</span>
+    </button>
+    <button class="mode-btn" id="mode-btn-marvel" onclick="setMode('marvel')">
+      <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span>
+    </button>
   </div>
   <div class="label">Players (3–5)</div>
   <div class="player-inputs" id="player-inputs"></div>
@@ -283,6 +289,12 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <button class="mode-btn" id="mp-mode-btn-anime" onclick="mpSetMode('anime')">
         <span class="mode-icon">📺</span><span class="mode-label">Anime Titles</span><span class="mode-sub">One Piece vs Naruto</span>
       </button>
+      <button class="mode-btn" id="mp-mode-btn-lol" onclick="mpSetMode('lol')">
+        <span class="mode-icon">🏆</span><span class="mode-label">League of Legends</span><span class="mode-sub">Zed vs Talon</span>
+      </button>
+      <button class="mode-btn" id="mp-mode-btn-marvel" onclick="mpSetMode('marvel')">
+        <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span>
+      </button>
     </div>
     <button class="btn-primary" id="host-start-btn" onclick="mpStartGame()">START GAME</button>
   </div>
@@ -295,7 +307,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="section-title">YOUR WORD</div>
   <div class="section-sub">Each player is on their own device</div>
   <div class="mp-word-card" id="mp-word-card">
-    <div class="wc-label">Your character / anime</div>
+    <div class="wc-label" id="wc-label-text">Your character / anime</div>
     <div class="wc-word" id="mp-word-display"></div>
     <div class="wc-sub" id="mp-word-sub"></div>
   </div>
@@ -814,6 +826,145 @@ const ANIME_PAIRS = [
   ["Devilman Crybaby","Chainsaw Man"],
 ];
 
+const LOL_PAIRS = [
+  // ─── SAME ROLE / CLASS ─────────────────────────────────────────
+  // Assassins
+  ["Zed","Talon"],["Zed","Akali"],["Akali","Katarina"],["Talon","Qiyana"],
+  ["Khazix","Rengar"],["Pyke","Talon"],["Ekko","Zed"],["Shaco","Evelyn"],
+  // Mages
+  ["Lux","Syndra"],["Syndra","Orianna"],["Orianna","Viktor"],["Viktor","Jayce"],
+  ["Lissandra","Anivia"],["Anivia","Vel'Koz"],["Xerath","Lux"],["Zoe","Lux"],
+  ["Veigar","Viktor"],["Annie","Lux"],["Karma","Lux"],["Ryze","Kassadin"],
+  // Marksmen / ADC
+  ["Jinx","Vi"],["Caitlyn","Jinx"],["Ashe","Miss Fortune"],["Jhin","Caitlyn"],
+  ["Ezreal","Lucian"],["Draven","Miss Fortune"],["Kai'Sa","Xayah"],["Sivir","Ashe"],
+  ["Vayne","Quinn"],["Tristana","Jinx"],["Twitch","Vayne"],["Aphelios","Jhin"],
+  // Tanks / Juggernauts
+  ["Malphite","Leona"],["Leona","Nautilus"],["Nautilus","Blitzcrank"],
+  ["Darius","Garen"],["Garen","Malphite"],["Cho'Gath","Nasus"],
+  ["Mundo","Sion"],["Mordekaiser","Darius"],["Ornn","Malphite"],
+  // Supports
+  ["Thresh","Blitzcrank"],["Lulu","Soraka"],["Soraka","Nami"],["Nami","Janna"],
+  ["Bard","Thresh"],["Senna","Thresh"],["Yuumi","Lulu"],["Renata","Lulu"],
+  // Fighters / Bruisers
+  ["Irelia","Fiora"],["Fiora","Camille"],["Camille","Irelia"],
+  ["Riven","Irelia"],["Jax","Fiora"],["Tryndamere","Yasuo"],
+  ["Garen","Darius"],["Illaoi","Darius"],
+  // Divers / Skirmishers
+  ["Xin Zhao","Vi"],["Lee Sin","Jarvan IV"],["Vi","Camille"],
+  // ─── LORE CONNECTIONS ──────────────────────────────────────────
+  // Runeterra / Demacia
+  ["Garen","Lux"],["Lux","Sylas"],["Jarvan IV","Garen"],
+  ["Shyvana","Jarvan IV"],
+  // Noxus
+  ["Darius","Draven"],["Draven","Swain"],["Swain","Katarina"],
+  ["LeBlanc","Swain"],["Talon","Katarina"],
+  // Shadow Isles
+  ["Thresh","Senna"],["Viego","Thresh"],["Gwen","Viego"],
+  ["Yorick","Mordekaiser"],["Hecarim","Yorick"],
+  // Ionia
+  ["Yasuo","Yone"],["Yone","Yasuo"],["Irelia","Karma"],
+  ["Syndra","Zed"],["Shen","Zed"],["Akali","Kennen"],["Kennen","Shen"],
+  // Freljord
+  ["Ashe","Sejuani"],["Lissandra","Ashe"],["Tryndamere","Ashe"],
+  ["Udyr","Volibear"],["Volibear","Anivia"],
+  // Piltover / Zaun
+  ["Vi","Caitlyn"],["Jinx","Vi"],["Ekko","Jinx"],["Viktor","Jayce"],
+  ["Warwick","Singed"],["Singed","Viktor"],["Blitzcrank","Viktor"],
+  // Arcane characters (notably paired)
+  ["Jayce","Viktor"],["Powder (Jinx)","Vi"],["Silco","Vander"],
+  // Targon / Celestial
+  ["Leona","Diana"],["Diana","Leona"],["Aurelion Sol","Zoe"],
+  ["Pantheon","Leona"],["Taric","Leona"],
+  // Bilgewater
+  ["Gangplank","Miss Fortune"],["Graves","Twisted Fate"],
+  ["Twisted Fate","Miss Fortune"],["Pyke","Graves"],
+  // ─── CROSS-THEME ───────────────────────────────────────────────
+  ["Yasuo","Zed"],["Yasuo","Akali"],["Kayn","Zed"],
+  ["Master Yi","Tryndamere"],["Jinx","Ekko"],
+  ["Ezreal","Taric"],["Taric","Leona"],
+];
+
+const MARVEL_PAIRS = [
+  // ─── SAME TEAM ─────────────────────────────────────────────────
+  // Avengers core
+  ["Iron Man","War Machine"],["Iron Man","Captain America"],
+  ["Captain America","Bucky Barnes"],["Bucky Barnes","Black Widow"],
+  ["Thor","Loki"],["Thor","Jane Foster"],["Loki","Hela"],
+  ["Hulk","She-Hulk"],["Hulk","Bruce Banner"],
+  ["Black Widow","Hawkeye"],["Hawkeye","Kate Bishop"],
+  // Guardians
+  ["Star-Lord","Gamora"],["Gamora","Nebula"],["Rocket","Groot"],
+  ["Mantis","Drax"],["Star-Lord","Rocket"],
+  // X-Men
+  ["Wolverine","Sabretooth"],["Wolverine","X-23"],["Wolverine","Cyclops"],
+  ["Cyclops","Havok"],["Cyclops","Jean Grey"],["Jean Grey","Phoenix"],
+  ["Professor X","Magneto"],["Storm","Ororo"],["Rogue","Gambit"],
+  ["Nightcrawler","Mystique"],["Mystique","Magneto"],
+  ["Iceman","Beast"],["Colossus","Colossus"],
+  ["Psylocke","Jean Grey"],["Bishop","Cable"],
+  // Spider-Man family
+  ["Spider-Man","Spider-Gwen"],["Spider-Man","Miles Morales"],
+  ["Miles Morales","Spider-Gwen"],["Venom","Carnage"],
+  ["Peter Parker","Mary Jane"],["Doctor Octopus","Green Goblin"],
+  ["Green Goblin","Harry Osborn"],
+  // Fantastic Four
+  ["Mr. Fantastic","Invisible Woman"],["Human Torch","Thing"],
+  ["Mr. Fantastic","Doctor Doom"],
+  // ─── VILLAINS ──────────────────────────────────────────────────
+  ["Thanos","Darkseid"],["Thanos","Doom"],
+  ["Magneto","Doctor Doom"],["Loki","Mephisto"],
+  ["Red Skull","Hydra Agent"],["Green Goblin","Doctor Octopus"],
+  ["Killmonger","Ulysses Klaue"],["Hela","Surtur"],
+  // ─── COSMIC / MAGIC ────────────────────────────────────────────
+  ["Doctor Strange","Scarlet Witch"],["Scarlet Witch","Jean Grey"],
+  ["Scarlet Witch","Vision"],["Vision","Ultron"],
+  ["Dormammu","Mephisto"],["Silver Surfer","Galactus"],
+  ["Adam Warlock","Thanos"],["Nova","Captain Marvel"],
+  // ─── STREET LEVEL ─────────────────────────────────────────────
+  ["Daredevil","Punisher"],["Daredevil","Elektra"],
+  ["Punisher","Wolverine"],["Elektra","Black Widow"],
+  ["Luke Cage","Iron Fist"],["Jessica Jones","Luke Cage"],
+  // ─── RIVALS / MIRRORS ─────────────────────────────────────────
+  ["Captain America","Captain America (Hydra)"],
+  ["Iron Man","Iron Monger"],["Thor","Beta Ray Bill"],
+  ["Black Panther","Killmonger"],["Ant-Man","Yellowjacket"],
+  ["Wasp","Janet van Dyne"],
+  // ─── DC CROSSOVER FEEL (Marvel vs lookalikes) ──────────────────
+  ["Thor","Superman"],["Aquaman","Namor"],
+  ["Flash","Quicksilver"],["Batman","Moon Knight"],
+  ["Green Arrow","Hawkeye"],["Cyborg","Iron Man"],
+  // ─── CROSS-MARVEL SIMILARITIES ────────────────────────────────
+  // Both genius billionaire in powered armour
+  ["Iron Man","Doctor Doom"],
+  // Both web-slingers with quips
+  ["Spider-Man","Deadpool"],
+  // Both red-suited sarcastic mercenaries
+  ["Deadpool","Cable"],
+  // Both super-soldier serums
+  ["Captain America","Wolverine"],
+  // Both green rage monsters
+  ["Hulk","Abomination"],
+  // Both Asgardian royalty
+  ["Thor","Loki"],
+  // Both genius scientists turned monster
+  ["Hulk","Doctor Doom"],
+  // Both manipulate reality/time
+  ["Doctor Strange","Scarlet Witch"],
+  // Both stoic super-soldiers loyal to no flag
+  ["Captain America","Punisher"],
+  // Both Black super-heroes with vibranium ties
+  ["Black Panther","Black Panther (Shuri)"],
+  // Both trained assassins who switched sides
+  ["Black Widow","Hawkeye"],
+  // Both metal claws, brutal, feral fighters
+  ["Wolverine","X-23"],
+  // Both red symbiotes driven by rage
+  ["Venom","Carnage"],
+  // Both protective older figures for Spider-Man
+  ["Uncle Ben","May Parker"],
+];
+
 // ─── LOCAL GAME STATE ──────────────────────────────────────────────────────
 let players = JSON.parse(localStorage.getItem('uc_players') || '["","",""]');
 let roles={}, civilianWord='', undercoverWord='', undercoverPlayers=[];
@@ -874,7 +1025,7 @@ function startGame(){
   err.textContent=''; players=names;
   localStorage.setItem('uc_players',JSON.stringify(players));
   showPhase('phase-loading');
-  const list=gameMode==='anime'?ANIME_PAIRS:PAIRS;
+  const list=gameMode==='anime'?ANIME_PAIRS:gameMode==='lol'?LOL_PAIRS:gameMode==='marvel'?MARVEL_PAIRS:PAIRS;
   const pair=list[Math.floor(Math.random()*list.length)];
   if(Math.random()<0.5){civilianWord=pair[0];undercoverWord=pair[1];}
   else{civilianWord=pair[1];undercoverWord=pair[0];}
@@ -928,7 +1079,8 @@ function toggleReveal(name,btn){
   }
 }
 function buildRevealCards(){
-  document.getElementById('pair-hint').textContent=gameMode==='anime'?'These two anime share similarities — but are different. Pay attention to clues!':'These two characters are connected — but different. Pay attention to clues!';
+  const hints={anime:'These two anime share similarities — but are different. Pay attention to clues!',lol:'These two champions share similarities — but are different. Pay attention to clues!',marvel:'These two heroes/villains are connected — but different. Pay attention to clues!'};
+  document.getElementById('pair-hint').textContent=hints[gameMode]||'These two characters are connected — but different. Pay attention to clues!';
   const container=document.getElementById('reveal-cards'); container.innerHTML='';
   players.forEach(name=>{
     const isSpy=roles[name]==='spy';
@@ -1096,7 +1248,7 @@ function mpSetMode(mode){
   mpSend({type:'set_mode',mode});
 }
 function mpStartGame(){
-  const list=mpMode==='anime'?ANIME_PAIRS:PAIRS;
+  const list=mpMode==='anime'?ANIME_PAIRS:mpMode==='lol'?LOL_PAIRS:mpMode==='marvel'?MARVEL_PAIRS:PAIRS;
   mpSend({type:'start_game',pairs:list});
 }
 function mpReady(){mpSend({type:'ready'});}
@@ -1183,6 +1335,9 @@ function showMpWordScreen(){
   card.querySelector('.wc-word').textContent=mpWord;
   card.querySelector('#mp-word-sub').textContent='';
   card.classList.remove('hidden-word');
+  const labels={anime:'Your anime title',lol:'Your champion',marvel:'Your character'};
+  const lbl=document.getElementById('wc-label-text');
+  if(lbl) lbl.textContent=labels[mpMode]||'Your character / anime';
   const btn=document.getElementById('mp-ready-btn');
   btn.disabled=false; btn.textContent='READY ✓';
   const forceBtn=document.getElementById('mp-force-btn');
