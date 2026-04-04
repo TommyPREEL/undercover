@@ -158,6 +158,14 @@ function handleMessage(socket, raw, playerId) {
 
     case 'ping': break; // client heartbeat, ignore
 
+    case 'emoji': {
+      if (!room) break;
+      const allowed = ['😂','🔥','😱','👀','🤔','💀','👑','🎯','❤️','🤡'];
+      if (!allowed.includes(msg.emoji)) break;
+      broadcast(room, { type: 'emoji', name: room.players[playerId]?.name || '?', emoji: msg.emoji }, socket);
+      break;
+    }
+
     case 'create_room': {
       const code = generateCode();
       const name = (msg.name || 'Player').trim().slice(0, 20);
@@ -172,6 +180,7 @@ function handleMessage(socket, raw, playerId) {
         speakOrder: [],
         speakIndex: 0,
         round: 1,
+        departed: {},
       };
       wsSend(socket, { type: 'joined', code, name, isHost: true });
       wsSend(socket, roomState(rooms[code]));
@@ -371,6 +380,7 @@ function handleMessage(socket, raw, playerId) {
       room.speakIndex = 0;
       room.round = 1;
       room.gameData = null;
+      room.departed = {};
       for (const p of Object.values(room.players)) p.ready = false;
       broadcast(room, roomState(room));
       broadcast(room, { type: 'back_to_lobby' });
@@ -386,13 +396,29 @@ function handleMessage(socket, raw, playerId) {
       for (const [id, p] of Object.entries(rj.players)) {
         if (p.name.toLowerCase() === rjName.toLowerCase()) { existingId = id; break; }
       }
+      // Check departed players if not found among active players
+      let fromDeparted = false;
+      if (!existingId && rj.departed) {
+        for (const [id, d] of Object.entries(rj.departed)) {
+          if (d.name.toLowerCase() === rjName.toLowerCase()) { existingId = id; fromDeparted = true; break; }
+        }
+      }
       if (!existingId) { wsSend(socket, { type: 'error', msg: 'Player not found in room.' }); return; }
       if (disconnectTimers[existingId]) { clearTimeout(disconnectTimers[existingId]); delete disconnectTimers[existingId]; }
-      // Re-key player under the new connection's playerId
-      rj.players[playerId] = { ...rj.players[existingId], socket, online: true };
-      delete rj.players[existingId];
-      if (rj.host === existingId) rj.host = playerId;
-      if (rj.spyIds) rj.spyIds = rj.spyIds.map(id => id === existingId ? playerId : id);
+      if (fromDeparted) {
+        // Restore departed player back into active players
+        const dep = rj.departed[existingId];
+        rj.players[playerId] = { name: dep.name, socket, ready: false, online: true };
+        delete rj.departed[existingId];
+        if (dep.wasHost && Object.keys(rj.players).length === 1) rj.host = playerId;
+        if (rj.spyIds && dep.wasSpy) rj.spyIds.push(playerId);
+      } else {
+        // Re-key player under the new connection's playerId
+        rj.players[playerId] = { ...rj.players[existingId], socket, online: true };
+        delete rj.players[existingId];
+        if (rj.host === existingId) rj.host = playerId;
+        if (rj.spyIds) rj.spyIds = rj.spyIds.map(id => id === existingId ? playerId : id);
+      }
       const rjIsHost = rj.host === playerId;
       wsSend(socket, { type: 'joined', code: rjCode, name: rjName, isHost: rjIsHost });
       if (rj.phase === 'lobby') {
@@ -484,9 +510,15 @@ server.on('upgrade', (req, socket, head) => {
         broadcast(room, { type: 'player_offline', name });
         disconnectTimers[playerId] = setTimeout(() => {
           if (!rooms[code] || !room.players[playerId]) return;
+          // Save player data for late rejoin
+          const wasSpy = room.spyIds && room.spyIds.includes(playerId);
+          const wasHost = room.host === playerId;
+          if (!room.departed) room.departed = {};
+          room.departed[playerId] = { name, wasSpy, wasHost };
           delete room.players[playerId];
+          if (room.spyIds) room.spyIds = room.spyIds.filter(id => id !== playerId);
           delete disconnectTimers[playerId];
-          console.log(`${name} removed from room ${code} (timeout)`);
+          console.log(`${name} removed from room ${code} (timeout — saved to departed)`);
           if (Object.keys(room.players).length === 0) {
             delete rooms[code];
             console.log(`Room ${code} deleted`);
@@ -498,7 +530,7 @@ server.on('upgrade', (req, socket, head) => {
             broadcast(room, roomState(room));
             broadcast(room, { type: 'player_left', name });
           }
-        }, 90 * 1000);
+        }, 5 * 60 * 1000);
         break;
       }
     }

@@ -181,11 +181,33 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 .notification{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;z-index:200;animation:slideUp 0.3s ease;white-space:nowrap;}
 @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 .waiting-msg{text-align:center;padding:1rem;font-size:14px;color:var(--muted);}
+.emoji-bar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:6px;padding:10px 8px;background:rgba(15,15,25,0.85);backdrop-filter:blur(8px);border-top:1px solid var(--border);z-index:300;display:none;}
+.emoji-bar button{font-size:24px;background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:8px;transition:transform .15s,background .15s;}
+.emoji-bar button:hover{transform:scale(1.3);background:rgba(255,255,255,0.08);}
+.emoji-bar button:active{transform:scale(0.95);}
+.emoji-float{position:fixed;z-index:400;pointer-events:none;text-align:center;animation:emojiRise 2.2s ease-out forwards;}
+.emoji-float .ef-emoji{font-size:36px;line-height:1;}
+.emoji-float .ef-name{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;letter-spacing:0.04em;}
+@keyframes emojiRise{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;transform:translateY(-120px) scale(1.15);}100%{opacity:0;transform:translateY(-200px) scale(0.8);}}
 </style>
 </head>
 <body>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
+
+<!-- EMOJI BAR -->
+<div class="emoji-bar" id="emoji-bar">
+  <button onclick="sendEmoji('😂')">😂</button>
+  <button onclick="sendEmoji('🔥')">🔥</button>
+  <button onclick="sendEmoji('😱')">😱</button>
+  <button onclick="sendEmoji('👀')">👀</button>
+  <button onclick="sendEmoji('🤔')">🤔</button>
+  <button onclick="sendEmoji('💀')">💀</button>
+  <button onclick="sendEmoji('👑')">👑</button>
+  <button onclick="sendEmoji('🎯')">🎯</button>
+  <button onclick="sendEmoji('❤️')">❤️</button>
+  <button onclick="sendEmoji('🤡')">🤡</button>
+</div>
 
 <!-- MODAL -->
 <div class="modal-backdrop" id="modal">
@@ -1133,6 +1155,8 @@ function showPhase(id){
   document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  const emojiPhases=['phase-mp-word','phase-mp-play','phase-mp-elim-vote'];
+  document.getElementById('emoji-bar').style.display=emojiPhases.includes(id)?'flex':'none';
 }
 function notify(msg,dur=2800){
   const el=document.createElement('div');
@@ -1299,6 +1323,13 @@ function renderClueLog(){
   el.style.display='block';
   el.innerHTML='<div class="clue-log"><div class="clue-log-title">\uD83D\uDCCB Clue log</div>'+clueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">\u201c${e.clue}\u201d</span></div>`).join('')+'</div>';
 }
+function renderMpClueLog(){
+  const el=document.getElementById('mp-clue-log');
+  if(!el)return;
+  if(!mpClueLog.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">\uD83D\uDCCB Clue log</div>'+mpClueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">\u201c${e.clue}\u201d</span></div>`).join('')+'</div>';
+}
 function renderLocalStrawPoll(active){
   const voteGrid=document.getElementById('vote-grid');
   voteGrid.innerHTML='';
@@ -1401,14 +1432,32 @@ function mpConnect(){
     handleServerMsg(msg);
   };
 }
-function mpDisconnect(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
+function mpDisconnect(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}localStorage.removeItem('uc_session');history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpSend(data){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(data));}
+
+let _emojiCooldown=false;
+function sendEmoji(emoji){
+  if(_emojiCooldown)return;
+  _emojiCooldown=true; setTimeout(()=>{_emojiCooldown=false;},800);
+  mpSend({type:'emoji',emoji});
+  showFloatingEmoji(myName,emoji);
+}
+function showFloatingEmoji(name,emoji){
+  const el=document.createElement('div');
+  el.className='emoji-float';
+  const x=15+Math.random()*70;
+  el.style.left=x+'%';
+  el.style.bottom='70px';
+  el.innerHTML=`<div class="ef-emoji">${emoji}</div><div class="ef-name">${name}</div>`;
+  document.body.appendChild(el);
+  el.addEventListener('animationend',()=>el.remove());
+}
 
 let _reconnectTimer=null;
 function attemptReconnect(name,room,attempt){
   if(!name){history.replaceState(null,'',location.pathname);showPhase('phase-landing');return;}
-  const maxAttempts=6;
-  if(attempt>maxAttempts){notify('Could not reconnect.');history.replaceState(null,'',location.pathname);showPhase('phase-landing');return;}
+  const maxAttempts=12;
+  if(attempt>maxAttempts){notify('Could not reconnect.');localStorage.removeItem('uc_session');history.replaceState(null,'',location.pathname);showPhase('phase-landing');return;}
   const delay=Math.min(1500*attempt,10000);
   notify(`Connection lost. Retrying in ${Math.round(delay/1000)}s… (${attempt}/${maxAttempts})`);
   clearTimeout(_reconnectTimer);
@@ -1454,9 +1503,12 @@ function mpVoteEliminate(name){mpSend({type:'vote_eliminate',target:name});}
 function handleServerMsg(msg){
   switch(msg.type){
     case 'joined':
-      myRoom=msg.code; isHost=msg.isHost; break;
+      myRoom=msg.code; isHost=msg.isHost;
+      localStorage.setItem('uc_session',JSON.stringify({name:myName,room:myRoom}));
+      break;
     case 'rejoin_ack':
       myRoom=msg.code; isHost=msg.isHost;
+      localStorage.setItem('uc_session',JSON.stringify({name:myName,room:myRoom}));
       mpWord=msg.word||''; mpWordRevealed=false;
       mpPlayers=msg.players; mpSpeakOrder=msg.speakOrder||[];
       mpSpeakIndex=msg.speakIndex||0; mpRound=msg.round||1;
@@ -1472,6 +1524,7 @@ function handleServerMsg(msg){
       mpPlayers=msg.players; mpMode=msg.mode||'characters';
       renderLobby(msg); break;
     case 'error':
+      localStorage.removeItem('uc_session');
       document.getElementById('mp-join-error').textContent=msg.msg;
       document.getElementById('mp-entry-error').textContent=msg.msg;
       notify(msg.msg); break;
@@ -1496,6 +1549,7 @@ function handleServerMsg(msg){
       if(msg.lastPlayer&&msg.lastClue)mpClueLog.push({player:msg.lastPlayer,clue:msg.lastClue});
       mpSpeakIndex=msg.speakIndex; renderMpSpeaker(); renderMpClueLog(); break;
     case 'game_over':
+      localStorage.removeItem('uc_session');
       if(msg.eliminated) notify(msg.eliminated+' was eliminated!');
       showMpResult(msg); break;
     case 'elim_vote_update':
@@ -1522,7 +1576,10 @@ function handleServerMsg(msg){
       }
       break;
     case 'back_to_lobby':
+      localStorage.removeItem('uc_session');
       showPhase('phase-mp-lobby'); break;
+    case 'emoji':
+      showFloatingEmoji(msg.name, msg.emoji); break;
   }
 }
 
@@ -1595,7 +1652,7 @@ function renderReadyList(readyPlayers,total){
 }
 
 function renderMpPlay(){
-  mpSoftVotes={};
+  mpSoftVotes={}; mpClueLog=[];
   document.getElementById('mp-round-num').textContent=mpRound;
   const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
   document.getElementById('mp-alive-count').textContent=active.length;
@@ -1603,6 +1660,7 @@ function renderMpPlay(){
   strip.innerHTML=mpEliminated.map(e=>`<span class="elim-tag">${e}</span>`).join('');
   document.getElementById('mp-vote-grid').innerHTML='';
   document.getElementById('mp-vote-prompt').style.display='none';
+  document.getElementById('mp-clue-log').style.display='none';
   renderMpSpeaker();
 }
 
@@ -1641,6 +1699,7 @@ function renderMpSpeaker(){
 function renderMpElimVote(){
   const voteGrid=document.getElementById('mp-vote-grid');
   voteGrid.innerHTML='';
+  renderMpClueLog();
   const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
   const votedCount=Object.keys(mpElimVotes).length;
   const el=document.createElement('div'); el.className='straw-poll';
@@ -1722,8 +1781,25 @@ function copyShareLink(){
   else{prompt('Share this link:',url);}
 }
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
-// Auto-navigate if page opened via invite link
-(function(){if(new URLSearchParams(location.search).get('room'))goMultiplayer();})();
+// Auto-rejoin if we have a saved session (player closed browser and came back)
+(function(){
+  const saved=localStorage.getItem('uc_session');
+  if(saved){
+    try{
+      const s=JSON.parse(saved);
+      if(s.name&&s.room){
+        myName=s.name;
+        myRoom=s.room;
+        document.getElementById('mp-name-input').value=s.name;
+        notify('Reconnecting to room '+s.room+'…');
+        attemptReconnect(s.name,s.room,1);
+        return;
+      }
+    }catch(e){localStorage.removeItem('uc_session');}
+  }
+  // Auto-navigate if page opened via invite link
+  if(new URLSearchParams(location.search).get('room'))goMultiplayer();
+})();
 </script>
 </body>
 </html>
