@@ -30,7 +30,7 @@ self.addEventListener('fetch', e => {
   const isNav = e.request.mode === 'navigate';
   e.respondWith(
     isNav
-      ? fetch(e.request).catch(() => caches.match('/'))
-      : caches.match(e.request).then(r => r || fetch(e.request))
+      ? fetch(e.request).catch(() => caches.match('/').then(r => r || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })))
+      : caches.match(e.request).then(r => r || fetch(e.request).catch(() => new Response('', { status: 503 })))
   );
 });

@@ -185,8 +185,10 @@ function handleMessage(socket, raw, playerId) {
     case 'ready': {
       if (!room) return;
       room.players[playerId].ready = true;
-      const all = Object.values(room.players).every(p => p.ready);
-      broadcast(room, { type: 'player_ready', name: playerName });
+      const onlinePlayers = Object.values(room.players).filter(p => p.socket && !p.socket.destroyed);
+      const readyNames = Object.values(room.players).filter(p => p.ready).map(p => p.name);
+      const all = onlinePlayers.length > 0 && onlinePlayers.every(p => p.ready);
+      broadcast(room, { type: 'player_ready', name: playerName, readyPlayers: readyNames, totalPlayers: onlinePlayers.length });
       if (all) {
         for (const p of Object.values(room.players)) p.ready = false;
         room.phase = 'play';
@@ -199,6 +201,22 @@ function handleMessage(socket, raw, playerId) {
           eliminated: room.eliminated,
         });
       }
+      break;
+    }
+
+    case 'force_ready': {
+      if (!room || room.host !== playerId) return;
+      for (const p of Object.values(room.players)) p.ready = false;
+      room.phase = 'play';
+      room.speakIndex = 0;
+      broadcast(room, {
+        type: 'phase_play',
+        speakOrder: room.speakOrder,
+        speakIndex: 0,
+        round: room.round,
+        eliminated: room.eliminated,
+      });
+      console.log(`Room ${room.code} force-started by host`);
       break;
     }
 
@@ -317,6 +335,7 @@ function handleMessage(socket, raw, playerId) {
 // ─── HTTP + WS server ─────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   const reqPath = req.url.split('?')[0];
+  if (reqPath === '/favicon.ico') { res.writeHead(204); res.end(); return; }
   let filePath = path.join(__dirname, reqPath === '/' ? 'anime-undercover.html' : reqPath);
   if (!filePath.startsWith(__dirname)) { res.writeHead(403); res.end(); return; }
   fs.readFile(filePath, (err, data) => {

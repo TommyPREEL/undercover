@@ -293,15 +293,16 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <!-- ── MULTIPLAYER: MY WORD ──────────────────────────────────── -->
 <div class="phase" id="phase-mp-word">
   <div class="section-title">YOUR WORD</div>
-  <div class="section-sub">Memorize it, then hide before passing</div>
+  <div class="section-sub">Each player is on their own device</div>
   <div class="mp-word-card" id="mp-word-card">
     <div class="wc-label">Your character / anime</div>
-    <div class="wc-word" id="mp-word-display">???</div>
-    <div class="wc-sub">Tap to reveal</div>
+    <div class="wc-word" id="mp-word-display"></div>
+    <div class="wc-sub" id="mp-word-sub"></div>
   </div>
-  <button class="btn-primary" id="mp-reveal-btn" onclick="mpRevealWord()">TAP TO REVEAL</button>
-  <button class="btn-secondary" id="mp-ready-btn" onclick="mpReady()" style="display:none;">I'VE SEEN IT — READY ✓</button>
+  <button class="btn-primary" id="mp-ready-btn" onclick="mpReady()">READY ✓</button>
+  <button class="btn-ghost" id="mp-force-btn" onclick="mpForceStart()" style="display:none;margin-top:8px;">⚡ Force start (host)</button>
   <div class="waiting-msg" id="mp-ready-status"></div>
+  <div id="mp-ready-list" style="margin-top:1rem;"></div>
 </div>
 
 <!-- ── MULTIPLAYER: PLAY ─────────────────────────────────────── -->
@@ -1131,7 +1132,8 @@ function handleServerMsg(msg){
     case 'player_left':
       notify(msg.name+' left the room.'); break;
     case 'player_ready':
-      notify(msg.name+' is ready ✓'); break;
+      if(msg.readyPlayers) renderReadyList(msg.readyPlayers, msg.totalPlayers);
+      break;
     case 'new_host':
       isHost=true; notify('You are now the host.'); break;
     case 'game_start':
@@ -1179,44 +1181,41 @@ function renderLobby(msg){
 function showMpWordScreen(){
   const card=document.getElementById('mp-word-card');
   card.querySelector('.wc-word').textContent=mpWord;
-  card.querySelector('.wc-sub').textContent='Tap to reveal';
-  card.classList.add('hidden-word');
-  document.getElementById('mp-reveal-btn').style.display='block';
-  document.getElementById('mp-reveal-btn').textContent='TAP TO REVEAL';
-  document.getElementById('mp-ready-btn').style.display='none';
+  card.querySelector('#mp-word-sub').textContent='';
+  card.classList.remove('hidden-word');
+  const btn=document.getElementById('mp-ready-btn');
+  btn.disabled=false; btn.textContent='READY ✓';
+  const forceBtn=document.getElementById('mp-force-btn');
+  if(forceBtn) forceBtn.style.display='none';
   document.getElementById('mp-ready-status').textContent='';
+  document.getElementById('mp-ready-list').innerHTML='';
   mpWordRevealed=false; clearInterval(revealTimer);
   showPhase('phase-mp-word');
 }
 
-function mpRevealWord(){
-  if(mpWordRevealed)return;
-  mpWordRevealed=true;
-  const card=document.getElementById('mp-word-card');
-  card.classList.remove('hidden-word');
-  card.querySelector('.wc-sub').textContent='Memorize it — hides in 5 seconds';
-  const btn=document.getElementById('mp-reveal-btn');
-  let secs=5; btn.textContent=`HIDE (${secs}s)`;
-  playHideSound();
-  revealTimer=setInterval(()=>{
-    secs--;
-    if(secs>0){btn.textContent=`HIDE (${secs}s)`;}
-    else{
-      clearInterval(revealTimer);
-      card.classList.add('hidden-word');
-      card.querySelector('.wc-sub').textContent='Hidden — ready to play?';
-      btn.style.display='none';
-      document.getElementById('mp-ready-btn').style.display='block';
-      playHideSound();
-    }
-  },1000);
-}
+function mpRevealWord(){}
 
 function mpReady(){
-  document.getElementById('mp-ready-btn').disabled=true;
-  document.getElementById('mp-ready-btn').textContent='WAITING FOR OTHERS...';
-  document.getElementById('mp-ready-status').textContent='Waiting for all players to be ready...';
+  const btn=document.getElementById('mp-ready-btn');
+  btn.disabled=true; btn.textContent='WAITING FOR OTHERS…';
+  document.getElementById('mp-ready-status').textContent='Waiting for all players to be ready…';
+  if(isHost){ const fb=document.getElementById('mp-force-btn'); if(fb) fb.style.display='block'; }
   mpSend({type:'ready'});
+}
+function mpForceStart(){ mpSend({type:'force_ready'}); }
+
+function renderReadyList(readyPlayers,total){
+  const el=document.getElementById('mp-ready-list');
+  if(!el)return;
+  el.innerHTML=`<div class="label" style="margin-bottom:8px;">Players ready (${readyPlayers.length}/${total})</div>`+
+    mpPlayers.map(name=>{
+      const done=readyPlayers.includes(name);
+      return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">`+
+        `<span style="width:20px;text-align:center;font-size:16px;">${done?'✅':'⏳'}</span>`+
+        `<span style="flex:1;font-size:14px;color:${done?'var(--cyan)':'var(--muted)'}">${name}</span>`+
+        `${name===myName?'<span class="you-tag">you</span>':''}`+
+        `</div>`;
+    }).join('');
 }
 
 function renderMpPlay(){
