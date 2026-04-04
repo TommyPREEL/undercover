@@ -1,8 +1,16 @@
 services:
   undercover:
+    container-name: undercover
     image: ${IMAGE:-ghcr.io/tommypreel/undercover:latest}
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
       - PORT=3000
-    restart: unless-stopped
+    restart: always
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: web
