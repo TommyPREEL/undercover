@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#0a0a0f"/>
+  <rect x="8" y="8" width="176" height="176" rx="28" fill="#12121a"/>
+  <!-- Red accent stripe -->
+  <rect x="8" y="8" width="6" height="176" rx="3" fill="#e8375a"/>
+  <!-- UC letters -->
+  <text x="30" y="130" font-family="Arial Black, sans-serif" font-weight="900" font-size="88" fill="#f0f0f8" letter-spacing="-4">UC</text>
+  <!-- Red dot accent -->
+  <circle cx="158" cy="52" r="16" fill="#e8375a" opacity="0.9"/>
+  <!-- Spy eye icon on dot -->
+  <ellipse cx="158" cy="52" rx="10" ry="6" fill="none" stroke="#0a0a0f" stroke-width="2"/>
+  <circle cx="158" cy="52" r="3" fill="#0a0a0f"/>
+</svg>
