@@ -211,6 +211,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     <button class="mode-btn" id="mode-btn-marvel" onclick="setMode('marvel')">
       <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span>
     </button>
+    <button class="mode-btn" id="mode-btn-classic" onclick="setMode('classic')">
+      <span class="mode-icon">🎯</span><span class="mode-label">Classic</span><span class="mode-sub">Coffee vs Tea</span>
+    </button>
   </div>
   <div class="label">Players (3–5)</div>
   <div class="player-inputs" id="player-inputs"></div>
@@ -294,6 +297,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       </button>
       <button class="mode-btn" id="mp-mode-btn-marvel" onclick="mpSetMode('marvel')">
         <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span>
+      </button>
+      <button class="mode-btn" id="mp-mode-btn-classic" onclick="mpSetMode('classic')">
+        <span class="mode-icon">🎯</span><span class="mode-label">Classic</span><span class="mode-sub">Coffee vs Tea</span>
       </button>
     </div>
     <button class="btn-primary" id="host-start-btn" onclick="mpStartGame()">START GAME</button>
@@ -965,7 +971,79 @@ const MARVEL_PAIRS = [
   ["Uncle Ben","May Parker"],
 ];
 
-// ─── LOCAL GAME STATE ──────────────────────────────────────────────────────
+const CLASSIC_PAIRS = [
+  // ─── FOOD & DRINK ──────────────────────────────────────────────
+  ["Coffee","Tea"],["Coffee","Hot Chocolate"],["Butter","Margarine"],
+  ["Ketchup","Tomato Sauce"],["Jam","Marmalade"],["Biscuit","Cookie"],
+  ["Donut","Bagel"],["Pancake","Waffle"],["Croissant","Brioche"],
+  ["Pizza","Flatbread"],["Burger","Sandwich"],["Hot Dog","Sausage Roll"],
+  ["Chips","Crisps"],["Ice Cream","Gelato"],["Milkshake","Smoothie"],
+  ["Lemonade","Limeade"],["Beer","Cider"],["Wine","Champagne"],
+  ["Spaghetti","Noodles"],["Rice","Couscous"],["Tofu","Paneer"],
+  ["Sushi","Sashimi"],["Taco","Burrito"],["Crepe","Pancake"],
+  ["Muffin","Cupcake"],["Brownie","Fudge"],["Caramel","Toffee"],
+  // ─── ANIMALS ───────────────────────────────────────────────────
+  ["Cat","Dog"],["Lion","Tiger"],["Wolf","Fox"],["Dolphin","Shark"],
+  ["Crocodile","Alligator"],["Turtle","Tortoise"],["Frog","Toad"],
+  ["Butterfly","Moth"],["Bee","Wasp"],["Ant","Termite"],
+  ["Crow","Raven"],["Eagle","Hawk"],["Penguin","Puffin"],
+  ["Seal","Sea Lion"],["Llama","Alpaca"],["Donkey","Mule"],
+  ["Rabbit","Hare"],["Mouse","Rat"],["Squirrel","Hamster"],
+  ["Leopard","Cheetah"],["Camel","Dromedary"],["Gorilla","Chimpanzee"],
+  // ─── EVERYDAY OBJECTS ──────────────────────────────────────────
+  ["Sofa","Armchair"],["Blanket","Duvet"],["Pillow","Cushion"],
+  ["Mirror","Window"],["Curtain","Blind"],["Lamp","Candle"],
+  ["Key","Lock"],["Bag","Backpack"],["Wallet","Purse"],
+  ["Watch","Clock"],["Ring","Bracelet"],["Necklace","Chain"],
+  ["Pen","Pencil"],["Notebook","Diary"],["Book","Magazine"],
+  ["Fork","Chopsticks"],["Cup","Mug"],["Plate","Bowl"],
+  ["Kettle","Teapot"],["Fridge","Freezer"],["Oven","Microwave"],
+  ["Brush","Comb"],["Soap","Shower Gel"],["Toothbrush","Toothpaste"],
+  ["Umbrella","Raincoat"],["Sunglasses","Goggles"],["Hat","Cap"],
+  ["Gloves","Mittens"],["Boots","Wellies"],["Sneakers","Trainers"],
+  // ─── PLACES ────────────────────────────────────────────────────
+  ["Beach","Lake"],["Forest","Jungle"],["Mountain","Hill"],
+  ["River","Canal"],["Desert","Savanna"],["Cave","Tunnel"],
+  ["Castle","Palace"],["Church","Cathedral"],["Temple","Mosque"],
+  ["Hospital","Clinic"],["School","University"],["Library","Archive"],
+  ["Market","Bazaar"],["Restaurant","Café"],["Hotel","Hostel"],
+  ["Airport","Train Station"],["Harbour","Marina"],["Stadium","Arena"],
+  ["Museum","Gallery"],["Zoo","Aquarium"],["Park","Garden"],
+  // ─── SPORTS & GAMES ────────────────────────────────────────────
+  ["Football","Rugby"],["Tennis","Badminton"],["Swimming","Diving"],
+  ["Boxing","Wrestling"],["Cycling","Running"],["Skiing","Snowboarding"],
+  ["Chess","Checkers"],["Poker","Blackjack"],["Darts","Bowling"],
+  ["Golf","Croquet"],["Surfing","Windsurfing"],["Climbing","Hiking"],
+  // ─── TRANSPORT ─────────────────────────────────────────────────
+  ["Car","Van"],["Bus","Tram"],["Taxi","Uber"],["Bicycle","Scooter"],
+  ["Boat","Ship"],["Kayak","Canoe"],["Helicopter","Drone"],
+  ["Train","Metro"],["Motorbike","Quad Bike"],["Skateboard","Rollerblades"],
+  // ─── NATURE ────────────────────────────────────────────────────
+  ["Rain","Snow"],["Thunder","Lightning"],["Fog","Mist"],
+  ["Rainbow","Aurora"],["Volcano","Geyser"],["Earthquake","Tsunami"],
+  ["Tree","Bush"],["Flower","Weed"],["Mushroom","Truffle"],
+  ["Apple","Pear"],["Orange","Tangerine"],["Banana","Plantain"],
+  ["Grape","Cherry"],["Strawberry","Raspberry"],["Watermelon","Melon"],
+  // ─── PROFESSIONS ───────────────────────────────────────────────
+  ["Doctor","Nurse"],["Teacher","Professor"],["Chef","Baker"],
+  ["Pilot","Flight Attendant"],["Lawyer","Judge"],["Architect","Engineer"],
+  ["Actor","Comedian"],["Painter","Sculptor"],["Singer","Rapper"],
+  ["Firefighter","Police Officer"],["Farmer","Gardener"],["Plumber","Electrician"],
+  // ─── BODY & HEALTH ─────────────────────────────────────────────
+  ["Heart","Lung"],["Brain","Mind"],["Eye","Ear"],
+  ["Hand","Foot"],["Arm","Leg"],["Tooth","Nail"],
+  ["Cold","Flu"],["Headache","Migraine"],["Vaccine","Medication"],
+  // ─── SCHOOL / KNOWLEDGE ────────────────────────────────────────
+  ["Map","Globe"],["Ruler","Compass"],["Calculator","Abacus"],
+  ["History","Geography"],["Math","Physics"],["Art","Design"],
+  ["Test","Exam"],["Grade","Mark"],["Homework","Project"],
+  // ─── MISC ──────────────────────────────────────────────────────
+  ["Dream","Nightmare"],["Day","Night"],["Sun","Moon"],
+  ["Fire","Flame"],["Water","Ice"],["Shadow","Reflection"],
+  ["Gift","Surprise"],["Party","Gathering"],["Holiday","Vacation"],
+  ["Music","Noise"],["Robot","Android"],["Ghost","Spirit"],
+  ["Magic","Illusion"],["Detective","Spy"],["Pirate","Viking"],
+];
 let players = JSON.parse(localStorage.getItem('uc_players') || '["","",""]');
 let roles={}, civilianWord='', undercoverWord='', undercoverPlayers=[];
 let eliminated=[], round=1, pendingElim=null;
@@ -1025,7 +1103,7 @@ function startGame(){
   err.textContent=''; players=names;
   localStorage.setItem('uc_players',JSON.stringify(players));
   showPhase('phase-loading');
-  const list=gameMode==='anime'?ANIME_PAIRS:gameMode==='lol'?LOL_PAIRS:gameMode==='marvel'?MARVEL_PAIRS:PAIRS;
+  const list=gameMode==='anime'?ANIME_PAIRS:gameMode==='lol'?LOL_PAIRS:gameMode==='marvel'?MARVEL_PAIRS:gameMode==='classic'?CLASSIC_PAIRS:PAIRS;
   const pair=list[Math.floor(Math.random()*list.length)];
   if(Math.random()<0.5){civilianWord=pair[0];undercoverWord=pair[1];}
   else{civilianWord=pair[1];undercoverWord=pair[0];}
@@ -1079,7 +1157,7 @@ function toggleReveal(name,btn){
   }
 }
 function buildRevealCards(){
-  const hints={anime:'These two anime share similarities — but are different. Pay attention to clues!',lol:'These two champions share similarities — but are different. Pay attention to clues!',marvel:'These two heroes/villains are connected — but different. Pay attention to clues!'};
+  const hints={anime:'These two anime share similarities — but are different. Pay attention to clues!',lol:'These two champions share similarities — but are different. Pay attention to clues!',marvel:'These two heroes/villains are connected — but different. Pay attention to clues!',classic:'These two things are similar — but different. Pay attention to clues!'};
   document.getElementById('pair-hint').textContent=hints[gameMode]||'These two characters are connected — but different. Pay attention to clues!';
   const container=document.getElementById('reveal-cards'); container.innerHTML='';
   players.forEach(name=>{
@@ -1248,7 +1326,7 @@ function mpSetMode(mode){
   mpSend({type:'set_mode',mode});
 }
 function mpStartGame(){
-  const list=mpMode==='anime'?ANIME_PAIRS:mpMode==='lol'?LOL_PAIRS:mpMode==='marvel'?MARVEL_PAIRS:PAIRS;
+  const list=mpMode==='anime'?ANIME_PAIRS:mpMode==='lol'?LOL_PAIRS:mpMode==='marvel'?MARVEL_PAIRS:mpMode==='classic'?CLASSIC_PAIRS:PAIRS;
   mpSend({type:'start_game',pairs:list});
 }
 function mpReady(){mpSend({type:'ready'});}
@@ -1335,7 +1413,7 @@ function showMpWordScreen(){
   card.querySelector('.wc-word').textContent=mpWord;
   card.querySelector('#mp-word-sub').textContent='';
   card.classList.remove('hidden-word');
-  const labels={anime:'Your anime title',lol:'Your champion',marvel:'Your character'};
+  const labels={anime:'Your anime title',lol:'Your champion',marvel:'Your character',classic:'Your word'};
   const lbl=document.getElementById('wc-label-text');
   if(lbl) lbl.textContent=labels[mpMode]||'Your character / anime';
   const btn=document.getElementById('mp-ready-btn');
