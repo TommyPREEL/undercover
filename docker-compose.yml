@@ -2,9 +2,7 @@ services:
   undercover:
     image: ${IMAGE:-ghcr.io/tommypreel/undercover:latest}
     ports:
-      - "3000:80"
-    environment:
-      - PORT=3000
+      - "3500:80"
     restart: always
     networks:
       - web
