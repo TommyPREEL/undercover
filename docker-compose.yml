@@ -1,5 +1,6 @@
 services:
   undercover:
+    container_name: undercover
     image: ${IMAGE:-ghcr.io/tommypreel/undercover:latest}
     ports:
       - "3500:80"
