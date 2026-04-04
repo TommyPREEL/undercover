@@ -9,7 +9,7 @@ COPY sw.js .
 COPY icon-192.svg .
 COPY icon-512.svg .
 
-EXPOSE 3000
+EXPOSE 80
 
 CMD ["node", "undercover-server.js"]
 
