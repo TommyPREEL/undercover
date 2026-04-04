@@ -90,6 +90,49 @@ function broadcast(room, data, exceptSocket = null) {
   }
 }
 
+function doElimination(room, targetName) {
+  room.eliminated.push(targetName);
+  room.elimVotes = {};
+  const spyNames = room.spyIds.map(id => room.players[id]?.name).filter(Boolean);
+  const activePlayers = Object.values(room.players)
+    .map(p => p.name)
+    .filter(n => !room.eliminated.includes(n));
+  const activeSpyCount = spyNames.filter(n => !room.eliminated.includes(n)).length;
+  const allSpiesCaught = activeSpyCount === 0;
+  const spyWins = !allSpiesCaught && activeSpyCount * 2 >= activePlayers.length;
+  if (allSpiesCaught || spyWins) {
+    broadcast(room, {
+      type: 'game_over',
+      civWin: allSpiesCaught,
+      spyNames,
+      civilianWord: room.civilianWord,
+      undercoverWord: room.undercoverWord,
+      eliminated: targetName,
+      roles: Object.fromEntries(
+        Object.entries(room.players).map(([id, p]) => [p.name, room.spyIds.includes(id) ? 'spy' : 'civilian'])
+      ),
+    });
+    room.phase = 'result';
+  } else {
+    room.round++;
+    room.speakIndex = 0;
+    room.softVotes = {};
+    const activeIds = Object.entries(room.players)
+      .filter(([,p]) => !room.eliminated.includes(p.name))
+      .map(([id]) => id)
+      .sort(() => Math.random() - 0.5);
+    room.speakOrder = activeIds.map(id => room.players[id].name);
+    broadcast(room, {
+      type: 'phase_play',
+      speakOrder: room.speakOrder,
+      speakIndex: 0,
+      round: room.round,
+      eliminated: room.eliminated,
+      eliminatedPlayer: targetName,
+    });
+  }
+}
+
 function roomState(room) {
   return {
     type: 'room_state',
@@ -252,60 +295,71 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
-    case 'next_speaker': {
-      if (!room || room.host !== playerId) return;
-      const lastSpeaker = room.speakIndex < room.speakOrder.length ? room.speakOrder[room.speakIndex] : null;
+    case 'next_speaker': // kept for compat but now speaker submits
+    case 'submit_clue': {
+      if (!room) return;
+      // Only the current speaker can submit their clue
+      const currentSpeaker = room.speakIndex < room.speakOrder.length ? room.speakOrder[room.speakIndex] : null;
+      if (playerName !== currentSpeaker && room.host !== playerId) return;
       const clue = typeof msg.clue === 'string' ? msg.clue.trim().slice(0, 60) : '';
+      if (!clue) return; // must type something
       room.speakIndex++;
-      broadcast(room, { type: 'speaker_update', speakIndex: room.speakIndex, lastPlayer: lastSpeaker, lastClue: clue });
+      room.elimVotes = {}; // reset votes for next vote phase
+      broadcast(room, { type: 'speaker_update', speakIndex: room.speakIndex, lastPlayer: currentSpeaker, lastClue: clue });
+      break;
+    }
+
+    case 'cast_vote': {
+      if (!room) return;
+      const cvTarget = String(msg.target || '').trim();
+      if (!cvTarget) return;
+      // Only alive players can vote, and can't vote for themselves
+      const isAlive = !room.eliminated.includes(playerName);
+      if (!isAlive) return;
+      room.elimVotes = room.elimVotes || {};
+      room.elimVotes[playerId] = cvTarget;
+      // Build named vote map for broadcast
+      const namedElimVotes = {};
+      for (const [pid, tgt] of Object.entries(room.elimVotes)) {
+        if (room.players[pid]) namedElimVotes[room.players[pid].name] = tgt;
+      }
+      const alivePlayers = Object.values(room.players)
+        .filter(p => !room.eliminated.includes(p.name) && p.socket && !p.socket.destroyed);
+      const allVoted = alivePlayers.every(p => {
+        const pid = Object.entries(room.players).find(([,v]) => v === p)?.[0];
+        return pid && room.elimVotes[pid];
+      });
+      broadcast(room, { type: 'elim_vote_update', votes: namedElimVotes, total: alivePlayers.length });
+      if (allVoted) {
+        // Tally votes
+        const tally = {};
+        for (const tgt of Object.values(room.elimVotes)) {
+          tally[tgt] = (tally[tgt] || 0) + 1;
+        }
+        const maxVotes = Math.max(...Object.values(tally));
+        const topNames = Object.keys(tally).filter(n => tally[n] === maxVotes);
+        // If tie, host decides (send tie_break message)
+        if (topNames.length > 1) {
+          broadcast(room, { type: 'tie_break', tied: topNames, tally });
+        } else {
+          doElimination(room, topNames[0]);
+        }
+      }
+      break;
+    }
+
+    case 'resolve_tie': {
+      if (!room || room.host !== playerId) return;
+      const tieName = String(msg.target || '').trim();
+      if (!tieName) return;
+      doElimination(room, tieName);
       break;
     }
 
     case 'vote_eliminate': {
+      // Legacy: host direct eliminate (kept as fallback)
       if (!room || room.host !== playerId) return;
-      const targetName = msg.target;
-      room.eliminated.push(targetName);
-
-      // Find spy names
-      const spyNames = room.spyIds.map(id => room.players[id]?.name).filter(Boolean);
-      const activePlayers = Object.values(room.players)
-        .map(p => p.name)
-        .filter(n => !room.eliminated.includes(n));
-      const activeSpyCount = spyNames.filter(n => !room.eliminated.includes(n)).length;
-
-      const allSpiesCaught = activeSpyCount === 0;
-      const spyWins = !allSpiesCaught && activeSpyCount * 2 >= activePlayers.length;
-
-      if (allSpiesCaught || spyWins) {
-        broadcast(room, {
-          type: 'game_over',
-          civWin: allSpiesCaught,
-          spyNames,
-          civilianWord: room.civilianWord,
-          undercoverWord: room.undercoverWord,
-          roles: Object.fromEntries(
-            Object.entries(room.players).map(([id, p]) => [p.name, room.spyIds.includes(id) ? 'spy' : 'civilian'])
-          ),
-        });
-        room.phase = 'result';
-      } else {
-        room.round++;
-        room.speakIndex = 0;
-        room.softVotes = {};
-        // Reshuffle speak order excluding eliminated
-        const activeIds = Object.entries(room.players)
-          .filter(([,p]) => !room.eliminated.includes(p.name))
-          .map(([id]) => id)
-          .sort(() => Math.random() - 0.5);
-        room.speakOrder = activeIds.map(id => room.players[id].name);
-        broadcast(room, {
-          type: 'phase_play',
-          speakOrder: room.speakOrder,
-          speakIndex: 0,
-          round: room.round,
-          eliminated: room.eliminated,
-        });
-      }
+      doElimination(room, msg.target);
       break;
     }
 

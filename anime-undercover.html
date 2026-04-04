@@ -1126,7 +1126,7 @@ let gameContext='local'; // 'local' or 'mp'
 let ws=null, myName='', myRoom='', isHost=false, mpMode='characters';
 let mpPlayers=[], mpSpeakOrder=[], mpSpeakIndex=0, mpRound=1, mpEliminated=[];
 let mpWord='', mpWordRevealed=false, revealTimer=null;
-let mpClueLog=[], mpSoftVotes={};
+let mpClueLog=[], mpSoftVotes={}, mpElimVotes={};
 
 // ─── UTILS ────────────────────────────────────────────────────────────────
 function showPhase(id){
@@ -1449,7 +1449,6 @@ function mpStartGame(){
 function mpReady(){mpSend({type:'ready'});}
 function mpLeaveRoom(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpNewGame(){mpSend({type:'new_game'});}
-function mpNextSpeaker(){const input=document.getElementById('mp-clue-input');const clue=input?input.value.trim():'';mpSend({type:'next_speaker',clue});}
 function mpVoteEliminate(name){mpSend({type:'vote_eliminate',target:name});}
 
 function handleServerMsg(msg){
@@ -1490,13 +1489,31 @@ function handleServerMsg(msg){
       showMpWordScreen(); break;
     case 'phase_play':
       mpSpeakOrder=msg.speakOrder; mpSpeakIndex=msg.speakIndex;
-      mpRound=msg.round; mpEliminated=msg.eliminated; mpSoftVotes={};
+      mpRound=msg.round; mpEliminated=msg.eliminated; mpSoftVotes={}; mpElimVotes={};
+      if(msg.eliminatedPlayer) notify(msg.eliminatedPlayer+' was eliminated!');
       renderMpPlay(); showPhase('phase-mp-play'); break;
     case 'speaker_update':
       if(msg.lastPlayer&&msg.lastClue)mpClueLog.push({player:msg.lastPlayer,clue:msg.lastClue});
       mpSpeakIndex=msg.speakIndex; renderMpSpeaker(); renderMpClueLog(); break;
     case 'game_over':
+      if(msg.eliminated) notify(msg.eliminated+' was eliminated!');
       showMpResult(msg); break;
+    case 'elim_vote_update':
+      mpElimVotes=msg.votes||{};
+      if(document.getElementById('phase-mp-play').classList.contains('active')&&mpSpeakIndex>=mpSpeakOrder.length){
+        renderMpElimVote();
+      }
+      break;
+    case 'tie_break':
+      if(isHost){
+        const tied=msg.tied||[];
+        const tally=msg.tally||{};
+        const box=document.getElementById('mp-vote-grid');
+        box.innerHTML='<div class="straw-poll"><div class="straw-title">\u26a0\ufe0f Tie! Host decides</div><div style="font-size:13px;color:var(--muted);margin-bottom:12px;">'+tied.map(n=>`<b>${n}</b> (${tally[n]} votes)`).join(' vs ')+'</div>'+tied.map(n=>`<button class="vote-btn" onclick="mpResolveTie('${n}')" style="margin-bottom:6px;">${n}</button>`).join('')+'</div>';
+      }else{
+        document.getElementById('mp-vote-grid').innerHTML='<div class="waiting-msg">Tie vote \u2014 host is deciding\u2026</div>';
+      }
+      break;
     case 'vote_update':
       mpSoftVotes=msg.votes||{};
       if(document.getElementById('phase-mp-play').classList.contains('active')&&document.getElementById('mp-vote-prompt').style.display!=='none'){
@@ -1602,26 +1619,67 @@ function renderMpSpeaker(){
       if(i===mpSpeakIndex)return`<span style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:1px solid var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;">${short}</span>`;
       return`<span style="width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">${short}</span>`;
     }).join('');
-    const youLabel=isMe?`<div style="font-size:13px;color:var(--cyan);margin-bottom:10px;">🎤 It's your turn to give a clue!</div>`:'';
 
-    const nextBtn=isHost?`<button onclick="mpNextSpeaker()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;">NEXT →</button>`:'<div class="waiting-msg">Waiting for host to advance...</div>';
-    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${mpSpeakIndex+1}/${mpSpeakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div>${youLabel}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">${progress}</div>${nextBtn}</div>`;
+    let actionArea='';
+    if(isMe){
+      actionArea=`<div style="font-size:13px;color:var(--cyan);margin-bottom:10px;">🎤 It's your turn! Type your clue and press SUBMIT.</div>`+
+        `<div class="clue-input-row"><input type="text" id="mp-clue-input" placeholder="Enter your clue word\u2026" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')mpSubmitClue()"/></div>`+
+        `<button onclick="mpSubmitClue()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;">SUBMIT \u2713</button>`;
+    }else{
+      actionArea=`<div class="waiting-msg">Waiting for <b>${name}</b> to submit their clue\u2026</div>`;
+    }
+    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${mpSpeakIndex+1}/${mpSpeakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${progress}</div>${actionArea}</div>`;
     voteGrid.innerHTML=''; votePrompt.style.display='none';
   }else{
     box.innerHTML='';
-    if(isHost){
-      votePrompt.style.display='block';
-      const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
-      voteGrid.innerHTML='';
-      active.forEach(name=>{
-        const btn=document.createElement('button'); btn.className='vote-btn'; btn.textContent=name;
-        btn.onclick=()=>openMpModal(name); voteGrid.appendChild(btn);
-      });
-    }else{
-      votePrompt.innerHTML='<b>Everyone spoke</b> — waiting for host to vote...';
-      votePrompt.style.display='block';
-    }
+    votePrompt.innerHTML='<b>Everyone spoke</b> \u2014 vote to eliminate the spy!';
+    votePrompt.style.display='block';
+    renderMpElimVote();
   }
+}
+
+function renderMpElimVote(){
+  const voteGrid=document.getElementById('mp-vote-grid');
+  voteGrid.innerHTML='';
+  const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
+  const votedCount=Object.keys(mpElimVotes).length;
+  const el=document.createElement('div'); el.className='straw-poll';
+  el.innerHTML=`<div class="straw-title">\uD83D\uDDF3\uFE0F Vote to eliminate <span class="straw-count">${votedCount}/${active.length}</span></div>`;
+  active.forEach(name=>{
+    const voters=Object.entries(mpElimVotes).filter(([,t])=>t===name).map(([v])=>v);
+    const count=voters.length;
+    const pct=active.length>0?Math.round(count/active.length*100):0;
+    const isMyVote=mpElimVotes[myName]===name;
+    const row=document.createElement('div'); row.className='straw-row'+(isMyVote?' my-vote':'');
+    row.innerHTML=`<span class="straw-name">${name}${name===myName?' (you)':''}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span>`;
+    if(voters.length>0){const sp=document.createElement('div');sp.className='straw-voters';sp.textContent=voters.join(', ');row.appendChild(sp);}
+    row.onclick=()=>{if(name!==myName)mpCastElimVote(name);};
+    if(name===myName)row.style.opacity='0.5';
+    el.appendChild(row);
+  });
+  voteGrid.appendChild(el);
+  if(mpElimVotes[myName]){
+    const msg=document.createElement('div'); msg.className='waiting-msg'; msg.style.marginTop='8px';
+    msg.textContent=`You voted for ${mpElimVotes[myName]}. Waiting for others\u2026`;
+    voteGrid.appendChild(msg);
+  }
+}
+
+function mpCastElimVote(target){
+  mpElimVotes[myName]=target;
+  mpSend({type:'cast_vote',target});
+  renderMpElimVote();
+}
+
+function mpSubmitClue(){
+  const input=document.getElementById('mp-clue-input');
+  const clue=input?input.value.trim():'';
+  if(!clue){input?.focus();return;}
+  mpSend({type:'submit_clue',clue});
+}
+
+function mpResolveTie(name){
+  mpSend({type:'resolve_tie',target:name});
 }
 
 function openMpModal(name){
