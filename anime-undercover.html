@@ -154,7 +154,8 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 .modal-cancel:hover{color:var(--text);}
 .modal-confirm{flex:1;padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:1px;cursor:pointer;}
 .modal-confirm:hover{background:#f04060;}
-
+/* MODE SCROLL */
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
 /* ── MULTIPLAYER UI ─────────────────────────────────── */
 .mp-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
 .mp-mode-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 14px;cursor:pointer;text-align:center;transition:all 0.15s;}
@@ -189,13 +190,14 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 .emoji-float .ef-emoji{font-size:36px;line-height:1;}
 .emoji-float .ef-name{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;letter-spacing:0.04em;}
 @keyframes emojiRise{0%{opacity:1;transform:translateY(0) scale(1);}60%{opacity:1;transform:translateY(-120px) scale(1.15);}100%{opacity:0;transform:translateY(-200px) scale(0.8);}}
+/* pair count badge */
+.mode-count{font-size:10px;color:var(--accent);font-weight:700;letter-spacing:0.06em;margin-top:2px;}
 </style>
 </head>
 <body>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
-<!-- EMOJI BAR -->
 <div class="emoji-bar" id="emoji-bar">
   <button onclick="sendEmoji('😂')">😂</button>
   <button onclick="sendEmoji('🔥')">🔥</button>
@@ -209,7 +211,6 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <button onclick="sendEmoji('🤡')">🤡</button>
 </div>
 
-<!-- MODAL -->
 <div class="modal-backdrop" id="modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">Eliminate?</div>
@@ -223,7 +224,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <div class="container">
 
-<!-- ── LANDING: pick local or multiplayer ───────────────────── -->
+<!-- ── LANDING ───────────────────────────────────────────────────── -->
 <div class="phase active" id="phase-landing">
   <div class="logo">UNDER<span>COVER</span></div>
   <div class="tagline">Anime Edition — Find the spy</div>
@@ -242,7 +243,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
 </div>
 
-<!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
+<!-- ── LOCAL SETUP ───────────────────────────────────────────────── -->
 <div class="phase" id="phase-setup">
   <div class="logo">UNDER<span>COVER</span></div>
   <div class="tagline">Local — Pass the phone</div>
@@ -250,19 +251,25 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="label">Mode</div>
   <div class="mode-row" id="mode-row">
     <button class="mode-btn active" id="mode-btn-characters" onclick="setMode('characters')">
-      <span class="mode-icon">⚔️</span><span class="mode-label">Characters</span><span class="mode-sub">Naruto vs Minato</span>
+      <span class="mode-icon">⚔️</span><span class="mode-label">Characters</span><span class="mode-sub">Naruto vs Minato</span><span class="mode-count" id="cnt-characters"></span>
     </button>
     <button class="mode-btn" id="mode-btn-anime" onclick="setMode('anime')">
-      <span class="mode-icon">📺</span><span class="mode-label">Anime Titles</span><span class="mode-sub">One Piece vs Naruto</span>
+      <span class="mode-icon">📺</span><span class="mode-label">Anime Titles</span><span class="mode-sub">One Piece vs Naruto</span><span class="mode-count" id="cnt-anime"></span>
+    </button>
+    <button class="mode-btn" id="mode-btn-pokemon" onclick="setMode('pokemon')">
+      <span class="mode-icon">⚡</span><span class="mode-label">Pokémon</span><span class="mode-sub">Pikachu vs Raichu</span><span class="mode-count" id="cnt-pokemon"></span>
+    </button>
+    <button class="mode-btn" id="mode-btn-videogames" onclick="setMode('videogames')">
+      <span class="mode-icon">🎮</span><span class="mode-label">Video Games</span><span class="mode-sub">Mario vs Luigi</span><span class="mode-count" id="cnt-videogames"></span>
     </button>
     <button class="mode-btn" id="mode-btn-lol" onclick="setMode('lol')">
-      <span class="mode-icon">🏆</span><span class="mode-label">League of Legends</span><span class="mode-sub">Zed vs Talon</span>
+      <span class="mode-icon">🏆</span><span class="mode-label">League of Legends</span><span class="mode-sub">Zed vs Talon</span><span class="mode-count" id="cnt-lol"></span>
     </button>
     <button class="mode-btn" id="mode-btn-marvel" onclick="setMode('marvel')">
-      <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span>
+      <span class="mode-icon">🦸</span><span class="mode-label">Marvel</span><span class="mode-sub">Iron Man vs War Machine</span><span class="mode-count" id="cnt-marvel"></span>
     </button>
     <button class="mode-btn" id="mode-btn-classic" onclick="setMode('classic')">
-      <span class="mode-icon">🎯</span><span class="mode-label">Classic</span><span class="mode-sub">Coffee vs Tea</span>
+      <span class="mode-icon">🎯</span><span class="mode-label">Classic</span><span class="mode-sub">Coffee vs Tea</span><span class="mode-count" id="cnt-classic"></span>
     </button>
   </div>
   <div class="label">Players (3–5)</div>
@@ -276,7 +283,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="error-msg" id="setup-error"></div>
 </div>
 
-<!-- ── MULTIPLAYER LOBBY ENTRY ───────────────────────────────── -->
+<!-- ── MULTIPLAYER LOBBY ENTRY ───────────────────────────────────── -->
 <div class="phase" id="phase-mp-entry">
   <div class="logo">UNDER<span>COVER</span></div>
   <div class="tagline">Online multiplayer</div>
@@ -324,7 +331,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="error-msg" id="mp-join-error"></div>
 </div>
 
-<!-- ── MULTIPLAYER: LOBBY ────────────────────────────────────── -->
+<!-- ── MULTIPLAYER: LOBBY ────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-lobby">
   <div class="section-title">ROOM <span id="lobby-code" style="color:var(--accent)"></span></div>
   <div class="section-sub" id="lobby-sub">Waiting for players...</div>
@@ -332,7 +339,6 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <button class="btn-ghost" onclick="copyShareLink()" style="margin-bottom:1.5rem;">🔗 Copy invite link</button>
   <div class="label">Players (<span id="lobby-count">0</span>)</div>
   <div id="lobby-player-list" class="player-lobby-list"></div>
-  <!-- host only controls -->
   <div id="host-controls" style="display:none;">
     <div class="label">Mode</div>
     <div class="mode-row" style="margin-bottom:1.5rem;">
@@ -341,6 +347,12 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       </button>
       <button class="mode-btn" id="mp-mode-btn-anime" onclick="mpSetMode('anime')">
         <span class="mode-icon">📺</span><span class="mode-label">Anime Titles</span><span class="mode-sub">One Piece vs Naruto</span>
+      </button>
+      <button class="mode-btn" id="mp-mode-btn-pokemon" onclick="mpSetMode('pokemon')">
+        <span class="mode-icon">⚡</span><span class="mode-label">Pokémon</span><span class="mode-sub">Pikachu vs Raichu</span>
+      </button>
+      <button class="mode-btn" id="mp-mode-btn-videogames" onclick="mpSetMode('videogames')">
+        <span class="mode-icon">🎮</span><span class="mode-label">Video Games</span><span class="mode-sub">Mario vs Luigi</span>
       </button>
       <button class="mode-btn" id="mp-mode-btn-lol" onclick="mpSetMode('lol')">
         <span class="mode-icon">🏆</span><span class="mode-label">League of Legends</span><span class="mode-sub">Zed vs Talon</span>
@@ -358,7 +370,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <button class="btn-ghost" onclick="mpLeaveRoom()" style="margin-top:10px;">← Leave room</button>
 </div>
 
-<!-- ── MULTIPLAYER: MY WORD ──────────────────────────────────── -->
+<!-- ── MULTIPLAYER: MY WORD ──────────────────────────────────────── -->
 <div class="phase" id="phase-mp-word">
   <div class="section-title">YOUR WORD</div>
   <div class="section-sub">Each player is on their own device</div>
@@ -373,12 +385,10 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div id="mp-ready-list" style="margin-top:1rem;"></div>
 </div>
 
-<!-- ── MULTIPLAYER: PLAY ─────────────────────────────────────── -->
+<!-- ── MULTIPLAYER: PLAY ─────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-play">
   <div class="play-header">
-    <div>
-      <div class="round-display">ROUND <span id="mp-round-num">1</span></div>
-    </div>
+    <div><div class="round-display">ROUND <span id="mp-round-num">1</span></div></div>
     <div class="alive-count">
       <div class="alive-num" id="mp-alive-count">0</div>
       <div class="alive-label">alive</div>
@@ -392,19 +402,19 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="error-msg" id="mp-vote-error"></div>
 </div>
 
-<!-- ── RESULT (shared local+mp) ─────────────────────────────── -->
+<!-- ── RESULT ─────────────────────────────────────────────────────── -->
 <div class="phase" id="phase-result">
   <div id="result-hero"></div>
-  <div class="label">Character reveal</div>
+  <div class="label">Reveal</div>
   <div class="reveal-grid" id="reveal-grid"></div>
   <button class="btn-primary" id="result-play-again" onclick="resetGame()">PLAY AGAIN</button>
 </div>
 
-<!-- ── LOCAL PHASES (reveal / play) ─────────────────────────── -->
+<!-- ── LOCAL PHASES ───────────────────────────────────────────────── -->
 <div class="phase" id="phase-loading">
-  <div class="loader-title">SUMMONING CHARACTERS</div>
+  <div class="loader-title" id="loader-title">SUMMONING CHARACTERS</div>
   <div class="spinner"></div>
-  <div class="loader-sub">Consulting the anime archives...</div>
+  <div class="loader-sub" id="loader-sub">Consulting the archives...</div>
 </div>
 <div class="phase" id="phase-reveal">
   <div class="section-title">PASS THE PHONE</div>
@@ -433,638 +443,616 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <button class="btn-secondary" onclick="resetGame()">✕ Cancel game</button>
 </div>
 
-</div><!-- /container -->
+</div>
 <script>
+// ════════════════════════════════════════════════════════════════
+// DATA — ANIME CHARACTER PAIRS (massive expansion)
+// ════════════════════════════════════════════════════════════════
 const PAIRS = [
-  // ─── SAME FRANCHISE ───────────────────────────────────────────────
-  // Naruto
+  // ── NARUTO ─────────────────────────────────────────────────────
   ["Naruto","Minato"],["Naruto","Boruto"],["Sasuke","Itachi"],["Sakura","Tsunade"],
   ["Kakashi","Obito"],["Hinata","Neji"],["Gaara","Kankuro"],["Jiraiya","Orochimaru"],
   ["Rock Lee","Might Guy"],["Shikamaru","Asuma"],["Madara","Hashirama"],["Pain","Konan"],
-  // Dragon Ball
+  ["Shikamaru","Shikadai"],["Choji","Karui"],["Ino","Sakura"],["Temari","Gaara"],
+  ["Sasori","Deidara"],["Hidan","Kakuzu"],["Kisame","Itachi"],["Nagato","Yahiko"],
+  ["Boruto","Kawaki"],["Sarada","Sakura"],["Mitsuki","Orochimaru"],
+  // ── DRAGON BALL ────────────────────────────────────────────────
   ["Goku","Vegeta"],["Goku","Gohan"],["Vegeta","Trunks"],["Piccolo","Kami"],
   ["Frieza","Cooler"],["Cell","Frieza"],["Android 17","Android 18"],["Beerus","Champa"],
   ["Krillin","Yamcha"],["Gohan","Goten"],["Raditz","Nappa"],["Broly","Paragus"],
-  // One Piece
+  ["Goku Black","Zamasu"],["Jiren","Toppo"],["Hit","Dyspo"],["Caulifla","Kale"],
+  ["Pan","Bulla"],["Whis","Vados"],["Zeno","Grand Priest"],
+  // ── ONE PIECE ──────────────────────────────────────────────────
   ["Luffy","Ace"],["Luffy","Sabo"],["Zoro","Mihawk"],["Nami","Robin"],
   ["Shanks","Buggy"],["Whitebeard","Blackbeard"],["Law","Corazon"],["Kaido","Big Mom"],
   ["Usopp","Yasopp"],["Rayleigh","Roger"],["Franky","Tom"],["Doflamingo","Crocodile"],
-  // Bleach
+  ["Katakuri","Luffy"],["Oden","Whitebeard"],["Yamato","Ace"],["Hancock","Robin"],
+  ["Sanji","Zeff"],["Chopper","Hiluluk"],["Brook","Laboon"],["Jinbe","Fisher Tiger"],
+  ["Eustass Kid","Killer"],["Trafalgar Law","Corazon"],["Marco","Whitebeard"],
+  ["Smoker","Tashigi"],["Coby","Helmeppo"],["Carrot","Wanda"],
+  // ── BLEACH ─────────────────────────────────────────────────────
   ["Ichigo","Isshin"],["Rukia","Byakuya"],["Aizen","Urahara"],["Toshiro","Rangiku"],
   ["Kenpachi","Yachiru"],["Yoruichi","Soi Fon"],["Grimmjow","Ulquiorra"],["Gin","Aizen"],
-  // Attack on Titan
+  ["Renji","Byakuya"],["Orihime","Tatsuki"],["Uryu","Ryuken"],["Chad","Sado"],
+  ["Nnoitra","Grimmjow"],["Starrk","Lilynette"],["Barragan","Zommari"],
+  ["Mayuri","Nemu"],["Unohana","Isane"],["Komamura","Sajin"],["Shunsui","Jushiro"],
+  ["Kensei","Mashiro"],["Rose","Love"],["Shinji","Hiyori"],["Hollow Ichigo","Zangetsu"],
+  // ── ATTACK ON TITAN ────────────────────────────────────────────
   ["Eren","Zeke"],["Mikasa","Annie"],["Levi","Erwin"],["Reiner","Bertholdt"],
-  ["Historia","Ymir"],["Connie","Sasha"],["Falco","Gabi"],["Thorfinn","Askeladd"],
-  // My Hero Academia
+  ["Historia","Ymir"],["Connie","Sasha"],["Falco","Gabi"],
+  ["Jean","Marco"],["Armin","Bertholdt"],["Hange","Levi"],
+  ["Porco","Marcel"],["Colt","Zeke"],["Floch","Jean"],["Pieck","Zeke"],
+  ["Yelena","Zeke"],["Willy Tybur","Reiner"],
+  // ── MY HERO ACADEMIA ───────────────────────────────────────────
   ["Deku","Bakugo"],["Deku","All Might"],["Todoroki","Endeavor"],["All Might","Gran Torino"],
   ["Shigaraki","All For One"],["Dabi","Endeavor"],["Mirio","Amajiki"],["Toga","Twice"],
-  // Demon Slayer
+  ["Hawks","Best Jeanist"],["Overhaul","Eri"],["Aizawa","Yamada"],
+  ["Uraraka","Deku"],["Iida","Tensei"],["Tokoyami","Dark Shadow"],
+  ["Mt. Lady","Kamui Woods"],["Midnight","Cementoss"],["Thirteen","All Might"],
+  ["Spinner","Shigaraki"],["Compress","Dabi"],["Muscular","Moonfish"],
+  ["La Brava","Gentle Criminal"],["Nighteye","All Might"],
+  // ── DEMON SLAYER ───────────────────────────────────────────────
   ["Tanjiro","Zenitsu"],["Tanjiro","Nezuko"],["Rengoku","Akaza"],["Shinobu","Kanae"],
   ["Zenitsu","Kaigaku"],["Yoriichi","Michikatsu"],["Akaza","Douma"],["Muzan","Kokushibo"],
-  // Fullmetal Alchemist
+  ["Inosuke","Aoi"],["Tengen","Makio"],["Mitsuri","Obanai"],["Gyomei","Sanemi"],
+  ["Doma","Akaza"],["Hantengu","Gyokko"],["Enmu","Muzan"],["Yushiro","Tamayo"],
+  ["Genya","Sanemi"],["Kanao","Shinobu"],["Aoi","Kanao"],
+  // ── FULLMETAL ALCHEMIST ────────────────────────────────────────
   ["Edward","Alphonse"],["Roy Mustang","Riza Hawkeye"],["Greed","Envy"],["Hohenheim","Father"],
   ["Lust","Gluttony"],["Scar","Kimblee"],["Pride","Wrath"],["Olivier","Alex Armstrong"],
-  // Hunter x Hunter
+  ["Winry","Paninya"],["Maes Hughes","Roy Mustang"],["Ling Yao","Lan Fan"],
+  ["Izumi","Sig Curtis"],["Barry the Chopper","Martel"],["Sloth","Pride"],
+  ["May Chang","Xiao-Mei"],
+  // ── HUNTER X HUNTER ───────────────────────────────────────────
   ["Gon","Killua"],["Killua","Illumi"],["Hisoka","Illumi"],["Meruem","Komugi"],
   ["Netero","Zeno"],["Chrollo","Silva"],["Kurapika","Leorio"],["Feitan","Phinks"],
-  // Jujutsu Kaisen
+  ["Knov","Morel"],["Knuckle","Shoot"],["Gon","Pitou"],["Killua","Alluka"],
+  ["Milluki","Killua"],["Kalluto","Illumi"],["Neferpitou","Shaiapouf"],
+  ["Palm","Knov"],["Biscuit","Gon"],["Wing","Zushi"],
+  // ── JUJUTSU KAISEN ────────────────────────────────────────────
   ["Itadori","Todo"],["Gojo","Geto"],["Megumi","Toji"],["Sukuna","Mahito"],
   ["Yuta","Rika"],["Nanami","Haibara"],["Choso","Kechizu"],["Kenjaku","Geto"],
-  // JoJo's Bizarre Adventure
+  ["Nobara","Maki"],["Panda","Toge"],["Mei Mei","Ui Ui"],["Naoya","Naobito"],
+  ["Jogo","Hanami"],["Dagon","Jogo"],["Hiromi","Nanami"],["Hakari","Kirara"],
+  ["Kashimo","Hakari"],["Uraume","Sukuna"],["Yorozu","Tsukumo"],
+  // ── JOJO'S BIZARRE ADVENTURE ──────────────────────────────────
   ["Jotaro","Dio"],["Joseph","Caesar"],["Giorno","Bruno"],["Josuke","Okuyasu"],
   ["Gyro","Johnny"],["Diavolo","Doppio"],["Pucci","Dio"],["Yoshikage","Rohan"],
-  // One Punch Man
+  ["Jonathan","Dio"],["Lisa Lisa","Suzi Q"],["Esidisi","Kars"],["Wamuu","Esidisi"],
+  ["Narancia","Fugo"],["Abbacchio","Bruno"],["Trish","Giorno"],["Mista","Giorno"],
+  ["Jolyne","Hermes"],["Anasui","Weather Report"],["Enrico Pucci","Dio"],
+  ["Johnny","Diego"],["Funny Valentine","Diego"],["Lucy Steel","Johnny"],
+  // ── ONE PUNCH MAN ─────────────────────────────────────────────
   ["Saitama","Genos"],["Garou","Bang"],["Tatsumaki","Fubuki"],["Boros","Saitama"],
-  // Haikyuu
+  ["Metal Bat","Atomic Samurai"],["Superalloy Darkshine","Puri-Puri Prisoner"],
+  ["King","Saitama"],["Amai Mask","Pig God"],["Child Emperor","Zombieman"],
+  ["Flashy Flash","Sonic"],["Orochi","Psykos"],
+  // ── HAIKYUU ───────────────────────────────────────────────────
   ["Hinata","Kageyama"],["Oikawa","Kageyama"],["Bokuto","Akaashi"],["Kuroo","Kenma"],
-  // Fairy Tail
+  ["Tsukishima","Yamaguchi"],["Nishinoya","Asahi"],["Tanaka","Ennoshita"],
+  ["Daichi","Suga"],["Iwaizumi","Oikawa"],["Ushijima","Tendou"],
+  ["Atsumu","Osamu"],["Suna","Atsumu"],["Kita","Aran"],["Sakusa","Atsumu"],
+  ["Konoha","Komi"],["Akaashi","Bokuto"],["Lev","Kenma"],
+  // ── FAIRY TAIL ────────────────────────────────────────────────
   ["Natsu","Gajeel"],["Natsu","Zeref"],["Gray","Lyon"],["Erza","Mirajane"],
   ["Laxus","Makarov"],["Jellal","Erza"],["Sting","Rogue"],
-  // Death Note
+  ["Wendy","Carla"],["Lucy","Aquarius"],["Elfman","Evergreen"],
+  ["Cobra","Midnight"],["Minerva","Erza"],["Mard Geer","Zeref"],
+  // ── DEATH NOTE ────────────────────────────────────────────────
   ["Light","L"],["L","Near"],["Near","Mello"],["Ryuk","Rem"],
-  // Misc same-franchise
-  ["Meliodas","Ban"],["Meliodas","Escanor"],["Rem","Ram"],["Emilia","Satella"],
-  ["Ainz","Demiurge"],["Rimuru","Milim"],["Mob","Reigen"],["Spike","Vicious"],
-  ["Gintoki","Hijikata"],["Okabe","Kurisu"],["Asta","Yuno"],["Yami","William"],
-  ["Naofumi","Motoyasu"],["Kirito","Asuna"],["Alice","Eugeo"],
-  ["Rei","Asuka"],["Shinji","Gendo"],["Kuroko","Kagami"],["Aomine","Kise"],
-
-  // ─── CROSS-ANIME: SIMILAR TRAITS ─────────────────────────────────
-  // Both ridiculously overpowered & bored by it
-  ["Saitama","Aizen"],
-  // Both bald, absurdly strong, comedic powerhouses
-  ["Saitama","Alex Armstrong"],
-  // Both silver-haired stoic prodigies with a tragic past
-  ["Kakashi","Gojo"],
-  // Both the #1 hero / symbol everyone looks up to, then falls
-  ["All Might","Whitebeard"],
-  // Both small blonde loud hotheads with huge power
-  ["Edward Elric","Naruto"],
-  // Both cold genius strategists who manipulate everyone
-  ["Aizen","Light Yagami"],
-  // Both calm genius tacticians with glasses
-  ["Shikamaru","L"],
-  // Both the quiet, serious black-haired rival to the main hero
-  ["Sasuke","Vegeta"],
-  // Both brooding anti-hero rivals obsessed with power
-  ["Sasuke","Hiei"],
-  // Both pink cheerful healers with superhuman strength when angry
-  ["Sakura","Misa Misa"],
-  // Both gentle giants with massive bodies and soft hearts
-  ["Whitebeard","Alex Armstrong"],
-  // Both tiny and underestimated but terrifyingly powerful
-  ["Edward Elric","Yoda"],
-  // Both silver-haired final bosses with god complexes
-  ["Aizen","Madara"],
-  // Both use intelligence as their only weapon, zero physical strength
-  ["L","Lelouch"],
-  // Both child prodigies burdened by destiny and prophecy
-  ["Lelouch","Light Yagami"],
-  // Both ruthless calculating masterminds who sacrifice others for a goal
-  ["Light Yagami","Lelouch"],
-  // Both use death to play god, calm and narcissistic
-  ["Light Yagami","Aizen"],
-  // Both loud, reckless, stubborn, eat a lot, never give up
-  ["Naruto","Luffy"],
-  // Both goofy, love food, protect friends, surprisingly deep
-  ["Luffy","Goku"],
-  // Both happy-go-lucky, insane strength, pure heart, low IQ
-  ["Goku","Luffy"],
-  // Both wear orange, stubborn, protect nakama, shout a lot
-  ["Naruto","Ichigo"],
-  // Both stoic swordsmen, greatest in their world, few words
-  ["Zoro","Guts"],
-  // Both stoic silver-haired bladesmen loyal to their captain
-  ["Zoro","Levi"],
-  // Both short-tempered, explosive, enormously proud
-  ["Bakugo","Vegeta"],
-  // Both explosive anger, blond hair, fierce rivalry with MC
-  ["Bakugo","Edward Elric"],
-  // Both cold-blooded assassins raised from childhood to kill
-  ["Killua","Zoldyck"],
-  // Both child assassins turned good, white hair, cold exterior
-  ["Killua","Gojo (young)"],
-  // Both carefree genius teachers who hide terrifying power
-  ["Kakashi","Aizawa"],
-  // Both lazy genius teachers who mask strength behind apathy
-  ["Aizawa","Shikamaru"],
-  // Both long black hair, stoic, carry the weight of their clan
-  ["Itachi","Byakuya"],
-  // Both sacrificed everything for family in silence
-  ["Itachi","Corazon"],
-  // Both died protecting someone they loved without saying a word
-  ["Corazon","Hughes"],
-  // Both comic relief characters who are secretly very capable
-  ["Usopp","Sokka"],
-  // Both scrawny cowards who grow into genuine heroes through cleverness
-  ["Usopp","Zenitsu"],
-  // Both lightning users, cowards who explode when pushed
-  ["Zenitsu","Killua"],
-  // Both terrifying with electricity, calm vs panic personalities
-  ["Killua","Zenitsu"],
-  // Both red-haired emperors who command loyalty through charisma alone
-  ["Shanks","Akashi"],
-  // Both the most powerful in the room, do nothing to prove it
-  ["Shanks","Saitama"],
-  // Both tiny genius girls with god-level psychic power
-  ["Tatsumaki","Shiro (No Game No Life)"],
-  // Both small, green, float, strongest around
-  ["Tatsumaki","Broly (irony)"],
-  // Both cursed protagonists hosting an ancient evil in their body
-  ["Naruto","Itadori"],
-  // Both vessels for a monster, warm personality, love friends
-  ["Itadori","Kaneki"],
-  // Both start kind and break slowly into something darker
-  ["Kaneki","Eren"],
-  // Both transform physically as they lose their humanity
-  ["Eren","Kaneki"],
-  // Both white-haired after trauma, symbolizing a mental break
-  ["Kaneki","Heine (Dogs of Flanders)"],
-  // Both stoic captains with massive prestige and white hair
-  ["Gojo","Kakashi"],
-  // Both wear a cloth over their eyes, teach students, invincible
-  ["Gojo","Kakashi"],
-  // Both flamboyant, long hair, love beauty, terrifyingly strong
-  ["Tengen","Escanor"],
-  // Both sun-powered, peak at noon/day, showy and theatrical
-  ["Escanor","Endeavor"],
-  // Both fire-based, top of their field, harsh fathers
-  ["Endeavor","Ozai (Avatar)"],
-  // Both strict cold fathers who push their sons too hard
-  ["Endeavor","Gendo Ikari"],
-  // Both absent/cold fathers whose son bears the consequences
-  ["Gendo Ikari","Isshin Kurosaki"],
-  // Both deadbeat dads hiding incredible power from their kids
-  ["Isshin Kurosaki","Ging Freecss"],
-  // Both worst dads in anime, negligent, secretly elite fighters
-  ["Ging Freecss","Gendo Ikari"],
-  // Both brutal tacticians who die for their troops
-  ["Erwin","Neji"],
-  // Both sacrificed themselves following a conviction, no regret
-  ["Erwin","Whitebeard"],
-  // Both died standing, refused to fall, inspired everyone watching
-  ["Whitebeard","Netero"],
-  // Both old men who sacrifice themselves to buy time for the young
-  ["Netero","Erwin"],
-  // Both cursed with a power they never asked for, kind by nature
-  ["Itadori","Naruto"],
-  // Both loud meat-lovers who punch first and think never
-  ["Inosuke","Bakugo"],
-  // Both feral, animalistic, fight with raw instinct
-  ["Inosuke","Kenpachi"],
-  // Both pure berserkers who only calm down after a good fight
-  ["Kenpachi","Muscular"],
-  // Both live only to find the next strong opponent
-  ["Kenpachi","Goku"],
-  // Both split personalities, polite vs psychotic
-  ["Diavolo","Kaneki"],
-  // Both have a hidden second self that takes over
-  ["Kaneki","Ichigo (Hollow)"],
-  // Both mysterious purple-eyed beauties working in the shadows
-  ["Konan","Robin"],
-  // Both elegant women with dark pasts serving a charismatic villain
-  ["Robin","Konan"],
-  // Both genius children who grow up to be the greatest in their era
-  ["Gon","Deku"],
-  // Both limitless potential, start at zero, pure determination
-  ["Deku","Rock Lee"],
-  // Both were told they had no talent, trained to the bone anyway
-  ["Rock Lee","Asta"],
-  // Both zero magic/quirk, pure hard work, everyone underestimated them
-  ["Asta","Deku"],
+  ["Light","Mikami"],["Misa","Light"],["Matsuda","Aizawa"],
+  // ── RE:ZERO ───────────────────────────────────────────────────
+  ["Subaru","Emilia"],["Rem","Ram"],["Emilia","Satella"],["Beatrice","Echidna"],
+  ["Roswaal","Beatrice"],["Regulus","Sirius"],["Elsa","Meili"],
+  ["Wilhelm","Theresia"],["Reinhard","Felix"],["Crusch","Ferris"],
+  // ── SWORD ART ONLINE ──────────────────────────────────────────
+  ["Kirito","Asuna"],["Alice","Eugeo"],["Sinon","Asuna"],["Klein","Kirito"],
+  ["Leafa","Kirito"],["Yui","Asuna"],["Administrator","Eugeo"],
+  // ── THAT TIME I GOT REINCARNATED AS A SLIME ───────────────────
+  ["Rimuru","Milim"],["Rimuru","Veldora"],["Diablo","Shion"],["Benimaru","Souei"],
+  ["Ranga","Gobta"],["Shuna","Shion"],["Guy Crimson","Milim"],
+  // ── KONOSUBA ──────────────────────────────────────────────────
+  ["Kazuma","Aqua"],["Megumin","Darkness"],["Aqua","Darkness"],["Wiz","Kazuma"],
+  ["Eris","Aqua"],["Yunyun","Megumin"],
+  // ── MOB PSYCHO 100 ────────────────────────────────────────────
+  ["Mob","Reigen"],["Mob","Ritsu"],["Reigen","Dimple"],["Teru","Mob"],
+  ["Sho","Mob"],["Ishigami","Serizawa"],
+  // ── STEINS;GATE ───────────────────────────────────────────────
+  ["Okabe","Kurisu"],["Mayuri","Okabe"],["Daru","Okabe"],["Suzuha","Okabe"],
+  ["Moeka","Kurisu"],
+  // ── CODE GEASS ────────────────────────────────────────────────
+  ["Lelouch","Suzaku"],["Lelouch","CC"],["Kallen","Lelouch"],["Schneizel","Lelouch"],
+  ["Nunnally","Lelouch"],["Jeremiah","Lelouch"],
+  // ── EVANGELION ────────────────────────────────────────────────
+  ["Shinji","Rei"],["Rei","Asuka"],["Asuka","Mari"],["Gendo","Yui"],
+  ["Misato","Kaji"],["Kaworu","Shinji"],
+  // ── COWBOY BEBOP ──────────────────────────────────────────────
+  ["Spike","Vicious"],["Spike","Jet"],["Faye","Ed"],["Jet","Julia"],
+  // ── VINLAND SAGA ──────────────────────────────────────────────
+  ["Thorfinn","Askeladd"],["Thorfinn","Canute"],["Askeladd","Floki"],["Canute","Ragnar"],
+  ["Bjorn","Askeladd"],["Thors","Floki"],
+  // ── CHAINSAW MAN ──────────────────────────────────────────────
+  ["Denji","Power"],["Makima","Denji"],["Aki","Denji"],["Kobeni","Power"],
+  ["Kishibe","Quanxi"],["Reze","Denji"],["Himeno","Aki"],["Violence Devil","Shark Fiend"],
+  // ── TOKYO GHOUL ───────────────────────────────────────────────
+  ["Kaneki","Touka"],["Arima","Kaneki"],["Amon","Mado"],["Tsukiyama","Kaneki"],
+  ["Hinami","Kaneki"],["Juuzou","Shinohara"],["Hide","Kaneki"],
+  // ── OVERLORD ──────────────────────────────────────────────────
+  ["Ainz","Demiurge"],["Albedo","Shalltear"],["Cocytus","Demiurge"],["Mare","Aura"],
+  ["Pandora's Actor","Ainz"],
+  // ── BLACK CLOVER ──────────────────────────────────────────────
+  ["Asta","Yuno"],["Asta","Liebe"],["Yami","William"],["Noelle","Asta"],
+  ["Luck","Magna"],["Zora","Asta"],["Megicula","Vanica"],["Dante","Lucifero"],
+  ["Julius","Damnatio"],["Tabata","Yuki"],
+  // ── THE SEVEN DEADLY SINS ──────────────────────────────────────
+  ["Meliodas","Ban"],["Meliodas","Escanor"],["Escanor","Merlin"],["King","Harlequin"],
+  ["Diane","King"],["Merlin","Vivian"],["Gowther","Pelliot"],["Zeldris","Estarossa"],
+  // ── MISC / CROSS-FRANCHISE ─────────────────────────────────────
+  ["Saitama","Aizen"],["Kakashi","Gojo"],["All Might","Whitebeard"],
+  ["Edward Elric","Naruto"],["Aizen","Light Yagami"],["Shikamaru","L"],
+  ["Sasuke","Vegeta"],["Edward Elric","Yoda"],["Aizen","Madara"],
+  ["L","Lelouch"],["Light Yagami","Lelouch"],["Naruto","Luffy"],
+  ["Luffy","Goku"],["Naruto","Ichigo"],["Zoro","Guts"],["Zoro","Levi"],
+  ["Bakugo","Vegeta"],["Bakugo","Edward Elric"],["Itachi","Byakuya"],
+  ["Corazon","Hughes"],["Usopp","Zenitsu"],["Zenitsu","Killua"],
+  ["Erwin","Whitebeard"],["Netero","Erwin"],["Itadori","Naruto"],
+  ["Inosuke","Kenpachi"],["Kenpachi","Goku"],["Kaneki","Eren"],
+  ["Gojo","Kakashi"],["Escanor","Endeavor"],["Gendo Ikari","Isshin Kurosaki"],
+  ["Ging Freecss","Gendo Ikari"],["Deku","Rock Lee"],["Rock Lee","Asta"],
+  ["Asta","Deku"],["Tanjiro","Itadori"],["Denji","Naruto"],["Makima","Aizen"],
 ];
 
+// ════════════════════════════════════════════════════════════════
+// DATA — ANIME TITLE PAIRS (expanded)
+// ════════════════════════════════════════════════════════════════
 const ANIME_PAIRS = [
-  // ─── BATTLE SHONEN ────────────────────────────────────────────────
-  ["One Piece","Naruto"],
-  ["Naruto","Bleach"],
-  ["Bleach","One Piece"],
-  ["Dragon Ball Z","One Piece"],
-  ["Dragon Ball Z","Naruto"],
-  ["Yu Yu Hakusho","Hunter x Hunter"],
-  ["Yu Yu Hakusho","Bleach"],
-  ["Hunter x Hunter","My Hero Academia"],
-  ["Hunter x Hunter","Naruto"],
-  ["My Hero Academia","Black Clover"],
-  ["My Hero Academia","Demon Slayer"],
-  ["My Hero Academia","Jujutsu Kaisen"],
-  ["Demon Slayer","Jujutsu Kaisen"],
-  ["Black Clover","Fairy Tail"],
-  ["Fairy Tail","One Piece"],
-  ["Fairy Tail","Naruto"],
-  ["Jujutsu Kaisen","Bleach"],
-  ["Jujutsu Kaisen","Naruto"],
+  // battle shonen
+  ["One Piece","Naruto"],["Naruto","Bleach"],["Bleach","One Piece"],
+  ["Dragon Ball Z","One Piece"],["Dragon Ball Z","Naruto"],
+  ["Yu Yu Hakusho","Hunter x Hunter"],["Yu Yu Hakusho","Bleach"],
+  ["Hunter x Hunter","My Hero Academia"],["Hunter x Hunter","Naruto"],
+  ["My Hero Academia","Black Clover"],["My Hero Academia","Demon Slayer"],
+  ["My Hero Academia","Jujutsu Kaisen"],["Demon Slayer","Jujutsu Kaisen"],
+  ["Black Clover","Fairy Tail"],["Fairy Tail","One Piece"],["Fairy Tail","Naruto"],
+  ["Jujutsu Kaisen","Bleach"],["Jujutsu Kaisen","Naruto"],
   ["Fullmetal Alchemist Brotherhood","Hunter x Hunter"],
   ["Fullmetal Alchemist Brotherhood","Jujutsu Kaisen"],
-  ["Rurouni Kenshin","Demon Slayer"],
-  ["Inuyasha","Demon Slayer"],
-  ["Inuyasha","Bleach"],
-  ["Blue Exorcist","My Hero Academia"],
-  ["Blue Exorcist","Bleach"],
-  ["Soul Eater","My Hero Academia"],
-  ["Soul Eater","Bleach"],
-  ["Soul Eater","Hunter x Hunter"],
-  ["Katekyo Hitman Reborn","My Hero Academia"],
-  ["Katekyo Hitman Reborn","Hunter x Hunter"],
-  ["Katekyo Hitman Reborn","Naruto"],
-  ["Magi","Hunter x Hunter"],
-  ["Magi","Fairy Tail"],
-  ["Black Clover","Naruto"],
-  ["Toriko","Dragon Ball Z"],
-  ["Toriko","One Piece"],
-  ["Shaman King","Naruto"],
-  ["Shaman King","Soul Eater"],
-  ["Zatch Bell","My Hero Academia"],
-  ["Zatch Bell","Fairy Tail"],
-  ["D.Gray-man","Bleach"],
-  ["D.Gray-man","Demon Slayer"],
-  ["The Seven Deadly Sins","Fairy Tail"],
-  ["The Seven Deadly Sins","Black Clover"],
-  ["Magi","One Piece"],
-  ["Samurai Deeper Kyo","Rurouni Kenshin"],
-  ["Dororo","Demon Slayer"],
-  ["Dororo","Vinland Saga"],
-  // ─── DARK / SEINEN / PSYCHOLOGICAL ──────────────────────────────
-  ["Attack on Titan","Vinland Saga"],
-  ["Vinland Saga","Berserk"],
-  ["Berserk","Attack on Titan"],
-  ["Berserk","Claymore"],
-  ["Claymore","Demon Slayer"],
-  ["Claymore","Dororo"],
-  ["Tokyo Ghoul","Parasyte"],
-  ["Tokyo Ghoul","Demon Slayer"],
-  ["Parasyte","Attack on Titan"],
-  ["Elfen Lied","Tokyo Ghoul"],
-  ["Elfen Lied","Parasyte"],
-  ["Death Note","Code Geass"],
-  ["Death Note","Classroom of the Elite"],
-  ["Death Note","Promised Neverland"],
-  ["Code Geass","Fullmetal Alchemist Brotherhood"],
-  ["Code Geass","Attack on Titan"],
-  ["Promised Neverland","Attack on Titan"],
-  ["Promised Neverland","Erased"],
-  ["Erased","Steins;Gate"],
-  ["Steins;Gate","Re:Zero"],
-  ["Steins;Gate","Higurashi"],
-  ["Higurashi","Promised Neverland"],
-  ["Higurashi","Another"],
-  ["Another","Higurashi"],
-  ["Psycho-Pass","Death Note"],
-  ["Psycho-Pass","Ghost in the Shell"],
-  ["Ghost in the Shell","Akira"],
-  ["Akira","Neon Genesis Evangelion"],
-  ["Assassination Classroom","My Hero Academia"],
-  ["Assassination Classroom","Death Note"],
-  ["Classroom of the Elite","Assassination Classroom"],
-  ["91 Days","Berserk"],
-  ["91 Days","Vinland Saga"],
-  ["Moriarty the Patriot","Death Note"],
-  ["Moriarty the Patriot","Code Geass"],
-  ["No. 6","Promised Neverland"],
-  ["Monster","Death Note"],
-  ["Monster","Psycho-Pass"],
-  ["Overlord","Re:Zero"],
-  // ─── ISEKAI ──────────────────────────────────────────────────────
+  ["Rurouni Kenshin","Demon Slayer"],["Inuyasha","Demon Slayer"],["Inuyasha","Bleach"],
+  ["Blue Exorcist","My Hero Academia"],["Blue Exorcist","Bleach"],
+  ["Soul Eater","My Hero Academia"],["Soul Eater","Bleach"],["Soul Eater","Hunter x Hunter"],
+  ["Katekyo Hitman Reborn","My Hero Academia"],["Katekyo Hitman Reborn","Hunter x Hunter"],
+  ["Katekyo Hitman Reborn","Naruto"],["Magi","Hunter x Hunter"],["Magi","Fairy Tail"],
+  ["Black Clover","Naruto"],["Toriko","Dragon Ball Z"],["Toriko","One Piece"],
+  ["Shaman King","Naruto"],["Shaman King","Soul Eater"],
+  ["D.Gray-man","Bleach"],["D.Gray-man","Demon Slayer"],
+  ["The Seven Deadly Sins","Fairy Tail"],["The Seven Deadly Sins","Black Clover"],
+  ["Magi","One Piece"],["Dororo","Demon Slayer"],["Dororo","Vinland Saga"],
+  ["Chainsaw Man","Jujutsu Kaisen"],["Chainsaw Man","Bleach"],
+  ["Jujutsu Kaisen","Chainsaw Man"],["Blue Lock","My Hero Academia"],
+  ["Mashle","My Hero Academia"],["Mashle","Hunter x Hunter"],
+  ["Undead Unluck","Jujutsu Kaisen"],["Dandadan","Chainsaw Man"],
+  ["Frieren","Made in Abyss"],["Dungeon Meshi","Frieren"],
+  ["Dungeon Meshi","Made in Abyss"],["Spy x Family","Assassination Classroom"],
+  ["Spy x Family","The Promised Neverland"],
+  // dark / seinen / psychological
+  ["Attack on Titan","Vinland Saga"],["Vinland Saga","Berserk"],
+  ["Berserk","Attack on Titan"],["Berserk","Claymore"],["Claymore","Demon Slayer"],
+  ["Tokyo Ghoul","Parasyte"],["Tokyo Ghoul","Demon Slayer"],
+  ["Parasyte","Attack on Titan"],["Elfen Lied","Tokyo Ghoul"],
+  ["Death Note","Code Geass"],["Death Note","Classroom of the Elite"],
+  ["Death Note","The Promised Neverland"],["Code Geass","Fullmetal Alchemist Brotherhood"],
+  ["Code Geass","Attack on Titan"],["The Promised Neverland","Attack on Titan"],
+  ["The Promised Neverland","Erased"],["Erased","Steins;Gate"],
+  ["Steins;Gate","Re:Zero"],["Steins;Gate","Higurashi"],
+  ["Higurashi","The Promised Neverland"],["Psycho-Pass","Death Note"],
+  ["Psycho-Pass","Ghost in the Shell"],["Ghost in the Shell","Akira"],
+  ["Akira","Neon Genesis Evangelion"],["Assassination Classroom","My Hero Academia"],
+  ["Assassination Classroom","Death Note"],["Classroom of the Elite","Assassination Classroom"],
+  ["Monster","Death Note"],["Monster","Psycho-Pass"],["91 Days","Vinland Saga"],
+  ["Moriarty the Patriot","Death Note"],["Overlord","Re:Zero"],
+  // isekai
   ["Re:Zero","That Time I Got Reincarnated as a Slime"],
   ["Overlord","That Time I Got Reincarnated as a Slime"],
-  ["Sword Art Online","Log Horizon"],
-  ["Sword Art Online","No Game No Life"],
-  ["No Game No Life","Overlord"],
-  ["Konosuba","Re:Zero"],
+  ["Sword Art Online","Log Horizon"],["Sword Art Online","No Game No Life"],
+  ["No Game No Life","Overlord"],["Konosuba","Re:Zero"],
   ["Konosuba","That Time I Got Reincarnated as a Slime"],
-  ["Shield Hero","Re:Zero"],
-  ["Shield Hero","Overlord"],
-  ["Mushoku Tensei","Re:Zero"],
-  ["Mushoku Tensei","That Time I Got Reincarnated as a Slime"],
-  ["Log Horizon","Overlord"],
-  ["Cautious Hero","Konosuba"],
-  ["Cautious Hero","Re:Zero"],
-  ["Ascendance of a Bookworm","Mushoku Tensei"],
-  ["Grimgar","Sword Art Online"],
-  ["Grimgar","Re:Zero"],
-  ["The Rising of the Shield Hero","Mushoku Tensei"],
-  ["Arifureta","Shield Hero"],
-  ["Arifureta","Sword Art Online"],
-  ["In Another World With My Smartphone","Konosuba"],
-  ["Jobless Reincarnation","Overlord"],
-  ["Jobless Reincarnation","Ascendance of a Bookworm"],
-  // ─── MECHA ───────────────────────────────────────────────────────
+  ["Shield Hero","Re:Zero"],["Shield Hero","Overlord"],
+  ["Mushoku Tensei","Re:Zero"],["Mushoku Tensei","That Time I Got Reincarnated as a Slime"],
+  ["Log Horizon","Overlord"],["Cautious Hero","Konosuba"],
+  ["Ascendance of a Bookworm","Mushoku Tensei"],["Grimgar","Sword Art Online"],
+  ["Arifureta","Shield Hero"],["Jobless Reincarnation","Overlord"],
+  ["Isekai Quartet","Konosuba"],["Tanya the Evil","Re:Zero"],
+  ["The Eminence in Shadow","Overlord"],["The Eminence in Shadow","Konosuba"],
+  ["Reincarnated as a Sword","Shield Hero"],["Tensei Slime","Overlord"],
+  // mecha
   ["Neon Genesis Evangelion","Darling in the FranXX"],
   ["Neon Genesis Evangelion","Mobile Suit Gundam"],
-  ["Neon Genesis Evangelion","Code Geass"],
-  ["Darling in the FranXX","Mobile Suit Gundam"],
+  ["Neon Genesis Evangelion","Code Geass"],["Darling in the FranXX","Mobile Suit Gundam"],
   ["Code Geass","Mobile Suit Gundam"],
   ["Tengen Toppa Gurren Lagann","Darling in the FranXX"],
   ["Tengen Toppa Gurren Lagann","Neon Genesis Evangelion"],
-  ["Tengen Toppa Gurren Lagann","My Hero Academia"],
   ["Aldnoah.Zero","Code Geass"],
-  ["Aldnoah.Zero","Neon Genesis Evangelion"],
-  // ─── SLICE OF LIFE / COMEDY ──────────────────────────────────────
-  ["Gintama","Cromartie High School"],
-  ["Gintama","Daily Lives of High School Boys"],
-  ["Daily Lives of High School Boys","Nichijou"],
-  ["Nichijou","Azumanga Daioh"],
-  ["Mob Psycho 100","One Punch Man"],
-  ["One Punch Man","Gintama"],
-  ["Konosuba","Gintama"],
-  ["Monthly Girls Nozaki-kun","Gekkan Shoujo Nozaki-kun"],
-  ["Monthly Girls Nozaki-kun","Ouran High School Host Club"],
+  // slice of life / comedy
+  ["Gintama","Daily Lives of High School Boys"],["Daily Lives of High School Boys","Nichijou"],
+  ["Nichijou","Azumanga Daioh"],["Mob Psycho 100","One Punch Man"],
+  ["One Punch Man","Gintama"],["Konosuba","Gintama"],
   ["Ouran High School Host Club","Fruits Basket"],
   ["Grand Blue","Daily Lives of High School Boys"],
-  ["Grand Blue","Gintama"],
   ["Barakamon","Natsume's Book of Friends"],
-  ["Natsume's Book of Friends","Mushishi"],
-  ["Mushishi","Barakamon"],
-  ["Silver Spoon","Barakamon"],
-  ["Gekkan Shoujo Nozaki-kun","Toradora"],
-  // ─── ROMANCE / DRAMA ─────────────────────────────────────────────
-  ["Your Lie in April","Clannad"],
-  ["Your Lie in April","Anohana"],
-  ["Clannad","Anohana"],
-  ["Toradora","Clannad"],
-  ["Toradora","Your Lie in April"],
-  ["Fruits Basket","Clannad"],
-  ["Fruits Basket","Toradora"],
-  ["Ore Monogatari","Toradora"],
+  ["Natsume's Book of Friends","Mushishi"],["Silver Spoon","Barakamon"],
+  ["Gekkan Shoujo Nozaki-kun","Toradora"],["Komi Can't Communicate","My Love Story"],
+  ["Bocchi the Rock","K-On!"],["K-On!","Haruhi Suzumiya"],
+  ["Lucky Star","Azumanga Daioh"],["Yuru Camp","Non Non Biyori"],
+  ["Non Non Biyori","Laid-Back Camp"],
+  // romance / drama
+  ["Your Lie in April","Clannad"],["Your Lie in April","Anohana"],
+  ["Clannad","Anohana"],["Toradora","Clannad"],["Toradora","Your Lie in April"],
+  ["Fruits Basket","Clannad"],["Fruits Basket","Toradora"],
   ["Kaguya-sama Love is War","Toradora"],
   ["Kaguya-sama Love is War","Monthly Girls Nozaki-kun"],
-  ["Wotakoi","Kaguya-sama Love is War"],
-  ["Wotakoi","Monthly Girls Nozaki-kun"],
-  ["Horimiya","Toradora"],
-  ["Horimiya","Kaguya-sama Love is War"],
-  ["A Silent Voice","Your Lie in April"],
-  ["Violet Evergarden","Clannad"],
-  ["Violet Evergarden","Your Lie in April"],
-  ["Ano Hi Mita Hana","Clannad"],
+  ["Wotakoi","Kaguya-sama Love is War"],["Horimiya","Toradora"],
+  ["Horimiya","Kaguya-sama Love is War"],["A Silent Voice","Your Lie in April"],
+  ["Violet Evergarden","Clannad"],["Violet Evergarden","Your Lie in April"],
   ["5 Centimeters per Second","Your Lie in April"],
   ["March Comes in Like a Lion","Your Lie in April"],
-  ["March Comes in Like a Lion","Barakamon"],
-  ["Nana","Fruits Basket"],
-  ["Nana","Anohana"],
-  ["Honey and Clover","Your Lie in April"],
-  ["Honey and Clover","March Comes in Like a Lion"],
-  // ─── SPORTS ──────────────────────────────────────────────────────
-  ["Haikyuu","Kuroko's Basketball"],
-  ["Haikyuu","Slam Dunk"],
-  ["Kuroko's Basketball","Slam Dunk"],
-  ["Blue Lock","Haikyuu"],
-  ["Blue Lock","Kuroko's Basketball"],
-  ["Ping Pong the Animation","Haikyuu"],
-  ["Prince of Tennis","Haikyuu"],
-  ["Prince of Tennis","Kuroko's Basketball"],
-  ["Yowamushi Pedal","Haikyuu"],
-  ["Yowamushi Pedal","Free"],
-  ["Free","Haikyuu"],
-  ["Hajime no Ippo","Haikyuu"],
-  ["Hajime no Ippo","Blue Lock"],
-  ["Ashita no Joe","Hajime no Ippo"],
-  ["Captain Tsubasa","Blue Lock"],
-  ["Captain Tsubasa","Slam Dunk"],
-  ["Eyeshield 21","Blue Lock"],
-  ["Eyeshield 21","Haikyuu"],
-  ["Chihayafuru","March Comes in Like a Lion"],
-  ["Chihayafuru","Haikyuu"],
-  ["Run with the Wind","Haikyuu"],
-  ["Run with the Wind","Yowamushi Pedal"],
-  ["Hanebado","Haikyuu"],
-  ["Hanebado","Free"],
-  // ─── SCI-FI / THRILLER ───────────────────────────────────────────
-  ["Steins;Gate","Erased"],
-  ["Psycho-Pass","Ghost in the Shell"],
-  ["Ghost in the Shell","Akira"],
-  ["Texhnolyze","Serial Experiments Lain"],
-  ["Serial Experiments Lain","Steins;Gate"],
-  ["Serial Experiments Lain","Ghost in the Shell"],
-  ["Trigun","Cowboy Bebop"],
-  ["Cowboy Bebop","Samurai Champloo"],
-  ["Carole and Tuesday","Cowboy Bebop"],
-  ["Space Dandy","Cowboy Bebop"],
-  ["Outlaw Star","Cowboy Bebop"],
-  ["Legend of the Galactic Heroes","Code Geass"],
-  ["Legend of the Galactic Heroes","Psycho-Pass"],
-  // ─── MAGICAL GIRL ────────────────────────────────────────────────
-  ["Sailor Moon","Cardcaptor Sakura"],
-  ["Sailor Moon","Madoka Magica"],
-  ["Madoka Magica","Re:Zero"],
-  ["Madoka Magica","Promised Neverland"],
-  ["Cardcaptor Sakura","Fruits Basket"],
-  ["Cardcaptor Sakura","Sailor Moon"],
-  ["Precure","Sailor Moon"],
-  ["Lyrical Nanoha","Madoka Magica"],
-  ["Lyrical Nanoha","Cardcaptor Sakura"],
-  // ─── ADVENTURE / HISTORICAL ──────────────────────────────────────
-  ["Made in Abyss","Hunter x Hunter"],
-  ["Made in Abyss","Fullmetal Alchemist Brotherhood"],
-  ["Vinland Saga","Rurouni Kenshin"],
-  ["Samurai Champloo","Rurouni Kenshin"],
-  ["Dororo","Rurouni Kenshin"],
-  ["Golden Kamuy","Vinland Saga"],
-  ["Golden Kamuy","Dororo"],
-  ["Kingdom","Vinland Saga"],
-  ["Kingdom","Attack on Titan"],
-  ["The Heroic Legend of Arslan","Magi"],
-  ["The Heroic Legend of Arslan","Kingdom"],
-  ["Dr. Stone","Fullmetal Alchemist Brotherhood"],
-  ["Dr. Stone","Made in Abyss"],
-  ["Dr. Stone","Hunter x Hunter"],
-  // ─── SUPERNATURAL / HORROR ───────────────────────────────────────
-  ["Noragami","Bleach"],
-  ["Noragami","Natsume's Book of Friends"],
-  ["Natsume's Book of Friends","Mushishi"],
-  ["xxxHolic","Natsume's Book of Friends"],
-  ["xxxHolic","Mushishi"],
-  ["Toilet-Bound Hanako-kun","Noragami"],
-  ["Toilet-Bound Hanako-kun","Blue Exorcist"],
-  ["Ao no Exorcist","Noragami"],
-  ["Ao no Exorcist","D.Gray-man"],
-  ["Chainsaw Man","Tokyo Ghoul"],
-  ["Chainsaw Man","Jujutsu Kaisen"],
-  ["Chainsaw Man","Parasyte"],
-  ["Devilman Crybaby","Berserk"],
-  ["Devilman Crybaby","Chainsaw Man"],
+  ["March Comes in Like a Lion","Barakamon"],["Nana","Fruits Basket"],
+  ["Honey and Clover","Your Lie in April"],["My Dress-Up Darling","Horimiya"],
+  ["Skip and Loafer","Horimiya"],["Oshi no Ko","Your Lie in April"],
+  ["The Dangers in My Heart","Kaguya-sama Love is War"],
+  // sports
+  ["Haikyuu","Kuroko's Basketball"],["Haikyuu","Slam Dunk"],
+  ["Kuroko's Basketball","Slam Dunk"],["Blue Lock","Haikyuu"],
+  ["Blue Lock","Kuroko's Basketball"],["Ping Pong the Animation","Haikyuu"],
+  ["Prince of Tennis","Haikyuu"],["Yowamushi Pedal","Haikyuu"],
+  ["Yowamushi Pedal","Free"],["Free","Haikyuu"],
+  ["Hajime no Ippo","Blue Lock"],["Ashita no Joe","Hajime no Ippo"],
+  ["Captain Tsubasa","Blue Lock"],["Eyeshield 21","Haikyuu"],
+  ["Chihayafuru","March Comes in Like a Lion"],["Run with the Wind","Haikyuu"],
+  ["Ao Ashi","Blue Lock"],["Days","Haikyuu"],
+  // sci-fi / thriller
+  ["Steins;Gate","Erased"],["Psycho-Pass","Ghost in the Shell"],
+  ["Ghost in the Shell","Akira"],["Trigun","Cowboy Bebop"],
+  ["Cowboy Bebop","Samurai Champloo"],["Space Dandy","Cowboy Bebop"],
+  ["Outlaw Star","Cowboy Bebop"],["Legend of the Galactic Heroes","Code Geass"],
+  ["Serial Experiments Lain","Ghost in the Shell"],["Texhnolyze","Serial Experiments Lain"],
+  // magical girl
+  ["Sailor Moon","Cardcaptor Sakura"],["Sailor Moon","Madoka Magica"],
+  ["Madoka Magica","Re:Zero"],["Madoka Magica","The Promised Neverland"],
+  ["Cardcaptor Sakura","Fruits Basket"],["Lyrical Nanoha","Madoka Magica"],
+  // adventure / historical
+  ["Made in Abyss","Hunter x Hunter"],["Made in Abyss","Fullmetal Alchemist Brotherhood"],
+  ["Vinland Saga","Rurouni Kenshin"],["Samurai Champloo","Rurouni Kenshin"],
+  ["Golden Kamuy","Vinland Saga"],["Kingdom","Vinland Saga"],
+  ["Kingdom","Attack on Titan"],["The Heroic Legend of Arslan","Magi"],
+  ["Dr. Stone","Fullmetal Alchemist Brotherhood"],["Dr. Stone","Made in Abyss"],
+  ["Dr. Stone","Hunter x Hunter"],["Frieren: Beyond Journey's End","Made in Abyss"],
+  // supernatural / horror
+  ["Noragami","Bleach"],["Noragami","Natsume's Book of Friends"],
+  ["xxxHolic","Natsume's Book of Friends"],["Toilet-Bound Hanako-kun","Noragami"],
+  ["Toilet-Bound Hanako-kun","Blue Exorcist"],["Chainsaw Man","Tokyo Ghoul"],
+  ["Chainsaw Man","Parasyte"],["Devilman Crybaby","Chainsaw Man"],
+  ["Hell's Paradise","Demon Slayer"],["Hell's Paradise","Jujutsu Kaisen"],
 ];
 
-const LOL_PAIRS =  [
-  // MARKSMEN / ADC
-  ["Jinx","Caitlyn"],
-  ["Caitlyn","Miss Fortune"],
-  ["Ezreal","Lucian"],
-  ["Jinx","Kog'Maw"],
-  ["Draven","Miss Fortune"],
-  ["Lucian","Kalista"],
-  ["Twitch","Tristana"],
-  ["Xayah","Varus"],
-  ["Ziggs","Xerath"],
-  ["Senna","Jhin"],
-  ["Ashe","Varus"],
-  ["Sivir","Quinn"],
-
-  // MAGES
-  ["Lux","Morgana"],
-  ["Xerath","Vel'Koz"],
-  ["Orianna","Syndra"],
-  ["Veigar","Annie"],
-  ["Twisted Fate","Ryze"],
-  ["Taliyah","Anivia"],
-  ["Karthus","Sion"],
-  ["Viktor","Vel'Koz"],
-  ["Cassiopeia","Karthus"],
-  ["Veigar","Nasus"],
-  ["Ahri","LeBlanc"],
-  ["Zilean","Ekko"],
-
-  // ASSASSINS
-  ["Zed","Talon"],
-  ["Akali","Katarina"],
-  ["Fizz","Ekko"],
-  ["LeBlanc","Zoe"],
-  ["Evelynn","Twitch"],
-  ["Pyke","Nocturne"],
-  ["Qiyana","Talon"],
-  ["Rengar","Kha'Zix"],
-  ["Shaco","Evelynn"],
-  ["Nidalee","Elise"],
-
-  // FIGHTERS / BRUISERS
-  ["Darius","Garen"],
-  ["Fiora","Tryndamere"],
-  ["Aatrox","Darius"],
-  ["Irelia","Camille"],
-  ["Nasus","Veigar"],
-  ["Olaf","Tryndamere"],
-  ["Renekton","Mordekaiser"],
-  ["Volibear","Warwick"],
-  ["Jayce","Kennen"],
-  ["Sylas","Yone"],
-  ["Sett","Darius"],
-
-  // TANKS
-  ["Malphite","Amumu"],
-  ["Blitzcrank","Thresh"],
-  ["Leona","Nautilus"],
-  ["Malphite","Rammus"],
-  ["Poppy","Leona"],
-  ["Sion","Cho'Gath"],
-  ["Galio","Amumu"],
-  ["Alistar","Braum"],
-  ["Sejuani","Zac"],
-
-  // SUPPORTS
-  ["Lulu","Janna"],
-  ["Nami","Sona"],
-  ["Soraka","Yuumi"],
-  ["Zyra","Morgana"],
-  ["Thresh","Blitzcrank"],
-  ["Bard","Zilean"],
-  ["Renata Glasc","Senna"],
-  ["Karma","Lulu"],
-
-  // JUNGLERS
-  ["Hecarim","Nocturne"],
-  ["Vi","Jarvan IV"],
-  ["Graves","Kindred"],
-  ["Warwick","Volibear"],
-  ["Diana","Elise"],
-  ["Udyr","Shyvana"],
-  ["Rammus","Amumu"],
-  ["Master Yi","Tryndamere"],
-  ["Taliyah","Sejuani"],
-
-  // LORE / APPEARANCE / SKINS
-  ["Ahri","Lux"],
-  ["Jinx","Vi"],
-  ["Leona","Diana"],
-  ["Kayle","Morgana"],
-  ["Garen","Katarina"],
-  ["Yasuo","Yone"],
-  ["Darius","Draven"],
-  ["Caitlyn","Vi"],
-  ["Xayah","Rakan"],
-  ["Lux","Ezreal"],
+// ════════════════════════════════════════════════════════════════
+// DATA — POKÉMON PAIRS (very close — same type, evo line, or vibe)
+// ════════════════════════════════════════════════════════════════
+const POKEMON_PAIRS = [
+  // ── EVOLUTION LINES ───────────────────────────────────────────
+  ["Pikachu","Raichu"],["Pikachu","Pichu"],["Raichu","Pikachu"],
+  ["Bulbasaur","Ivysaur"],["Ivysaur","Venusaur"],
+  ["Charmander","Charmeleon"],["Charmeleon","Charizard"],
+  ["Squirtle","Wartortle"],["Wartortle","Blastoise"],
+  ["Caterpie","Metapod"],["Metapod","Butterfree"],
+  ["Weedle","Kakuna"],["Kakuna","Beedrill"],
+  ["Pidgey","Pidgeotto"],["Pidgeotto","Pidgeot"],
+  ["Machop","Machoke"],["Machoke","Machamp"],
+  ["Geodude","Graveler"],["Graveler","Golem"],
+  ["Gastly","Haunter"],["Haunter","Gengar"],
+  ["Eevee","Vaporeon"],["Eevee","Jolteon"],["Eevee","Flareon"],
+  ["Eevee","Espeon"],["Eevee","Umbreon"],["Eevee","Leafeon"],
+  ["Eevee","Glaceon"],["Eevee","Sylveon"],
+  ["Magmar","Magmortar"],["Electabuzz","Electivire"],
+  ["Scyther","Scizor"],["Onix","Steelix"],
+  ["Poliwag","Poliwhirl"],["Poliwhirl","Poliwrath"],
+  ["Abra","Kadabra"],["Kadabra","Alakazam"],
+  ["Dratini","Dragonair"],["Dragonair","Dragonite"],
+  ["Mewtwo","Mew"],["Lugia","Ho-Oh"],
+  ["Larvitar","Pupitar"],["Pupitar","Tyranitar"],
+  ["Beldum","Metang"],["Metang","Metagross"],
+  ["Ralts","Kirlia"],["Kirlia","Gardevoir"],["Kirlia","Gallade"],
+  ["Bagon","Shelgon"],["Shelgon","Salamence"],
+  ["Gible","Gabite"],["Gabite","Garchomp"],
+  ["Riolu","Lucario"],["Toxicroak","Toxapex"],
+  ["Snivy","Servine"],["Servine","Serperior"],
+  ["Tepig","Pignite"],["Pignite","Emboar"],
+  ["Oshawott","Dewott"],["Dewott","Samurott"],
+  ["Deino","Zweilous"],["Zweilous","Hydreigon"],
+  ["Froakie","Frogadier"],["Frogadier","Greninja"],
+  ["Chespin","Quilladin"],["Quilladin","Chesnaught"],
+  ["Fennekin","Braixen"],["Braixen","Delphox"],
+  ["Rowlet","Dartrix"],["Dartrix","Decidueye"],
+  ["Litten","Torracat"],["Torracat","Incineroar"],
+  ["Popplio","Brionne"],["Brionne","Primarina"],
+  ["Grookey","Thwackey"],["Thwackey","Rillaboom"],
+  ["Scorbunny","Raboot"],["Raboot","Cinderace"],
+  ["Sobble","Drizzile"],["Drizzile","Inteleon"],
+  ["Sprigatito","Floragato"],["Floragato","Meowscarada"],
+  ["Fuecoco","Crocalor"],["Crocalor","Skeledirge"],
+  ["Quaxly","Quaxwell"],["Quaxwell","Quaquaval"],
+  // ── SAME TYPE / VERY SIMILAR ──────────────────────────────────
+  // Electric
+  ["Pikachu","Pachirisu"],["Raichu","Pachirisu"],["Jolteon","Manectric"],
+  ["Ampharos","Luxray"],["Luxray","Jolteon"],["Zapdos","Raikou"],
+  ["Thundurus","Zapdos"],["Zeraora","Manectric"],["Pawmi","Pikachu"],
+  // Fire
+  ["Charizard","Arcanine"],["Arcanine","Ninetales"],["Ninetales","Delphox"],
+  ["Flareon","Arcanine"],["Rapidash","Arcanine"],["Entei","Arcanine"],
+  ["Typhlosion","Charizard"],["Blaziken","Charizard"],["Infernape","Blaziken"],
+  ["Cinderace","Incineroar"],["Skeledirge","Incineroar"],
+  // Water
+  ["Blastoise","Feraligatr"],["Feraligatr","Empoleon"],["Vaporeon","Milotic"],
+  ["Milotic","Dragonite"],["Gyarados","Milotic"],["Suicune","Milotic"],
+  ["Greninja","Inteleon"],["Primarina","Milotic"],["Quaquaval","Primarina"],
+  // Grass
+  ["Venusaur","Meganium"],["Meganium","Sceptile"],["Sceptile","Serperior"],
+  ["Serperior","Chesnaught"],["Leafeon","Sceptile"],["Roserade","Venusaur"],
+  // Psychic
+  ["Alakazam","Espeon"],["Espeon","Gardevoir"],["Gardevoir","Sylveon"],
+  ["Mewtwo","Alakazam"],["Jynx","Gardevoir"],["Mew","Mewtwo"],
+  ["Delphox","Gardevoir"],["Hatterene","Gardevoir"],
+  // Ghost
+  ["Gengar","Mismagius"],["Mismagius","Chandelure"],["Chandelure","Gengar"],
+  ["Haunter","Misdreavus"],["Dusknoir","Gengar"],["Spectrier","Gengar"],
+  ["Dragapult","Gengar"],["Mimikyu","Pikachu"],
+  // Dragon
+  ["Dragonite","Salamence"],["Salamence","Garchomp"],["Garchomp","Dragonite"],
+  ["Flygon","Salamence"],["Rayquaza","Dragonite"],["Haxorus","Garchomp"],
+  ["Goodra","Dragonite"],["Dragapult","Dragonite"],["Baxcalibur","Garchomp"],
+  // Fighting
+  ["Machamp","Conkeldurr"],["Lucario","Gallade"],["Blaziken","Lucario"],
+  ["Infernape","Lucario"],["Hawlucha","Medicham"],["Urshifu","Machamp"],
+  // Dark
+  ["Umbreon","Absol"],["Absol","Weavile"],["Weavile","Sneasel"],
+  ["Zoroark","Gengar"],["Darkrai","Gengar"],["Hydreigon","Tyranitar"],
+  // Steel
+  ["Metagross","Steelix"],["Scizor","Kleavor"],["Aegislash","Doublade"],
+  ["Doublade","Scizor"],["Empoleon","Ferrothorn"],["Magnezone","Metagross"],
+  // Ice
+  ["Glaceon","Articuno"],["Articuno","Suicune"],["Lapras","Suicune"],
+  ["Weavile","Glaceon"],["Alolan Ninetales","Glaceon"],["Baxcalibur","Glaceon"],
+  // Legendary close pairs
+  ["Articuno","Zapdos"],["Zapdos","Moltres"],["Moltres","Articuno"],
+  ["Raikou","Entei"],["Entei","Suicune"],["Suicune","Raikou"],
+  ["Latios","Latias"],["Groudon","Kyogre"],["Kyogre","Groudon"],
+  ["Dialga","Palkia"],["Palkia","Giratina"],["Giratina","Dialga"],
+  ["Solgaleo","Lunala"],["Xerneas","Yveltal"],["Zacian","Zamazenta"],
+  ["Koraidon","Miraidon"],["Miraidon","Koraidon"],
+  // Pseudo-legendary pairs
+  ["Dragonite","Tyranitar"],["Tyranitar","Metagross"],["Metagross","Salamence"],
+  ["Salamence","Garchomp"],["Garchomp","Hydreigon"],["Hydreigon","Goodra"],
+  ["Goodra","Kommo-o"],["Kommo-o","Dragapult"],["Dragapult","Baxcalibur"],
+  // Starters vs starters
+  ["Charizard","Venusaur"],["Venusaur","Blastoise"],["Blastoise","Charizard"],
+  ["Typhlosion","Meganium"],["Meganium","Feraligatr"],["Feraligatr","Typhlosion"],
+  ["Blaziken","Swampert"],["Swampert","Sceptile"],["Sceptile","Blaziken"],
+  ["Infernape","Empoleon"],["Empoleon","Torterra"],["Torterra","Infernape"],
+  ["Greninja","Delphox"],["Delphox","Chesnaught"],["Chesnaught","Greninja"],
+  ["Incineroar","Decidueye"],["Decidueye","Primarina"],["Primarina","Incineroar"],
+  ["Rillaboom","Cinderace"],["Cinderace","Inteleon"],["Inteleon","Rillaboom"],
+  ["Meowscarada","Skeledirge"],["Skeledirge","Quaquaval"],["Quaquaval","Meowscarada"],
+  // Fan favourite / vibe pairs
+  ["Snorlax","Slaking"],["Gengar","Alakazam"],["Machamp","Hariyama"],
+  ["Arcanine","Ninetales"],["Clefairy","Jigglypuff"],["Jigglypuff","Clefairy"],
+  ["Slowpoke","Snorlax"],["Ditto","Mew"],["Porygon","Metagross"],
+  ["Heracross","Pinsir"],["Pinsir","Heracross"],["Skarmory","Corviknight"],
+  ["Corviknight","Skarmory"],["Obstagoon","Incineroar"],["Sylveon","Togekiss"],
+  ["Togekiss","Sylveon"],["Clefable","Togekiss"],["Blissey","Chansey"],
 ];
 
+// ════════════════════════════════════════════════════════════════
+// DATA — VIDEO GAMES PAIRS (same franchise or very similar vibe)
+// ════════════════════════════════════════════════════════════════
+const VIDEOGAME_PAIRS = [
+  // ── MARIO UNIVERSE ─────────────────────────────────────────────
+  ["Mario","Luigi"],["Mario","Wario"],["Luigi","Waluigi"],["Wario","Waluigi"],
+  ["Bowser","Bowser Jr."],["Bowser","King Boo"],["Peach","Daisy"],["Daisy","Rosalina"],
+  ["Toad","Toadette"],["Yoshi","Birdo"],["Donkey Kong","Diddy Kong"],
+  ["Diddy Kong","Funky Kong"],["Kamek","Magikoopa"],["Koopa","Goomba"],
+  ["Boo","King Boo"],["Chain Chomp","Piranha Plant"],
+  ["Super Mario Bros","Super Mario World"],["Super Mario 64","Super Mario Odyssey"],
+  ["Super Mario Galaxy","Super Mario Odyssey"],["Mario Kart","F-Zero"],
+  ["Paper Mario","Super Mario RPG"],
+  // ── ZELDA UNIVERSE ────────────────────────────────────────────
+  ["Link","Zelda"],["Link","Ganon"],["Zelda","Impa"],["Ganon","Demise"],
+  ["Midna","Fi"],["Fi","Navi"],["Navi","Tatl"],["Epona","Agitha"],
+  ["Ocarina of Time","Majora's Mask"],["Majora's Mask","Twilight Princess"],
+  ["Twilight Princess","Breath of the Wild"],
+  ["Breath of the Wild","Tears of the Kingdom"],
+  ["Wind Waker","Phantom Hourglass"],["A Link to the Past","Link's Awakening"],
+  // ── POKEMON GAMES ─────────────────────────────────────────────
+  ["Pokemon Red","Pokemon Blue"],["Pokemon Gold","Pokemon Silver"],
+  ["Pokemon Ruby","Pokemon Sapphire"],["Pokemon Diamond","Pokemon Pearl"],
+  ["Pokemon Black","Pokemon White"],["Pokemon X","Pokemon Y"],
+  ["Pokemon Sun","Pokemon Moon"],["Pokemon Sword","Pokemon Shield"],
+  ["Pokemon Scarlet","Pokemon Violet"],["Pokemon FireRed","Pokemon HeartGold"],
+  // ── KIRBY UNIVERSE ────────────────────────────────────────────
+  ["Kirby","Meta Knight"],["Kirby","King Dedede"],["Meta Knight","King Dedede"],
+  ["Kirby","Bandana Dee"],["Kirby Star Allies","Kirby Return to Dream Land"],
+  // ── METROID UNIVERSE ──────────────────────────────────────────
+  ["Samus","Ridley"],["Samus","Mother Brain"],["Ridley","Dark Samus"],
+  ["Metroid Prime","Metroid Dread"],["Metroid Fusion","Metroid Dread"],
+  // ── FIRE EMBLEM ───────────────────────────────────────────────
+  ["Marth","Roy"],["Roy","Lucina"],["Lucina","Chrom"],["Ike","Marth"],
+  ["Robin","Corrin"],["Byleth","Robin"],["Edelgard","Dimitri"],
+  ["Dimitri","Claude"],["Claude","Edelgard"],
+  // ── SMASH BROS ────────────────────────────────────────────────
+  ["Mario","Fox McCloud"],["Link","Samus"],["Kirby","Pikachu"],
+  ["Ness","Lucas"],["Falco","Fox McCloud"],["Captain Falcon","Ganondorf"],
+  ["Sheik","Zelda"],["Young Link","Toon Link"],
+  // ── SONIC UNIVERSE ────────────────────────────────────────────
+  ["Sonic","Shadow"],["Sonic","Knuckles"],["Sonic","Tails"],
+  ["Shadow","Silver"],["Knuckles","Rouge"],["Amy","Cream"],
+  ["Eggman","Robotnik"],["Sonic the Hedgehog","Sonic the Hedgehog 2"],
+  ["Sonic Adventure","Sonic Adventure 2"],["Sonic Generations","Sonic Frontiers"],
+  // ── FINAL FANTASY ─────────────────────────────────────────────
+  ["Cloud","Sephiroth"],["Cloud","Zack"],["Sephiroth","Genesis"],
+  ["Tifa","Aerith"],["Aerith","Cetra"],["Barrett","Cid"],["Red XIII","Vincent"],
+  ["Lightning","Serah"],["Noctis","Ignis"],["Noctis","Gladio"],
+  ["Ignis","Prompto"],["Y'shtola","Alisaie"],["Alphinaud","Alisaie"],
+  ["Terra","Celes"],["Locke","Edgar"],["Kefka","Sephiroth"],
+  ["Tidus","Wakka"],["Yuna","Rikku"],["Auron","Tidus"],
+  ["Zidane","Kuja"],["Garnet","Freya"],
+  ["FF7 Remake","FF7 Rebirth"],["Final Fantasy VII","Final Fantasy X"],
+  ["Final Fantasy VI","Final Fantasy IV"],["Final Fantasy XIV","Final Fantasy XI"],
+  // ── KINGDOM HEARTS ────────────────────────────────────────────
+  ["Sora","Roxas"],["Sora","Riku"],["Riku","Repliku"],["Aqua","Terra"],
+  ["Terra","Ventus"],["Xehanort","Ansem"],["Roxas","Xion"],["Axel","Roxas"],
+  ["Kingdom Hearts","Kingdom Hearts 2"],["Kingdom Hearts 2","Kingdom Hearts 3"],
+  // ── DARK SOULS / FROMSOFT ─────────────────────────────────────
+  ["Dark Souls","Elden Ring"],["Elden Ring","Sekiro"],["Sekiro","Bloodborne"],
+  ["Bloodborne","Dark Souls"],["Dark Souls","Dark Souls 2"],
+  ["Dark Souls 2","Dark Souls 3"],["Malenia","Radagon"],["Radahn","Malenia"],
+  ["Artorias","Knight Artorias"],["Gwyn","Aldrich"],["Yhorm","Siegward"],
+  ["Wolf","Genichiro"],["Isshin","Wolf"],["Lady Maria","Gehrman"],
+  // ── GOD OF WAR ────────────────────────────────────────────────
+  ["Kratos","Baldur"],["Kratos","Freya"],["Atreus","Kratos"],
+  ["Thor","Kratos"],["Odin","Zeus"],["God of War","God of War Ragnarok"],
+  ["God of War 1","God of War 3"],
+  // ── HALO ──────────────────────────────────────────────────────
+  ["Master Chief","Arbiter"],["Master Chief","Cortana"],
+  ["Halo Combat Evolved","Halo 2"],["Halo 2","Halo 3"],["Halo 3","Halo Infinite"],
+  // ── CALL OF DUTY ──────────────────────────────────────────────
+  ["Modern Warfare","Warzone"],["Black Ops","Cold War"],
+  ["Price","Soap"],["Ghost","Roach"],["Nikolai","Price"],
+  ["MW2","MW3"],["Black Ops 1","Black Ops 2"],
+  // ── GENSHIN IMPACT ────────────────────────────────────────────
+  ["Raiden Shogun","Yae Miko"],["Zhongli","Xiao"],["Venti","Kazuha"],
+  ["Hu Tao","Yelan"],["Ayaka","Ganyu"],["Ganyu","Ayaka"],["Neuvillette","Zhongli"],
+  ["Furina","Kokomi"],["Wriothesley","Neuvillette"],["Arlecchino","Hu Tao"],
+  ["Lumine","Aether"],["Paimon","Lumine"],["Nahida","Kokomi"],
+  ["Genshin Impact","Honkai Star Rail"],
+  // ── HONKAI STAR RAIL ──────────────────────────────────────────
+  ["Acheron","Blade"],["Jingliu","Acheron"],["Boothill","Hunt Trailblazer"],
+  ["Firefly","March 7th"],["Robin","Sunday"],["Aventurine","Acheron"],
+  // ── OVERWATCH ─────────────────────────────────────────────────
+  ["Tracer","Genji"],["Hanzo","Genji"],["Reaper","Soldier 76"],
+  ["Mercy","Ana"],["Reinhardt","Orisa"],["Dva","Zarya"],
+  ["Widowmaker","Hanzo"],["Symmetra","Zenyatta"],["Lucio","Moira"],
+  ["Overwatch","Overwatch 2"],
+  // ── VALORANT ──────────────────────────────────────────────────
+  ["Jett","Phoenix"],["Omen","Astra"],["Reyna","Jett"],["Cypher","Killjoy"],
+  ["Sage","Skye"],["Sova","Breach"],["Chamber","Jett"],["Neon","Jett"],
+  ["Clove","Skye"],["Gekko","Neon"],
+  // ── APEX LEGENDS ──────────────────────────────────────────────
+  ["Wraith","Octane"],["Bloodhound","Seer"],["Lifeline","Newcastle"],
+  ["Bangalore","Ash"],["Horizon","Wattson"],["Loba","Seer"],
+  ["Pathfinder","Revenant"],["Valkyrie","Horizon"],
+  // ── MINECRAFT / SANDBOX ───────────────────────────────────────
+  ["Minecraft","Terraria"],["Minecraft","Roblox"],["Terraria","Core Keeper"],
+  ["Stardew Valley","Animal Crossing"],["Animal Crossing","Stardew Valley"],
+  // ── STREET FIGHTER / FIGHTING ────────────────────────────────
+  ["Ryu","Ken"],["Ryu","Akuma"],["Akuma","Gouken"],["Ken","Guile"],
+  ["Chun-Li","Cammy"],["M. Bison","Vega"],["Sagat","Ryu"],
+  ["Sub-Zero","Scorpion"],["Scorpion","Noob Saibot"],["Raiden","Sub-Zero"],
+  ["Liu Kang","Kung Lao"],["Cassie","Jacqui"],["Tekken 7","Tekken 8"],
+  ["Kazuya","Jin"],["Heihachi","Kazuya"],["Devil Jin","Kazuya"],
+  // ── RESIDENT EVIL ─────────────────────────────────────────────
+  ["Leon","Claire"],["Leon","Chris"],["Chris","Jill"],["Jill","Leon"],
+  ["Albert Wesker","Chris Redfield"],["RE4","RE4 Remake"],
+  ["Resident Evil 2","Resident Evil 3"],["RE Village","RE8"],
+  // ── PERSONA ───────────────────────────────────────────────────
+  ["Joker","Ryuji"],["Joker","Morgana"],["Makoto","Ann"],["Futaba","Yusuke"],
+  ["Yu Narukami","Yosuke"],["Yu Narukami","Chie"],["Minato","Ryoji"],
+  ["Persona 5","Persona 4"],["Persona 4","Persona 3"],["Persona 3 Reload","Persona 5 Royal"],
+  // ── POKEMON GO / MISC ─────────────────────────────────────────
+  ["Fortnite","Warzone"],["Among Us","Town of Salem"],
+  ["Fall Guys","Gang Beasts"],["Cyberpunk 2077","GTA V"],
+  ["GTA V","Red Dead Redemption 2"],["Red Dead Redemption","Red Dead Redemption 2"],
+  ["The Witcher 3","Elden Ring"],["Skyrim","Elden Ring"],
+  ["Skyrim","Oblivion"],["Oblivion","Morrowind"],
+  ["Celeste","Hollow Knight"],["Hollow Knight","Silksong"],
+  ["Hollow Knight","Ori and the Blind Forest"],
+  ["Ori and the Blind Forest","Ori and the Will of the Wisps"],
+  ["Cuphead","Hollow Knight"],["Hades","Dead Cells"],
+  ["Dead Cells","Hades"],["Hades","Hades 2"],
+];
+
+// ════════════════════════════════════════════════════════════════
+// DATA — LEAGUE OF LEGENDS
+// ════════════════════════════════════════════════════════════════
+const LOL_PAIRS = [
+  ["Jinx","Caitlyn"],["Caitlyn","Miss Fortune"],["Ezreal","Lucian"],
+  ["Jinx","Kog'Maw"],["Draven","Miss Fortune"],["Lucian","Kalista"],
+  ["Twitch","Tristana"],["Xayah","Varus"],["Ziggs","Xerath"],
+  ["Senna","Jhin"],["Ashe","Varus"],["Sivir","Quinn"],
+  ["Lux","Morgana"],["Xerath","Vel'Koz"],["Orianna","Syndra"],
+  ["Veigar","Annie"],["Twisted Fate","Ryze"],["Taliyah","Anivia"],
+  ["Karthus","Sion"],["Viktor","Vel'Koz"],["Cassiopeia","Karthus"],
+  ["Veigar","Nasus"],["Ahri","LeBlanc"],["Zilean","Ekko"],
+  ["Zed","Talon"],["Akali","Katarina"],["Fizz","Ekko"],
+  ["LeBlanc","Zoe"],["Evelynn","Twitch"],["Pyke","Nocturne"],
+  ["Qiyana","Talon"],["Rengar","Kha'Zix"],["Shaco","Evelynn"],
+  ["Nidalee","Elise"],["Darius","Garen"],["Fiora","Tryndamere"],
+  ["Aatrox","Darius"],["Irelia","Camille"],["Nasus","Veigar"],
+  ["Olaf","Tryndamere"],["Renekton","Mordekaiser"],["Volibear","Warwick"],
+  ["Jayce","Kennen"],["Sylas","Yone"],["Sett","Darius"],
+  ["Malphite","Amumu"],["Blitzcrank","Thresh"],["Leona","Nautilus"],
+  ["Malphite","Rammus"],["Poppy","Leona"],["Sion","Cho'Gath"],
+  ["Galio","Amumu"],["Alistar","Braum"],["Sejuani","Zac"],
+  ["Lulu","Janna"],["Nami","Sona"],["Soraka","Yuumi"],
+  ["Zyra","Morgana"],["Thresh","Blitzcrank"],["Bard","Zilean"],
+  ["Karma","Lulu"],["Hecarim","Nocturne"],["Vi","Jarvan IV"],
+  ["Graves","Kindred"],["Warwick","Volibear"],["Diana","Elise"],
+  ["Udyr","Shyvana"],["Rammus","Amumu"],["Master Yi","Tryndamere"],
+  ["Ahri","Lux"],["Jinx","Vi"],["Leona","Diana"],["Kayle","Morgana"],
+  ["Garen","Katarina"],["Yasuo","Yone"],["Darius","Draven"],
+  ["Caitlyn","Vi"],["Xayah","Rakan"],["Lux","Ezreal"],
+];
+
+// ════════════════════════════════════════════════════════════════
+// DATA — MARVEL
+// ════════════════════════════════════════════════════════════════
 const MARVEL_PAIRS = [
-  // ─── SAME TEAM ─────────────────────────────────────────────────
-  // Avengers core
   ["Iron Man","War Machine"],["Iron Man","Captain America"],
   ["Captain America","Bucky Barnes"],["Bucky Barnes","Black Widow"],
   ["Thor","Loki"],["Thor","Jane Foster"],["Loki","Hela"],
   ["Hulk","She-Hulk"],["Hulk","Bruce Banner"],
   ["Black Widow","Hawkeye"],["Hawkeye","Kate Bishop"],
-  // Guardians
   ["Star-Lord","Gamora"],["Gamora","Nebula"],["Rocket","Groot"],
   ["Mantis","Drax"],["Star-Lord","Rocket"],
-  // X-Men
   ["Wolverine","Sabretooth"],["Wolverine","X-23"],["Wolverine","Cyclops"],
   ["Cyclops","Havok"],["Cyclops","Jean Grey"],["Jean Grey","Phoenix"],
   ["Professor X","Magneto"],["Storm","Ororo"],["Rogue","Gambit"],
   ["Nightcrawler","Mystique"],["Mystique","Magneto"],
-  ["Iceman","Beast"],["Colossus","Colossus"],
-  ["Psylocke","Jean Grey"],["Bishop","Cable"],
-  // Spider-Man family
+  ["Iceman","Beast"],["Psylocke","Jean Grey"],["Bishop","Cable"],
   ["Spider-Man","Spider-Gwen"],["Spider-Man","Miles Morales"],
   ["Miles Morales","Spider-Gwen"],["Venom","Carnage"],
   ["Peter Parker","Mary Jane"],["Doctor Octopus","Green Goblin"],
-  ["Green Goblin","Harry Osborn"],
-  // Fantastic Four
   ["Mr. Fantastic","Invisible Woman"],["Human Torch","Thing"],
   ["Mr. Fantastic","Doctor Doom"],
-  // ─── VILLAINS ──────────────────────────────────────────────────
-  ["Thanos","Darkseid"],["Thanos","Doom"],
-  ["Magneto","Doctor Doom"],["Loki","Mephisto"],
+  ["Thanos","Doom"],["Magneto","Doctor Doom"],["Loki","Mephisto"],
   ["Red Skull","Hydra Agent"],["Green Goblin","Doctor Octopus"],
   ["Killmonger","Ulysses Klaue"],["Hela","Surtur"],
-  // ─── COSMIC / MAGIC ────────────────────────────────────────────
   ["Doctor Strange","Scarlet Witch"],["Scarlet Witch","Jean Grey"],
   ["Scarlet Witch","Vision"],["Vision","Ultron"],
-  ["Dormammu","Mephisto"],["Silver Surfer","Galactus"],
-  ["Adam Warlock","Thanos"],["Nova","Captain Marvel"],
-  // ─── STREET LEVEL ─────────────────────────────────────────────
-  ["Daredevil","Punisher"],["Daredevil","Elektra"],
-  ["Punisher","Wolverine"],["Elektra","Black Widow"],
-  ["Luke Cage","Iron Fist"],["Jessica Jones","Luke Cage"],
-  // ─── RIVALS / MIRRORS ─────────────────────────────────────────
-  ["Captain America","Captain America (Hydra)"],
+  ["Silver Surfer","Galactus"],["Adam Warlock","Thanos"],
+  ["Nova","Captain Marvel"],["Daredevil","Punisher"],
+  ["Daredevil","Elektra"],["Punisher","Wolverine"],
+  ["Elektra","Black Widow"],["Luke Cage","Iron Fist"],
+  ["Jessica Jones","Luke Cage"],["Captain America","Bucky Barnes"],
   ["Iron Man","Iron Monger"],["Thor","Beta Ray Bill"],
   ["Black Panther","Killmonger"],["Ant-Man","Yellowjacket"],
-  ["Wasp","Janet van Dyne"],
-  // ─── DC CROSSOVER FEEL (Marvel vs lookalikes) ──────────────────
-  ["Thor","Superman"],["Aquaman","Namor"],
-  ["Flash","Quicksilver"],["Batman","Moon Knight"],
-  ["Green Arrow","Hawkeye"],["Cyborg","Iron Man"],
-  // ─── CROSS-MARVEL SIMILARITIES ────────────────────────────────
-  // Both genius billionaire in powered armour
-  ["Iron Man","Doctor Doom"],
-  // Both web-slingers with quips
-  ["Spider-Man","Deadpool"],
-  // Both red-suited sarcastic mercenaries
-  ["Deadpool","Cable"],
-  // Both super-soldier serums
-  ["Captain America","Wolverine"],
-  // Both green rage monsters
-  ["Hulk","Abomination"],
-  // Both Asgardian royalty
-  ["Thor","Loki"],
-  // Both genius scientists turned monster
-  ["Hulk","Doctor Doom"],
-  // Both manipulate reality/time
-  ["Doctor Strange","Scarlet Witch"],
-  // Both stoic super-soldiers loyal to no flag
-  ["Captain America","Punisher"],
-  // Both Black super-heroes with vibranium ties
-  ["Black Panther","Black Panther (Shuri)"],
-  // Both trained assassins who switched sides
-  ["Black Widow","Hawkeye"],
-  // Both metal claws, brutal, feral fighters
-  ["Wolverine","X-23"],
-  // Both red symbiotes driven by rage
-  ["Venom","Carnage"],
-  // Both protective older figures for Spider-Man
-  ["Uncle Ben","May Parker"],
+  ["Spider-Man","Deadpool"],["Deadpool","Cable"],
+  ["Captain America","Wolverine"],["Hulk","Abomination"],
+  ["Doctor Strange","Scarlet Witch"],["Iron Man","Doctor Doom"],
+  ["Wolverine","X-23"],["Venom","Carnage"],
 ];
 
+// ════════════════════════════════════════════════════════════════
+// DATA — CLASSIC
+// ════════════════════════════════════════════════════════════════
 const CLASSIC_PAIRS = [
-  // ─── FOOD & DRINK ──────────────────────────────────────────────
   ["Coffee","Tea"],["Coffee","Hot Chocolate"],["Butter","Margarine"],
   ["Ketchup","Tomato Sauce"],["Jam","Marmalade"],["Biscuit","Cookie"],
   ["Donut","Bagel"],["Pancake","Waffle"],["Croissant","Brioche"],
@@ -1074,88 +1062,110 @@ const CLASSIC_PAIRS = [
   ["Spaghetti","Noodles"],["Rice","Couscous"],["Tofu","Paneer"],
   ["Sushi","Sashimi"],["Taco","Burrito"],["Crepe","Pancake"],
   ["Muffin","Cupcake"],["Brownie","Fudge"],["Caramel","Toffee"],
-  // ─── ANIMALS ───────────────────────────────────────────────────
   ["Cat","Dog"],["Lion","Tiger"],["Wolf","Fox"],["Dolphin","Shark"],
   ["Crocodile","Alligator"],["Turtle","Tortoise"],["Frog","Toad"],
-  ["Butterfly","Moth"],["Bee","Wasp"],["Ant","Termite"],
-  ["Crow","Raven"],["Eagle","Hawk"],["Penguin","Puffin"],
-  ["Seal","Sea Lion"],["Llama","Alpaca"],["Donkey","Mule"],
+  ["Butterfly","Moth"],["Bee","Wasp"],["Crow","Raven"],["Eagle","Hawk"],
+  ["Penguin","Puffin"],["Seal","Sea Lion"],["Llama","Alpaca"],
   ["Rabbit","Hare"],["Mouse","Rat"],["Squirrel","Hamster"],
-  ["Leopard","Cheetah"],["Camel","Dromedary"],["Gorilla","Chimpanzee"],
-  // ─── EVERYDAY OBJECTS ──────────────────────────────────────────
+  ["Leopard","Cheetah"],["Gorilla","Chimpanzee"],
   ["Sofa","Armchair"],["Blanket","Duvet"],["Pillow","Cushion"],
   ["Mirror","Window"],["Curtain","Blind"],["Lamp","Candle"],
   ["Key","Lock"],["Bag","Backpack"],["Wallet","Purse"],
-  ["Watch","Clock"],["Ring","Bracelet"],["Necklace","Chain"],
-  ["Pen","Pencil"],["Notebook","Diary"],["Book","Magazine"],
-  ["Fork","Chopsticks"],["Cup","Mug"],["Plate","Bowl"],
-  ["Kettle","Teapot"],["Fridge","Freezer"],["Oven","Microwave"],
-  ["Brush","Comb"],["Soap","Shower Gel"],["Toothbrush","Toothpaste"],
-  ["Umbrella","Raincoat"],["Sunglasses","Goggles"],["Hat","Cap"],
+  ["Watch","Clock"],["Ring","Bracelet"],["Pen","Pencil"],
+  ["Notebook","Diary"],["Fork","Chopsticks"],["Cup","Mug"],
+  ["Plate","Bowl"],["Kettle","Teapot"],["Fridge","Freezer"],
+  ["Oven","Microwave"],["Umbrella","Raincoat"],["Hat","Cap"],
   ["Gloves","Mittens"],["Boots","Wellies"],["Sneakers","Trainers"],
-  // ─── PLACES ────────────────────────────────────────────────────
   ["Beach","Lake"],["Forest","Jungle"],["Mountain","Hill"],
   ["River","Canal"],["Desert","Savanna"],["Cave","Tunnel"],
   ["Castle","Palace"],["Church","Cathedral"],["Temple","Mosque"],
   ["Hospital","Clinic"],["School","University"],["Library","Archive"],
   ["Market","Bazaar"],["Restaurant","Café"],["Hotel","Hostel"],
-  ["Airport","Train Station"],["Harbour","Marina"],["Stadium","Arena"],
-  ["Museum","Gallery"],["Zoo","Aquarium"],["Park","Garden"],
-  // ─── SPORTS & GAMES ────────────────────────────────────────────
+  ["Airport","Train Station"],["Stadium","Arena"],["Museum","Gallery"],
   ["Football","Rugby"],["Tennis","Badminton"],["Swimming","Diving"],
   ["Boxing","Wrestling"],["Cycling","Running"],["Skiing","Snowboarding"],
   ["Chess","Checkers"],["Poker","Blackjack"],["Darts","Bowling"],
   ["Golf","Croquet"],["Surfing","Windsurfing"],["Climbing","Hiking"],
-  // ─── TRANSPORT ─────────────────────────────────────────────────
   ["Car","Van"],["Bus","Tram"],["Taxi","Uber"],["Bicycle","Scooter"],
   ["Boat","Ship"],["Kayak","Canoe"],["Helicopter","Drone"],
-  ["Train","Metro"],["Motorbike","Quad Bike"],["Skateboard","Rollerblades"],
-  // ─── NATURE ────────────────────────────────────────────────────
+  ["Train","Metro"],["Motorbike","Quad Bike"],
   ["Rain","Snow"],["Thunder","Lightning"],["Fog","Mist"],
   ["Rainbow","Aurora"],["Volcano","Geyser"],["Earthquake","Tsunami"],
   ["Tree","Bush"],["Flower","Weed"],["Mushroom","Truffle"],
   ["Apple","Pear"],["Orange","Tangerine"],["Banana","Plantain"],
   ["Grape","Cherry"],["Strawberry","Raspberry"],["Watermelon","Melon"],
-  // ─── PROFESSIONS ───────────────────────────────────────────────
   ["Doctor","Nurse"],["Teacher","Professor"],["Chef","Baker"],
   ["Pilot","Flight Attendant"],["Lawyer","Judge"],["Architect","Engineer"],
   ["Actor","Comedian"],["Painter","Sculptor"],["Singer","Rapper"],
   ["Firefighter","Police Officer"],["Farmer","Gardener"],["Plumber","Electrician"],
-  // ─── BODY & HEALTH ─────────────────────────────────────────────
-  ["Heart","Lung"],["Brain","Mind"],["Eye","Ear"],
-  ["Hand","Foot"],["Arm","Leg"],["Tooth","Nail"],
-  ["Cold","Flu"],["Headache","Migraine"],["Vaccine","Medication"],
-  // ─── SCHOOL / KNOWLEDGE ────────────────────────────────────────
-  ["Map","Globe"],["Ruler","Compass"],["Calculator","Abacus"],
-  ["History","Geography"],["Math","Physics"],["Art","Design"],
-  ["Test","Exam"],["Grade","Mark"],["Homework","Project"],
-  // ─── MISC ──────────────────────────────────────────────────────
   ["Dream","Nightmare"],["Day","Night"],["Sun","Moon"],
   ["Fire","Flame"],["Water","Ice"],["Shadow","Reflection"],
   ["Gift","Surprise"],["Party","Gathering"],["Holiday","Vacation"],
   ["Music","Noise"],["Robot","Android"],["Ghost","Spirit"],
   ["Magic","Illusion"],["Detective","Spy"],["Pirate","Viking"],
 ];
+
+// ════════════════════════════════════════════════════════════════
+// GAME LOGIC
+// ════════════════════════════════════════════════════════════════
 let players = JSON.parse(localStorage.getItem('uc_players') || '["","",""]');
 let roles={}, civilianWord='', undercoverWord='', undercoverPlayers=[];
 let eliminated=[], round=1, pendingElim=null;
 let speakOrder=[], speakIndex=0;
 let clueLog=[], localVoteTally={};
 let gameMode='characters';
-let gameContext='local'; // 'local' or 'mp'
+let gameContext='local';
 
-// ─── MULTIPLAYER STATE ─────────────────────────────────────────────────────
 let ws=null, myName='', myRoom='', isHost=false, mpMode='characters';
 let mpPlayers=[], mpSpeakOrder=[], mpSpeakIndex=0, mpRound=1, mpEliminated=[];
 let mpWord='', mpWordRevealed=false, revealTimer=null;
 let mpClueLog=[], mpSoftVotes={}, mpElimVotes={};
 
-// ─── UTILS ────────────────────────────────────────────────────────────────
+// Update pair counts in UI
+function updateCounts(){
+  const counts={
+    characters:PAIRS.length,
+    anime:ANIME_PAIRS.length,
+    pokemon:POKEMON_PAIRS.length,
+    videogames:VIDEOGAME_PAIRS.length,
+    lol:LOL_PAIRS.length,
+    marvel:MARVEL_PAIRS.length,
+    classic:CLASSIC_PAIRS.length
+  };
+  for(const [k,v] of Object.entries(counts)){
+    const el=document.getElementById('cnt-'+k);
+    if(el) el.textContent=v+' pairs';
+  }
+}
+
+function getList(mode){
+  if(mode==='anime') return ANIME_PAIRS;
+  if(mode==='pokemon') return POKEMON_PAIRS;
+  if(mode==='videogames') return VIDEOGAME_PAIRS;
+  if(mode==='lol') return LOL_PAIRS;
+  if(mode==='marvel') return MARVEL_PAIRS;
+  if(mode==='classic') return CLASSIC_PAIRS;
+  return PAIRS;
+}
+
+function getLoaderText(mode){
+  const map={
+    characters:['SUMMONING CHARACTERS','Consulting the anime archives…'],
+    anime:['LOADING ANIME','Browsing the streaming library…'],
+    pokemon:['CATCHING POKÉMON','Throwing a Poké Ball…'],
+    videogames:['LOADING GAME','Inserting the cartridge…'],
+    lol:['PICKING CHAMPIONS','Entering champion select…'],
+    marvel:['ASSEMBLING HEROES','Calling the Avengers…'],
+    classic:['PREPARING WORDS','Shuffling the deck…'],
+  };
+  return map[mode]||map.characters;
+}
+
 function showPhase(id){
   document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  const emojiPhases=['phase-mp-word','phase-mp-play','phase-mp-elim-vote'];
+  const emojiPhases=['phase-mp-word','phase-mp-play'];
   document.getElementById('emoji-bar').style.display=emojiPhases.includes(id)?'flex':'none';
 }
 function notify(msg,dur=2800){
@@ -1165,8 +1175,7 @@ function notify(msg,dur=2800){
   setTimeout(()=>el.remove(),dur);
 }
 
-// ─── LANDING ──────────────────────────────────────────────────────────────
-function goLocal(){ gameContext='local'; showPhase('phase-setup'); renderPlayerInputs(); }
+function goLocal(){ gameContext='local'; showPhase('phase-setup'); renderPlayerInputs(); updateCounts(); }
 function goMultiplayer(){
   const code=new URLSearchParams(location.search).get('room');
   const banner=document.getElementById('invite-banner');
@@ -1175,7 +1184,6 @@ function goMultiplayer(){
   showPhase('phase-mp-entry');
 }
 
-// ─── LOCAL SETUP ──────────────────────────────────────────────────────────
 function renderPlayerInputs(){
   const c=document.getElementById('player-inputs'); c.innerHTML='';
   players.forEach((name,i)=>{
@@ -1188,8 +1196,8 @@ function addPlayer(){if(players.length<5){players.push('');renderPlayerInputs();
 function removePlayer(){if(players.length>3){players.pop();renderPlayerInputs();}}
 function setMode(mode){
   gameMode=mode;
-  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('mode-btn-'+mode).classList.add('active');
+  document.querySelectorAll('#mode-row .mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-btn-'+mode)?.classList.add('active');
 }
 function startGame(){
   const names=players.map(p=>p.trim()).filter(Boolean);
@@ -1198,8 +1206,11 @@ function startGame(){
   if(new Set(names).size!==names.length){err.textContent='All player names must be unique.';return;}
   err.textContent=''; players=names;
   localStorage.setItem('uc_players',JSON.stringify(players));
+  const [lt,ls]=getLoaderText(gameMode);
+  document.getElementById('loader-title').textContent=lt;
+  document.getElementById('loader-sub').textContent=ls;
   showPhase('phase-loading');
-  const list=gameMode==='anime'?ANIME_PAIRS:gameMode==='lol'?LOL_PAIRS:gameMode==='marvel'?MARVEL_PAIRS:gameMode==='classic'?CLASSIC_PAIRS:PAIRS;
+  const list=getList(gameMode);
   const pair=list[Math.floor(Math.random()*list.length)];
   if(Math.random()<0.5){civilianWord=pair[0];undercoverWord=pair[1];}
   else{civilianWord=pair[1];undercoverWord=pair[0];}
@@ -1207,10 +1218,18 @@ function startGame(){
   const shuffled=[...names].sort(()=>Math.random()-0.5);
   undercoverPlayers=shuffled.slice(0,spyCount); roles={};
   names.forEach(p=>{roles[p]=undercoverPlayers.includes(p)?'spy':'civilian';});
+  const hints={
+    anime:'These two anime share similarities — but are different. Pay attention to clues!',
+    pokemon:'These two Pokémon share similarities — but are different. Pay attention to clues!',
+    videogames:'These two games/characters share similarities — but are different. Pay attention!',
+    lol:'These two champions share similarities — but are different. Pay attention to clues!',
+    marvel:'These two heroes/villains are connected — but different. Pay attention to clues!',
+    classic:'These two things are similar — but different. Pay attention to clues!'
+  };
+  document.getElementById('pair-hint').textContent=hints[gameMode]||'These two are connected — but different. Pay attention to clues!';
   setTimeout(()=>{buildRevealCards();showPhase('phase-reveal');},700);
 }
 
-// ─── REVEAL CARDS ─────────────────────────────────────────────────────────
 const revealTimers={};
 function playHideSound(){
   try{
@@ -1253,8 +1272,6 @@ function toggleReveal(name,btn){
   }
 }
 function buildRevealCards(){
-  const hints={anime:'These two anime share similarities — but are different. Pay attention to clues!',lol:'These two champions share similarities — but are different. Pay attention to clues!',marvel:'These two heroes/villains are connected — but different. Pay attention to clues!',classic:'These two things are similar — but different. Pay attention to clues!'};
-  document.getElementById('pair-hint').textContent=hints[gameMode]||'These two characters are connected — but different. Pay attention to clues!';
   const container=document.getElementById('reveal-cards'); container.innerHTML='';
   players.forEach(name=>{
     const isSpy=roles[name]==='spy';
@@ -1265,8 +1282,6 @@ function buildRevealCards(){
   });
 }
 
-// ─── LOCAL PLAY ───────────────────────────────────────────────────────────
-let mpSpeakOrderLocal=[];
 function shuffleSpeakOrder(){
   const active=players.filter(p=>!eliminated.includes(p));
   speakOrder=[...active].sort(()=>Math.random()-0.5);
@@ -1300,7 +1315,7 @@ function renderSpeaker(){
       if(i===speakIndex)return`<span style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:1px solid var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;">${short}</span>`;
       return`<span style="width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">${short}</span>`;
     }).join('');
-    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${speakIndex+1}/${speakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${progress}</div><div class="clue-input-row"><input type="text" id="clue-input" placeholder="Log what ${name} said\u2026 (optional)" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')nextSpeaker()"/></div><button onclick="nextSpeaker()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;">NEXT →</button></div>`;
+    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${speakIndex+1}/${speakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${progress}</div><div class="clue-input-row"><input type="text" id="clue-input" placeholder="Log what ${name} said… (optional)" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')nextSpeaker()"/></div><button onclick="nextSpeaker()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;">NEXT →</button></div>`;
     voteGrid.innerHTML=''; votePrompt.style.display='none';
   }else{
     box.innerHTML='';
@@ -1321,21 +1336,21 @@ function renderClueLog(){
   if(!el)return;
   if(!clueLog.length){el.style.display='none';return;}
   el.style.display='block';
-  el.innerHTML='<div class="clue-log"><div class="clue-log-title">\uD83D\uDCCB Clue log</div>'+clueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">\u201c${e.clue}\u201d</span></div>`).join('')+'</div>';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+clueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">"${e.clue}"</span></div>`).join('')+'</div>';
 }
 function renderMpClueLog(){
   const el=document.getElementById('mp-clue-log');
   if(!el)return;
   if(!mpClueLog.length){el.style.display='none';return;}
   el.style.display='block';
-  el.innerHTML='<div class="clue-log"><div class="clue-log-title">\uD83D\uDCCB Clue log</div>'+mpClueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">\u201c${e.clue}\u201d</span></div>`).join('')+'</div>';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+mpClueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">"${e.clue}"</span></div>`).join('')+'</div>';
 }
 function renderLocalStrawPoll(active){
   const voteGrid=document.getElementById('vote-grid');
   voteGrid.innerHTML='';
   const total=Object.values(localVoteTally).reduce((s,v)=>s+v,0);
   const el=document.createElement('div'); el.className='straw-poll';
-  el.innerHTML=`<div class="straw-title">\uD83D\uDDF3\uFE0F Straw poll \u2014 pass the phone <span class="straw-count">${total}/${active.length}</span></div>`;
+  el.innerHTML=`<div class="straw-title">🗳️ Straw poll — pass the phone <span class="straw-count">${total}/${active.length}</span></div>`;
   active.forEach(name=>{
     const count=localVoteTally[name]||0;
     const pct=active.length>0?Math.round(count/active.length*100):0;
@@ -1345,7 +1360,7 @@ function renderLocalStrawPoll(active){
   });
   voteGrid.appendChild(el);
   const elimDiv=document.createElement('div'); elimDiv.className='elim-section';
-  elimDiv.innerHTML='<div class="straw-section-title">\u2620\uFE0F Final elimination</div>';
+  elimDiv.innerHTML='<div class="straw-section-title">☠️ Final elimination</div>';
   active.forEach(name=>{
     const btn=document.createElement('button'); btn.className='vote-btn'; btn.textContent=name;
     btn.onclick=()=>openModal(name); elimDiv.appendChild(btn);
@@ -1393,7 +1408,7 @@ function showResult(civWin){
 function resetGame(){
   if(gameContext==='mp'){mpNewGame();return;}
   roles={}; eliminated=[]; round=1;
-  renderPlayerInputs(); showPhase('phase-setup');
+  renderPlayerInputs(); showPhase('phase-setup'); updateCounts();
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1492,10 +1507,17 @@ function mpSetMode(mode){
   mpSend({type:'set_mode',mode});
 }
 function mpStartGame(){
-  const list=mpMode==='anime'?ANIME_PAIRS:mpMode==='lol'?LOL_PAIRS:mpMode==='marvel'?MARVEL_PAIRS:mpMode==='classic'?CLASSIC_PAIRS:PAIRS;
+  const list=getList(mpMode);
   mpSend({type:'start_game',pairs:list});
 }
-function mpReady(){mpSend({type:'ready'});}
+function mpReady(){
+  const btn=document.getElementById('mp-ready-btn');
+  btn.disabled=true; btn.textContent='WAITING FOR OTHERS…';
+  document.getElementById('mp-ready-status').textContent='Waiting for all players to be ready…';
+  if(isHost){ const fb=document.getElementById('mp-force-btn'); if(fb) fb.style.display='block'; }
+  mpSend({type:'ready'});
+}
+function mpForceStart(){ mpSend({type:'force_ready'}); }
 function mpLeaveRoom(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpNewGame(){mpSend({type:'new_game'});}
 function mpVoteEliminate(name){mpSend({type:'vote_eliminate',target:name});}
@@ -1516,10 +1538,8 @@ function handleServerMsg(msg){
       if(msg.phase==='reveal'){showMpWordScreen();notify('Rejoined! Waiting for others to reveal.');}
       else if(msg.phase==='play'){renderMpPlay();showPhase('phase-mp-play');notify('Rejoined!');}
       break;
-    case 'player_online':
-      notify(msg.name+' reconnected ↩'); break;
-    case 'player_offline':
-      notify(msg.name+' lost connection…'); break;
+    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_offline': notify(msg.name+' lost connection…'); break;
     case 'room_state':
       mpPlayers=msg.players; mpMode=msg.mode||'characters';
       renderLobby(msg); break;
@@ -1528,13 +1548,11 @@ function handleServerMsg(msg){
       document.getElementById('mp-join-error').textContent=msg.msg;
       document.getElementById('mp-entry-error').textContent=msg.msg;
       notify(msg.msg); break;
-    case 'player_left':
-      notify(msg.name+' left the room.'); break;
+    case 'player_left': notify(msg.name+' left the room.'); break;
     case 'player_ready':
       if(msg.readyPlayers) renderReadyList(msg.readyPlayers, msg.totalPlayers);
       break;
-    case 'new_host':
-      isHost=true; notify('You are now the host.'); break;
+    case 'new_host': isHost=true; notify('You are now the host.'); break;
     case 'game_start':
       mpWord=msg.word; mpWordRevealed=false;
       mpPlayers=msg.players; mpSpeakOrder=msg.speakOrder; mpSpeakIndex=0;
@@ -1563,9 +1581,9 @@ function handleServerMsg(msg){
         const tied=msg.tied||[];
         const tally=msg.tally||{};
         const box=document.getElementById('mp-vote-grid');
-        box.innerHTML='<div class="straw-poll"><div class="straw-title">\u26a0\ufe0f Tie! Host decides</div><div style="font-size:13px;color:var(--muted);margin-bottom:12px;">'+tied.map(n=>`<b>${n}</b> (${tally[n]} votes)`).join(' vs ')+'</div>'+tied.map(n=>`<button class="vote-btn" onclick="mpResolveTie('${n}')" style="margin-bottom:6px;">${n}</button>`).join('')+'</div>';
+        box.innerHTML='<div class="straw-poll"><div class="straw-title">⚠️ Tie! Host decides</div><div style="font-size:13px;color:var(--muted);margin-bottom:12px;">'+tied.map(n=>`<b>${n}</b> (${tally[n]} votes)`).join(' vs ')+'</div>'+tied.map(n=>`<button class="vote-btn" onclick="mpResolveTie('${n}')" style="margin-bottom:6px;">${n}</button>`).join('')+'</div>';
       }else{
-        document.getElementById('mp-vote-grid').innerHTML='<div class="waiting-msg">Tie vote \u2014 host is deciding\u2026</div>';
+        document.getElementById('mp-vote-grid').innerHTML='<div class="waiting-msg">Tie vote — host is deciding…</div>';
       }
       break;
     case 'vote_update':
@@ -1613,7 +1631,7 @@ function showMpWordScreen(){
   card.querySelector('.wc-word').textContent=mpWord;
   card.querySelector('#mp-word-sub').textContent='';
   card.classList.remove('hidden-word');
-  const labels={anime:'Your anime title',lol:'Your champion',marvel:'Your character',classic:'Your word'};
+  const labels={anime:'Your anime title',lol:'Your champion',marvel:'Your character',classic:'Your word',pokemon:'Your Pokémon',videogames:'Your game / character'};
   const lbl=document.getElementById('wc-label-text');
   if(lbl) lbl.textContent=labels[mpMode]||'Your character / anime';
   const btn=document.getElementById('mp-ready-btn');
@@ -1625,17 +1643,6 @@ function showMpWordScreen(){
   mpWordRevealed=false; clearInterval(revealTimer);
   showPhase('phase-mp-word');
 }
-
-function mpRevealWord(){}
-
-function mpReady(){
-  const btn=document.getElementById('mp-ready-btn');
-  btn.disabled=true; btn.textContent='WAITING FOR OTHERS…';
-  document.getElementById('mp-ready-status').textContent='Waiting for all players to be ready…';
-  if(isHost){ const fb=document.getElementById('mp-force-btn'); if(fb) fb.style.display='block'; }
-  mpSend({type:'ready'});
-}
-function mpForceStart(){ mpSend({type:'force_ready'}); }
 
 function renderReadyList(readyPlayers,total){
   const el=document.getElementById('mp-ready-list');
@@ -1677,20 +1684,19 @@ function renderMpSpeaker(){
       if(i===mpSpeakIndex)return`<span style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:1px solid var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;">${short}</span>`;
       return`<span style="width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">${short}</span>`;
     }).join('');
-
     let actionArea='';
     if(isMe){
       actionArea=`<div style="font-size:13px;color:var(--cyan);margin-bottom:10px;">🎤 It's your turn! Type your clue and press SUBMIT.</div>`+
-        `<div class="clue-input-row"><input type="text" id="mp-clue-input" placeholder="Enter your clue word\u2026" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')mpSubmitClue()"/></div>`+
-        `<button onclick="mpSubmitClue()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;">SUBMIT \u2713</button>`;
+        `<div class="clue-input-row"><input type="text" id="mp-clue-input" placeholder="Enter your clue word…" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')mpSubmitClue()"/></div>`+
+        `<button onclick="mpSubmitClue()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;">SUBMIT ✓</button>`;
     }else{
-      actionArea=`<div class="waiting-msg">Waiting for <b>${name}</b> to submit their clue\u2026</div>`;
+      actionArea=`<div class="waiting-msg">Waiting for <b>${name}</b> to submit their clue…</div>`;
     }
     box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${mpSpeakIndex+1}/${mpSpeakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${progress}</div>${actionArea}</div>`;
     voteGrid.innerHTML=''; votePrompt.style.display='none';
   }else{
     box.innerHTML='';
-    votePrompt.innerHTML='<b>Everyone spoke</b> \u2014 vote to eliminate the spy!';
+    votePrompt.innerHTML='<b>Everyone spoke</b> — vote to eliminate the spy!';
     votePrompt.style.display='block';
     renderMpElimVote();
   }
@@ -1703,7 +1709,7 @@ function renderMpElimVote(){
   const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
   const votedCount=Object.keys(mpElimVotes).length;
   const el=document.createElement('div'); el.className='straw-poll';
-  el.innerHTML=`<div class="straw-title">\uD83D\uDDF3\uFE0F Vote to eliminate <span class="straw-count">${votedCount}/${active.length}</span></div>`;
+  el.innerHTML=`<div class="straw-title">🗳️ Vote to eliminate <span class="straw-count">${votedCount}/${active.length}</span></div>`;
   active.forEach(name=>{
     const voters=Object.entries(mpElimVotes).filter(([,t])=>t===name).map(([v])=>v);
     const count=voters.length;
@@ -1719,38 +1725,26 @@ function renderMpElimVote(){
   voteGrid.appendChild(el);
   if(mpElimVotes[myName]){
     const msg=document.createElement('div'); msg.className='waiting-msg'; msg.style.marginTop='8px';
-    msg.textContent=`You voted for ${mpElimVotes[myName]}. Waiting for others\u2026`;
+    msg.textContent=`You voted for ${mpElimVotes[myName]}. Waiting for others…`;
     voteGrid.appendChild(msg);
   }
 }
-
 function mpCastElimVote(target){
   mpElimVotes[myName]=target;
   mpSend({type:'cast_vote',target});
   renderMpElimVote();
 }
-
 function mpSubmitClue(){
   const input=document.getElementById('mp-clue-input');
   const clue=input?input.value.trim():'';
   if(!clue){input?.focus();return;}
   mpSend({type:'submit_clue',clue});
 }
-
 function mpResolveTie(name){
   mpSend({type:'resolve_tie',target:name});
 }
-
-function openMpModal(name){
-  document.getElementById('modal-title').textContent='Eliminate?';
-  document.getElementById('modal-body').innerHTML=`Vote to eliminate <b>${name}</b>? This cannot be undone.`;
-  document.getElementById('modal-confirm').onclick=()=>{closeModal();mpVoteEliminate(name);};
-  document.getElementById('modal').classList.add('open');
-}
-
 function showMpResult(msg){
   gameContext='mp';
-  // Reconstruct local state for result screen
   players=mpPlayers; roles=msg.roles;
   civilianWord=msg.civilianWord; undercoverWord=msg.undercoverWord;
   const spyNames=msg.spyNames||[];
@@ -1772,24 +1766,22 @@ function showMpResult(msg){
   showPhase('phase-result');
 }
 
-// ─── MODAL ────────────────────────────────────────────────────────────────
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 renderPlayerInputs();
+updateCounts();
 function copyShareLink(){
   const url=location.origin+location.pathname+'?room='+myRoom;
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>notify('\ud83d\udd17 Link copied!')).catch(()=>prompt('Share this link:',url));}
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>notify('🔗 Link copied!')).catch(()=>prompt('Share this link:',url));}
   else{prompt('Share this link:',url);}
 }
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
-// Auto-rejoin if we have a saved session (player closed browser and came back)
 (function(){
   const saved=localStorage.getItem('uc_session');
   if(saved){
     try{
       const s=JSON.parse(saved);
       if(s.name&&s.room){
-        myName=s.name;
-        myRoom=s.room;
+        myName=s.name; myRoom=s.room;
         document.getElementById('mp-name-input').value=s.name;
         notify('Reconnecting to room '+s.room+'…');
         attemptReconnect(s.name,s.room,1);
@@ -1797,7 +1789,6 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
       }
     }catch(e){localStorage.removeItem('uc_session');}
   }
-  // Auto-navigate if page opened via invite link
   if(new URLSearchParams(location.search).get('room'))goMultiplayer();
 })();
 </script>
