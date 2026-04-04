@@ -43,11 +43,12 @@ function wsSend(socket, data) {
 
 function wsParseFrame(buf) {
   if (buf.length < 2) return null;
+  const opcode = buf[0] & 0x0f;
   const masked = !!(buf[1] & 0x80);
   let len = buf[1] & 0x7f;
   let offset = 2;
-  if (len === 126) { len = buf.readUInt16BE(2); offset = 4; }
-  else if (len === 127) { len = Number(buf.readBigUInt64BE(2)); offset = 10; }
+  if (len === 126) { if (buf.length < 4) return null; len = buf.readUInt16BE(2); offset = 4; }
+  else if (len === 127) { if (buf.length < 10) return null; len = Number(buf.readBigUInt64BE(2)); offset = 10; }
   if (buf.length < offset + (masked ? 4 : 0) + len) return null;
   let payload;
   if (masked) {
@@ -57,7 +58,21 @@ function wsParseFrame(buf) {
   } else {
     payload = buf.slice(offset, offset + len);
   }
+  // Handle control frames
+  if (opcode === 0x8) return '__ws_close__';  // close frame
+  if (opcode === 0x9) return '__ws_ping__';   // ping from client → send pong
+  if (opcode === 0xa) return '__ws_pong__';   // pong reply from client
   return payload.toString();
+}
+
+function wsSendPing(socket) {
+  if (socket.destroyed) return;
+  try { socket.write(Buffer.from([0x89, 0x00])); } catch(e) {} // opcode 0x9 = ping, 0 length
+}
+
+function wsSendPong(socket) {
+  if (socket.destroyed) return;
+  try { socket.write(Buffer.from([0x8a, 0x00])); } catch(e) {} // opcode 0xa = pong
 }
 
 // ─── Game state ───────────────────────────────────────────────────────────────
@@ -97,6 +112,8 @@ function handleMessage(socket, raw, playerId) {
   }
 
   switch (msg.type) {
+
+    case 'ping': break; // client heartbeat, ignore
 
     case 'create_room': {
       const code = generateCode();
@@ -159,6 +176,7 @@ function handleMessage(socket, raw, playerId) {
 
       room.phase = 'reveal';
       room.eliminated = [];
+      room.softVotes = {};
       room.round = 1;
       room.speakIndex = 0;
       room.civilianWord = civilian;
@@ -220,10 +238,26 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'soft_vote': {
+      if (!room) return;
+      const svTarget = String(msg.target || '').trim();
+      if (!svTarget) return;
+      room.softVotes = room.softVotes || {};
+      room.softVotes[playerId] = svTarget;
+      const namedVotes = {};
+      for (const [pid, tgt] of Object.entries(room.softVotes)) {
+        if (room.players[pid]) namedVotes[room.players[pid].name] = tgt;
+      }
+      broadcast(room, { type: 'vote_update', votes: namedVotes });
+      break;
+    }
+
     case 'next_speaker': {
       if (!room || room.host !== playerId) return;
+      const lastSpeaker = room.speakIndex < room.speakOrder.length ? room.speakOrder[room.speakIndex] : null;
+      const clue = typeof msg.clue === 'string' ? msg.clue.trim().slice(0, 60) : '';
       room.speakIndex++;
-      broadcast(room, { type: 'speaker_update', speakIndex: room.speakIndex });
+      broadcast(room, { type: 'speaker_update', speakIndex: room.speakIndex, lastPlayer: lastSpeaker, lastClue: clue });
       break;
     }
 
@@ -257,6 +291,7 @@ function handleMessage(socket, raw, playerId) {
       } else {
         room.round++;
         room.speakIndex = 0;
+        room.softVotes = {};
         // Reshuffle speak order excluding eliminated
         const activeIds = Object.entries(room.players)
           .filter(([,p]) => !room.eliminated.includes(p.name))
@@ -358,17 +393,33 @@ server.on('upgrade', (req, socket, head) => {
   clients[playerId] = socket;
   console.log(`Client connected: ${playerId}`);
 
+  // Heartbeat: send ping every 25s to keep connection alive
+  const heartbeat = setInterval(() => wsSendPing(socket), 25000);
+
   let buf = Buffer.alloc(0);
   socket.on('data', chunk => {
     buf = Buffer.concat([buf, chunk]);
-    const text = wsParseFrame(buf);
-    if (text !== null) {
-      buf = Buffer.alloc(0);
+    while (buf.length >= 2) {
+      const text = wsParseFrame(buf);
+      if (text === null) break;
+      // Calculate consumed bytes to advance buffer
+      let len = buf[1] & 0x7f;
+      let fOffset = 2;
+      if (len === 126) { len = buf.readUInt16BE(2); fOffset = 4; }
+      else if (len === 127) { len = Number(buf.readBigUInt64BE(2)); fOffset = 10; }
+      const masked = !!(buf[1] & 0x80);
+      const frameLen = fOffset + (masked ? 4 : 0) + len;
+      buf = buf.slice(frameLen);
+      // Handle control frames
+      if (text === '__ws_pong__') continue;
+      if (text === '__ws_ping__') { wsSendPong(socket); continue; }
+      if (text === '__ws_close__') { socket.end(); continue; }
       handleMessage(socket, text, playerId);
     }
   });
 
   socket.on('close', () => {
+    clearInterval(heartbeat);
     delete clients[playerId];
     for (const [code, room] of Object.entries(rooms)) {
       if (room.players[playerId]) {

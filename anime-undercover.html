@@ -94,6 +94,34 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 .vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:1rem;}
 .vote-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:15px;font-weight:500;padding:18px 12px;cursor:pointer;transition:all 0.2s;text-align:center;}
 .vote-btn:hover{border-color:var(--accent);background:rgba(232,55,90,0.08);transform:translateY(-2px);}
+.clue-log{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;}
+.clue-log-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.clue-entry{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
+.clue-entry:last-child{border-bottom:none;}
+.clue-num{font-size:11px;color:var(--muted);min-width:16px;}
+.clue-player{font-weight:600;font-size:13px;color:var(--text);min-width:60px;}
+.clue-text{font-size:13px;color:var(--muted);font-style:italic;margin-left:4px;}
+.clue-input-row{margin:10px 0 4px;}
+.clue-input-row input{width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:14px;padding:8px 12px;}
+.clue-input-row input::placeholder{color:var(--muted);}
+.straw-poll{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:1rem;}
+.straw-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.straw-count{font-size:12px;color:var(--cyan);margin-left:6px;font-weight:400;}
+.straw-row{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:4px;transition:background 0.1s;}
+.straw-row:last-child{border-bottom:none;}
+.straw-row:active{background:var(--surface2);}
+.straw-row.my-vote{background:rgba(56,229,197,0.07);}
+.straw-row.my-vote .straw-name{color:var(--cyan);}
+.straw-name{min-width:70px;font-size:14px;font-weight:500;color:var(--text);}
+.straw-bar-wrap{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.straw-bar{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s;}
+.straw-row.my-vote .straw-bar{background:var(--cyan);}
+.straw-num{font-size:13px;color:var(--muted);min-width:20px;text-align:right;}
+.straw-vote-btn{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:3px 9px;cursor:pointer;flex-shrink:0;}
+.straw-vote-btn:active{background:var(--surface3);}
+.straw-voters{font-size:11px;color:var(--muted);padding:2px 0 4px 78px;width:100%;}
+.straw-section-title{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:12px 0 8px;}
+.elim-section{margin-top:0.25rem;}
 .result-hero{border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;}
 .result-hero.civ-win{background:rgba(56,229,197,0.08);border:1px solid rgba(56,229,197,0.3);}
 .result-hero.spy-win{background:rgba(232,55,90,0.08);border:1px solid rgba(232,55,90,0.3);}
@@ -336,6 +364,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
   <div class="elim-strip" id="mp-elim-strip"></div>
   <div id="mp-speaker-box" style="margin-bottom:1.25rem;"></div>
+  <div id="mp-clue-log" style="display:none;"></div>
   <div class="vote-prompt" id="mp-vote-prompt" style="display:none;"><b>Everyone spoke</b> — host votes to eliminate the spy.</div>
   <div class="vote-grid" id="mp-vote-grid"></div>
   <div class="error-msg" id="mp-vote-error"></div>
@@ -374,6 +403,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
   <div class="elim-strip" id="elim-strip"></div>
   <div id="speaker-box" style="margin-bottom:1.25rem;"></div>
+  <div id="clue-log" style="display:none;"></div>
   <div class="vote-prompt" id="vote-prompt" style="display:none;"><b>Everyone spoke</b> — now vote to eliminate the spy.</div>
   <div class="vote-grid" id="vote-grid"></div>
   <div class="error-msg" id="vote-error"></div>
@@ -832,63 +862,103 @@ const ANIME_PAIRS = [
   ["Devilman Crybaby","Chainsaw Man"],
 ];
 
-const LOL_PAIRS = [
-  // ─── SAME ROLE / CLASS ─────────────────────────────────────────
-  // Assassins
-  ["Zed","Talon"],["Zed","Akali"],["Akali","Katarina"],["Talon","Qiyana"],
-  ["Khazix","Rengar"],["Pyke","Talon"],["Ekko","Zed"],["Shaco","Evelyn"],
-  // Mages
-  ["Lux","Syndra"],["Syndra","Orianna"],["Orianna","Viktor"],["Viktor","Jayce"],
-  ["Lissandra","Anivia"],["Anivia","Vel'Koz"],["Xerath","Lux"],["Zoe","Lux"],
-  ["Veigar","Viktor"],["Annie","Lux"],["Karma","Lux"],["Ryze","Kassadin"],
-  // Marksmen / ADC
-  ["Jinx","Vi"],["Caitlyn","Jinx"],["Ashe","Miss Fortune"],["Jhin","Caitlyn"],
-  ["Ezreal","Lucian"],["Draven","Miss Fortune"],["Kai'Sa","Xayah"],["Sivir","Ashe"],
-  ["Vayne","Quinn"],["Tristana","Jinx"],["Twitch","Vayne"],["Aphelios","Jhin"],
-  // Tanks / Juggernauts
-  ["Malphite","Leona"],["Leona","Nautilus"],["Nautilus","Blitzcrank"],
-  ["Darius","Garen"],["Garen","Malphite"],["Cho'Gath","Nasus"],
-  ["Mundo","Sion"],["Mordekaiser","Darius"],["Ornn","Malphite"],
-  // Supports
-  ["Thresh","Blitzcrank"],["Lulu","Soraka"],["Soraka","Nami"],["Nami","Janna"],
-  ["Bard","Thresh"],["Senna","Thresh"],["Yuumi","Lulu"],["Renata","Lulu"],
-  // Fighters / Bruisers
-  ["Irelia","Fiora"],["Fiora","Camille"],["Camille","Irelia"],
-  ["Riven","Irelia"],["Jax","Fiora"],["Tryndamere","Yasuo"],
-  ["Garen","Darius"],["Illaoi","Darius"],
-  // Divers / Skirmishers
-  ["Xin Zhao","Vi"],["Lee Sin","Jarvan IV"],["Vi","Camille"],
-  // ─── LORE CONNECTIONS ──────────────────────────────────────────
-  // Runeterra / Demacia
-  ["Garen","Lux"],["Lux","Sylas"],["Jarvan IV","Garen"],
-  ["Shyvana","Jarvan IV"],
-  // Noxus
-  ["Darius","Draven"],["Draven","Swain"],["Swain","Katarina"],
-  ["LeBlanc","Swain"],["Talon","Katarina"],
-  // Shadow Isles
-  ["Thresh","Senna"],["Viego","Thresh"],["Gwen","Viego"],
-  ["Yorick","Mordekaiser"],["Hecarim","Yorick"],
-  // Ionia
-  ["Yasuo","Yone"],["Yone","Yasuo"],["Irelia","Karma"],
-  ["Syndra","Zed"],["Shen","Zed"],["Akali","Kennen"],["Kennen","Shen"],
-  // Freljord
-  ["Ashe","Sejuani"],["Lissandra","Ashe"],["Tryndamere","Ashe"],
-  ["Udyr","Volibear"],["Volibear","Anivia"],
-  // Piltover / Zaun
-  ["Vi","Caitlyn"],["Jinx","Vi"],["Ekko","Jinx"],["Viktor","Jayce"],
-  ["Warwick","Singed"],["Singed","Viktor"],["Blitzcrank","Viktor"],
-  // Arcane characters (notably paired)
-  ["Jayce","Viktor"],["Powder (Jinx)","Vi"],["Silco","Vander"],
-  // Targon / Celestial
-  ["Leona","Diana"],["Diana","Leona"],["Aurelion Sol","Zoe"],
-  ["Pantheon","Leona"],["Taric","Leona"],
-  // Bilgewater
-  ["Gangplank","Miss Fortune"],["Graves","Twisted Fate"],
-  ["Twisted Fate","Miss Fortune"],["Pyke","Graves"],
-  // ─── CROSS-THEME ───────────────────────────────────────────────
-  ["Yasuo","Zed"],["Yasuo","Akali"],["Kayn","Zed"],
-  ["Master Yi","Tryndamere"],["Jinx","Ekko"],
-  ["Ezreal","Taric"],["Taric","Leona"],
+const LOL_PAIRS =  [
+  // MARKSMEN / ADC
+  ["Jinx","Caitlyn"],
+  ["Caitlyn","Miss Fortune"],
+  ["Ezreal","Lucian"],
+  ["Jinx","Kog'Maw"],
+  ["Draven","Miss Fortune"],
+  ["Lucian","Kalista"],
+  ["Twitch","Tristana"],
+  ["Xayah","Varus"],
+  ["Ziggs","Xerath"],
+  ["Senna","Jhin"],
+  ["Ashe","Varus"],
+  ["Sivir","Quinn"],
+
+  // MAGES
+  ["Lux","Morgana"],
+  ["Xerath","Vel'Koz"],
+  ["Orianna","Syndra"],
+  ["Veigar","Annie"],
+  ["Twisted Fate","Ryze"],
+  ["Taliyah","Anivia"],
+  ["Karthus","Sion"],
+  ["Viktor","Vel'Koz"],
+  ["Cassiopeia","Karthus"],
+  ["Veigar","Nasus"],
+  ["Ahri","LeBlanc"],
+  ["Zilean","Ekko"],
+
+  // ASSASSINS
+  ["Zed","Talon"],
+  ["Akali","Katarina"],
+  ["Fizz","Ekko"],
+  ["LeBlanc","Zoe"],
+  ["Evelynn","Twitch"],
+  ["Pyke","Nocturne"],
+  ["Qiyana","Talon"],
+  ["Rengar","Kha'Zix"],
+  ["Shaco","Evelynn"],
+  ["Nidalee","Elise"],
+
+  // FIGHTERS / BRUISERS
+  ["Darius","Garen"],
+  ["Fiora","Tryndamere"],
+  ["Aatrox","Darius"],
+  ["Irelia","Camille"],
+  ["Nasus","Veigar"],
+  ["Olaf","Tryndamere"],
+  ["Renekton","Mordekaiser"],
+  ["Volibear","Warwick"],
+  ["Jayce","Kennen"],
+  ["Sylas","Yone"],
+  ["Sett","Darius"],
+
+  // TANKS
+  ["Malphite","Amumu"],
+  ["Blitzcrank","Thresh"],
+  ["Leona","Nautilus"],
+  ["Malphite","Rammus"],
+  ["Poppy","Leona"],
+  ["Sion","Cho'Gath"],
+  ["Galio","Amumu"],
+  ["Alistar","Braum"],
+  ["Sejuani","Zac"],
+
+  // SUPPORTS
+  ["Lulu","Janna"],
+  ["Nami","Sona"],
+  ["Soraka","Yuumi"],
+  ["Zyra","Morgana"],
+  ["Thresh","Blitzcrank"],
+  ["Bard","Zilean"],
+  ["Renata Glasc","Senna"],
+  ["Karma","Lulu"],
+
+  // JUNGLERS
+  ["Hecarim","Nocturne"],
+  ["Vi","Jarvan IV"],
+  ["Graves","Kindred"],
+  ["Warwick","Volibear"],
+  ["Diana","Elise"],
+  ["Udyr","Shyvana"],
+  ["Rammus","Amumu"],
+  ["Master Yi","Tryndamere"],
+  ["Taliyah","Sejuani"],
+
+  // LORE / APPEARANCE / SKINS
+  ["Ahri","Lux"],
+  ["Jinx","Vi"],
+  ["Leona","Diana"],
+  ["Kayle","Morgana"],
+  ["Garen","Katarina"],
+  ["Yasuo","Yone"],
+  ["Darius","Draven"],
+  ["Caitlyn","Vi"],
+  ["Xayah","Rakan"],
+  ["Lux","Ezreal"],
 ];
 
 const MARVEL_PAIRS = [
@@ -1048,6 +1118,7 @@ let players = JSON.parse(localStorage.getItem('uc_players') || '["","",""]');
 let roles={}, civilianWord='', undercoverWord='', undercoverPlayers=[];
 let eliminated=[], round=1, pendingElim=null;
 let speakOrder=[], speakIndex=0;
+let clueLog=[], localVoteTally={};
 let gameMode='characters';
 let gameContext='local'; // 'local' or 'mp'
 
@@ -1055,6 +1126,7 @@ let gameContext='local'; // 'local' or 'mp'
 let ws=null, myName='', myRoom='', isHost=false, mpMode='characters';
 let mpPlayers=[], mpSpeakOrder=[], mpSpeakIndex=0, mpRound=1, mpEliminated=[];
 let mpWord='', mpWordRevealed=false, revealTimer=null;
+let mpClueLog=[], mpSoftVotes={};
 
 // ─── UTILS ────────────────────────────────────────────────────────────────
 function showPhase(id){
@@ -1177,10 +1249,11 @@ function shuffleSpeakOrder(){
   speakIndex=0;
 }
 function goToPlay(){
-  eliminated=[]; round=1; shuffleSpeakOrder();
+  clueLog=[]; eliminated=[]; round=1; shuffleSpeakOrder();
   renderPlay(); showPhase('phase-play');
 }
 function renderPlay(){
+  localVoteTally={};
   document.getElementById('round-num').textContent=round;
   const active=players.filter(p=>!eliminated.includes(p));
   document.getElementById('alive-count').textContent=active.length;
@@ -1203,18 +1276,56 @@ function renderSpeaker(){
       if(i===speakIndex)return`<span style="width:28px;height:28px;border-radius:50%;background:var(--accent);border:1px solid var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600;">${short}</span>`;
       return`<span style="width:28px;height:28px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">${short}</span>`;
     }).join('');
-    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${speakIndex+1}/${speakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:14px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">${progress}</div><button onclick="nextSpeaker()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;">NEXT →</button></div>`;
+    box.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;"><div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Now speaking (${speakIndex+1}/${speakOrder.length})</div><div style="font-family:var(--font-display);font-size:48px;letter-spacing:2px;line-height:1;margin-bottom:8px;color:var(--text);">${name}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${progress}</div><div class="clue-input-row"><input type="text" id="clue-input" placeholder="Log what ${name} said\u2026 (optional)" autocomplete="off" maxlength="60" onkeydown="if(event.key==='Enter')nextSpeaker()"/></div><button onclick="nextSpeaker()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;cursor:pointer;">NEXT →</button></div>`;
     voteGrid.innerHTML=''; votePrompt.style.display='none';
   }else{
-    box.innerHTML=''; votePrompt.style.display='block';
+    box.innerHTML='';
+    votePrompt.innerHTML='<b>Everyone spoke</b> — vote then eliminate the spy.';
+    votePrompt.style.display='block';
     const active=players.filter(p=>!eliminated.includes(p));
-    active.forEach(name=>{
-      const btn=document.createElement('button'); btn.className='vote-btn'; btn.textContent=name;
-      btn.onclick=()=>openModal(name); voteGrid.appendChild(btn);
-    });
+    renderLocalStrawPoll(active);
   }
 }
-function nextSpeaker(){speakIndex++;renderSpeaker();}
+function nextSpeaker(){
+  const input=document.getElementById('clue-input');
+  const clue=input?input.value.trim():'';
+  if(clue&&speakIndex<speakOrder.length)clueLog.push({player:speakOrder[speakIndex],clue});
+  speakIndex++;renderSpeaker();renderClueLog();
+}
+function renderClueLog(){
+  const el=document.getElementById('clue-log');
+  if(!el)return;
+  if(!clueLog.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">\uD83D\uDCCB Clue log</div>'+clueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">\u201c${e.clue}\u201d</span></div>`).join('')+'</div>';
+}
+function renderLocalStrawPoll(active){
+  const voteGrid=document.getElementById('vote-grid');
+  voteGrid.innerHTML='';
+  const total=Object.values(localVoteTally).reduce((s,v)=>s+v,0);
+  const el=document.createElement('div'); el.className='straw-poll';
+  el.innerHTML=`<div class="straw-title">\uD83D\uDDF3\uFE0F Straw poll \u2014 pass the phone <span class="straw-count">${total}/${active.length}</span></div>`;
+  active.forEach(name=>{
+    const count=localVoteTally[name]||0;
+    const pct=active.length>0?Math.round(count/active.length*100):0;
+    const row=document.createElement('div'); row.className='straw-row';
+    row.innerHTML=`<span class="straw-name">${name}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span><button class="straw-vote-btn" onclick="castLocalVote('${name}');event.stopPropagation()">+1</button>`;
+    el.appendChild(row);
+  });
+  voteGrid.appendChild(el);
+  const elimDiv=document.createElement('div'); elimDiv.className='elim-section';
+  elimDiv.innerHTML='<div class="straw-section-title">\u2620\uFE0F Final elimination</div>';
+  active.forEach(name=>{
+    const btn=document.createElement('button'); btn.className='vote-btn'; btn.textContent=name;
+    btn.onclick=()=>openModal(name); elimDiv.appendChild(btn);
+  });
+  voteGrid.appendChild(elimDiv);
+}
+function castLocalVote(name){
+  localVoteTally[name]=(localVoteTally[name]||0)+1;
+  const active=players.filter(p=>!eliminated.includes(p));
+  renderLocalStrawPoll(active);
+}
 function openModal(name){
   pendingElim=name;
   document.getElementById('modal-title').textContent='Eliminate?';
@@ -1257,6 +1368,7 @@ function resetGame(){
 // ════════════════════════════════════════════════════════════════
 // MULTIPLAYER
 // ════════════════════════════════════════════════════════════════
+let _wsHeartbeat=null;
 function mpConnect(){
   const name=(document.getElementById('mp-name-input').value||'').trim();
   const err=document.getElementById('mp-entry-error');
@@ -1271,12 +1383,17 @@ function mpConnect(){
     const code=new URLSearchParams(location.search).get('room');
     if(code){document.getElementById('mp-code-input').value=code.toUpperCase();showPhase('phase-mp-join');}
     else{showPhase('phase-mp-choose');}
+    clearInterval(_wsHeartbeat);
+    _wsHeartbeat=setInterval(()=>{if(ws&&ws.readyState===WebSocket.OPEN)mpSend({type:'ping'});},25000);
   };
   ws.onerror=()=>{err.textContent='Could not connect to server.'};
   ws.onclose=()=>{
+    clearInterval(_wsHeartbeat);
     const activeId=document.querySelector('.phase.active')?.id;
     if(activeId!=='phase-landing'&&activeId!=='phase-mp-entry'){
-      notify('Disconnected from server.');history.replaceState(null,'',location.pathname);showPhase('phase-landing');
+      notify('Disconnected from server.');
+      if(myRoom){attemptReconnect(myName,myRoom,1);}
+      else{history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
     }
   };
   ws.onmessage=(e)=>{
@@ -1284,7 +1401,7 @@ function mpConnect(){
     handleServerMsg(msg);
   };
 }
-function mpDisconnect(){if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
+function mpDisconnect(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpSend(data){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(data));}
 
 let _reconnectTimer=null;
@@ -1330,9 +1447,9 @@ function mpStartGame(){
   mpSend({type:'start_game',pairs:list});
 }
 function mpReady(){mpSend({type:'ready'});}
-function mpLeaveRoom(){if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
+function mpLeaveRoom(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpNewGame(){mpSend({type:'new_game'});}
-function mpNextSpeaker(){mpSend({type:'next_speaker'});}
+function mpNextSpeaker(){const input=document.getElementById('mp-clue-input');const clue=input?input.value.trim():'';mpSend({type:'next_speaker',clue});}
 function mpVoteEliminate(name){mpSend({type:'vote_eliminate',target:name});}
 
 function handleServerMsg(msg){
@@ -1373,12 +1490,20 @@ function handleServerMsg(msg){
       showMpWordScreen(); break;
     case 'phase_play':
       mpSpeakOrder=msg.speakOrder; mpSpeakIndex=msg.speakIndex;
-      mpRound=msg.round; mpEliminated=msg.eliminated;
+      mpRound=msg.round; mpEliminated=msg.eliminated; mpSoftVotes={};
       renderMpPlay(); showPhase('phase-mp-play'); break;
     case 'speaker_update':
-      mpSpeakIndex=msg.speakIndex; renderMpSpeaker(); break;
+      if(msg.lastPlayer&&msg.lastClue)mpClueLog.push({player:msg.lastPlayer,clue:msg.lastClue});
+      mpSpeakIndex=msg.speakIndex; renderMpSpeaker(); renderMpClueLog(); break;
     case 'game_over':
       showMpResult(msg); break;
+    case 'vote_update':
+      mpSoftVotes=msg.votes||{};
+      if(document.getElementById('phase-mp-play').classList.contains('active')&&document.getElementById('mp-vote-prompt').style.display!=='none'){
+        const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
+        renderMpStrawPoll(active);
+      }
+      break;
     case 'back_to_lobby':
       showPhase('phase-mp-lobby'); break;
   }
@@ -1409,6 +1534,7 @@ function renderLobby(msg){
 }
 
 function showMpWordScreen(){
+  mpClueLog=[];
   const card=document.getElementById('mp-word-card');
   card.querySelector('.wc-word').textContent=mpWord;
   card.querySelector('#mp-word-sub').textContent='';
@@ -1452,6 +1578,7 @@ function renderReadyList(readyPlayers,total){
 }
 
 function renderMpPlay(){
+  mpSoftVotes={};
   document.getElementById('mp-round-num').textContent=mpRound;
   const active=mpPlayers.filter(p=>!mpEliminated.includes(p));
   document.getElementById('mp-alive-count').textContent=active.length;
