@@ -785,7 +785,7 @@ function mpReady(){
 function mpForceStart(){ mpSend({type:'force_ready'}); }
 function mpLeaveRoom(){if(ws&&ws.readyState===WebSocket.OPEN)mpSend({type:'leave_room'});clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}location.href='/';}
 function mpNewGame(){mpSend({type:'new_game'});}
-function hubLeave(){if(ws&&ws.readyState===WebSocket.OPEN)mpSend({type:'leave_room'});clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}location.href='/';}
+function hubLeave(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName);}
 function returnToHub(){if(isHost)mpSend({type:'return_to_hub'});}
 function waitSetMode(mode){
   mpMode=mode;

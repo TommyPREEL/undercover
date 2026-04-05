@@ -415,7 +415,7 @@ let mpPaused = false;
 function mpTogglePause(){ mpSend({type: mpPaused ? 'resume_game' : 'pause_game'}); }
 function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
 function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';location.href='/';}
-function hubLeave(){mpSend({type:'leave_room'});if(ws){ws.onclose=null;ws.close();ws=null;}myRoom='';myName='';isHost=false;hubFlow=false;location.href='/';}
+function hubLeave(){if(ws){ws.onclose=null;ws.close();ws=null;}location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName);}
 function returnToHub(){if(isHost)mpSend({type:'return_to_hub'});}
 function setWaitingRounds(r,btn){
   mpRounds=r;

@@ -80,10 +80,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .game-sel-btn.active{border-color:var(--gold);background:rgba(245,197,66,0.08);}
 
 /* Config selectors */
-.config-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
-.config-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:0.06em;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:var(--font-body);}
-.config-btn:hover{border-color:var(--border2);color:var(--text);}
-.config-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,197,66,0.08);}
+
 
 .btn-launch{width:100%;background:var(--accent);border:none;border-radius:var(--radius);padding:16px;font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px;}
 .btn-launch:hover{background:#d02d4f;}
@@ -214,42 +211,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </button>
       </div>
 
-      <!-- Undercover config -->
-      <div id="cfg-undercover" class="config-section">
-        <div class="section-label">Mode</div>
-        <div class="config-row">
-          <button class="config-btn active" data-val="characters" onclick="setCfgMode('characters',this)">Characters</button>
-          <button class="config-btn" data-val="anime" onclick="setCfgMode('anime',this)">Anime</button>
-          <button class="config-btn" data-val="pokemon" onclick="setCfgMode('pokemon',this)">Pokémon</button>
-          <button class="config-btn" data-val="videogames" onclick="setCfgMode('videogames',this)">Video Games</button>
-          <button class="config-btn" data-val="movies" onclick="setCfgMode('movies',this)">Movies</button>
-          <button class="config-btn" data-val="tvshows" onclick="setCfgMode('tvshows',this)">TV Shows</button>
-          <button class="config-btn" data-val="random" onclick="setCfgMode('random',this)">🎲 Random</button>
-        </div>
-      </div>
-
-      <!-- Millionaire config -->
-      <div id="cfg-millionaire" class="config-section" style="display:none;">
-        <div class="section-label">Theme</div>
-        <div class="config-row">
-          <button class="config-btn active" data-val="videogames" onclick="setCfgTheme('videogames',this)">Video Games</button>
-          <button class="config-btn" data-val="anime" onclick="setCfgTheme('anime',this)">Anime</button>
-          <button class="config-btn" data-val="tvshows" onclick="setCfgTheme('tvshows',this)">TV Shows</button>
-          <button class="config-btn" data-val="geek" onclick="setCfgTheme('geek',this)">Geek Mix</button>
-        </div>
-      </div>
-
-      <!-- Hot Takes config -->
-      <div id="cfg-hottakes" class="config-section" style="display:none;">
-        <div class="section-label">Rounds</div>
-        <div class="config-row">
-          <button class="config-btn" data-val="5" onclick="setCfgRounds(5,this)">5</button>
-          <button class="config-btn active" data-val="10" onclick="setCfgRounds(10,this)">10</button>
-          <button class="config-btn" data-val="15" onclick="setCfgRounds(15,this)">15</button>
-          <button class="config-btn" data-val="20" onclick="setCfgRounds(20,this)">20</button>
-        </div>
-      </div>
-
       <button class="btn-launch" id="btn-launch" onclick="launchGame()">LAUNCH →</button>
     </div>
 
@@ -265,7 +226,6 @@ let ws = null;
 let myName = '', myRoom = '', isHost = false;
 let hubPlayers = [], hubScores = {};
 let selectedGame = 'undercover';
-let gameConfig = { mode: 'characters', theme: 'videogames', rounds: 10 };
 let pollInterval = null;
 let toastTimer = null;
 
@@ -409,54 +369,24 @@ function renderHubState(msg) {
   document.getElementById('hub-host-area').style.display = isHost ? 'block' : 'none';
   document.getElementById('hub-guest-area').style.display = isHost ? 'none' : 'block';
 
-  // Sync config from server
-  if (msg.gameConfig) {
-    if (msg.gameConfig.mode) syncConfigBtn('cfg-undercover', msg.gameConfig.mode);
-    if (msg.gameConfig.theme) syncConfigBtn('cfg-millionaire', msg.gameConfig.theme);
-    if (msg.gameConfig.rounds) syncConfigBtn('cfg-hottakes', String(msg.gameConfig.rounds));
-    gameConfig = { ...gameConfig, ...msg.gameConfig };
-  }
   if (msg.gameType && msg.gameType !== 'hub') {
     selectGameUI(msg.gameType);
   }
-}
-function syncConfigBtn(sectionId, val) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  section.querySelectorAll('.config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === String(val)));
 }
 
 // ── Game selection ────────────────────────────────────────────
 function selectGame(game, btn) {
   selectedGame = game;
-  selectGameUI(game);
+  document.querySelectorAll('.game-sel-btn').forEach(b => b.classList.toggle('active', b.dataset.game === game));
   wsSend({ type: 'set_game_config', gameType: game });
 }
 function selectGameUI(game) {
   selectedGame = game;
   document.querySelectorAll('.game-sel-btn').forEach(b => b.classList.toggle('active', b.dataset.game === game));
-  document.querySelectorAll('.config-section').forEach(s => s.style.display = 'none');
-  const cfgEl = document.getElementById('cfg-' + game);
-  if (cfgEl) cfgEl.style.display = 'block';
-}
-function setCfgMode(val, btn) {
-  gameConfig.mode = val;
-  document.querySelectorAll('#cfg-undercover .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-  wsSend({ type: 'set_game_config', mode: val });
-}
-function setCfgTheme(val, btn) {
-  gameConfig.theme = val;
-  document.querySelectorAll('#cfg-millionaire .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-  wsSend({ type: 'set_game_config', theme: val });
-}
-function setCfgRounds(val, btn) {
-  gameConfig.rounds = val;
-  document.querySelectorAll('#cfg-hottakes .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === String(val)));
-  wsSend({ type: 'set_game_config', rounds: val });
 }
 
 function launchGame() {
-  wsSend({ type: 'launch_game', gameType: selectedGame, ...gameConfig });
+  wsSend({ type: 'launch_game', gameType: selectedGame });
 }
 function copyCode() {
   const url = `${location.origin}/?room=${myRoom}&name=`;
@@ -510,12 +440,6 @@ function handleMsg(msg) {
       }
       break;
     case 'config_updated':
-      if (msg.gameConfig) {
-        gameConfig = { ...gameConfig, ...msg.gameConfig };
-        if (msg.gameConfig.mode) syncConfigBtn('cfg-undercover', msg.gameConfig.mode);
-        if (msg.gameConfig.theme) syncConfigBtn('cfg-millionaire', msg.gameConfig.theme);
-        if (msg.gameConfig.rounds) syncConfigBtn('cfg-hottakes', String(msg.gameConfig.rounds));
-      }
       if (msg.gameType) selectGameUI(msg.gameType);
       break;
     case 'game_launching':

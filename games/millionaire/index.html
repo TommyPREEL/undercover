@@ -878,10 +878,8 @@ function renderWaitingScreen(msg){
   }
 }
 function hubLeave(){
-  mpSend({type:'leave_room'});
   if(ws){ws.onclose=null;ws.close();ws=null;}
-  myRoom='';myName='';isHost=false;hubFlow=false;
-  location.href='/';
+  location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName);
 }
 function returnToHub(){
   if(isHost) mpSend({type:'return_to_hub'});
