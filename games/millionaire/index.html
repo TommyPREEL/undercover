@@ -582,7 +582,7 @@ function setMpHostTheme(btn){
 
 function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
 function mpDisconnectFull(){mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';showPhase('phase-home');}
-function mpLeaveRoom(){mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';showPhase('phase-home');}
+function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';showPhase('phase-home');}
 
 function mpWsConnect(onOpen){
   if(ws&&ws.readyState===WebSocket.OPEN){onOpen&&onOpen();return;}

@@ -532,6 +532,25 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'leave_room': {
+      if (!room || !room.players[playerId]) return;
+      const leaveName = room.players[playerId].name;
+      if (disconnectTimers[playerId]) { clearTimeout(disconnectTimers[playerId]); delete disconnectTimers[playerId]; }
+      delete room.players[playerId];
+      if (Object.keys(room.players).length === 0) {
+        delete rooms[room.code];
+      } else {
+        if (room.host === playerId) {
+          room.host = Object.keys(room.players)[0];
+          broadcast(room, { type: 'new_host', name: room.players[room.host].name });
+        }
+        broadcast(room, roomState(room));
+        broadcast(room, { type: 'player_left', name: leaveName });
+      }
+      console.log(`${leaveName} explicitly left room ${room.code}`);
+      break;
+    }
+
     case 'new_game': {
       if (!room || room.host !== playerId) return;
       if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }

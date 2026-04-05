@@ -891,7 +891,7 @@ function mpReady(){
   mpSend({type:'ready'});
 }
 function mpForceStart(){ mpSend({type:'force_ready'}); }
-function mpLeaveRoom(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
+function mpLeaveRoom(){if(ws&&ws.readyState===WebSocket.OPEN)mpSend({type:'leave_room'});clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}history.replaceState(null,'',location.pathname);showPhase('phase-landing');}
 function mpNewGame(){mpSend({type:'new_game'});}
 function mpVoteEliminate(name){mpSend({type:'vote_eliminate',target:name});}
 
