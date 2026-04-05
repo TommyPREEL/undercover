@@ -372,13 +372,51 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="waiting-msg" id="mp-rev-waiting">Next round coming up…</div>
 </div>
 
+<!-- ── MP WAITING (hub flow) ──────────────────────────────────── -->
+<div class="phase" id="phase-mp-waiting">
+  <a class="back-btn" href="#" onclick="hubLeave();return false;">← LOBBY</a>
+  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
+  <div class="tagline">Online — waiting for host</div>
+  <div class="label">Players (<span id="waiting-count">0</span>)</div>
+  <div id="waiting-player-list" class="player-lobby-list"></div>
+
+  <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
+    <div class="label">Global scores</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr>
+        <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
+        <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
+        <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:right;padding:4px 8px;border-bottom:1px solid var(--border);">Pts</th>
+      </tr></thead>
+      <tbody id="waiting-hub-scores-body"></tbody>
+    </table>
+  </div>
+
+  <div id="waiting-host-area" style="display:none;">
+    <div class="label">Rounds</div>
+    <div class="rounds-row" id="waiting-rounds-row">
+      <button class="round-btn" data-r="5" onclick="setWaitingRounds(5,this)">5</button>
+      <button class="round-btn active" data-r="10" onclick="setWaitingRounds(10,this)">10</button>
+      <button class="round-btn" data-r="15" onclick="setWaitingRounds(15,this)">15</button>
+      <button class="round-btn" data-r="20" onclick="setWaitingRounds(20,this)">20</button>
+    </div>
+    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
+  </div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start the game…</div>
+</div>
+
 <!-- ── MP RESULT ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-result">
   <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;">← HOME</a>
   <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
   <div class="tagline">The majority has spoken</div>
   <div class="leaderboard" id="mp-leaderboard"></div>
+  <div id="mp-result-hub-scores" style="display:none;margin-bottom:1rem;">
+    <div class="label" style="margin-top:1rem;">Global scores</div>
+    <div id="mp-result-hub-body"></div>
+  </div>
   <button class="btn-primary" id="mp-again-btn">BACK TO LOBBY</button>
+  <button class="btn-ghost" id="mp-return-hub-btn" style="display:none;" onclick="returnToHub()">↩ Return to Game Hub</button>
 </div>
 
 </div>
@@ -393,10 +431,12 @@ let localCurrentPrompt = null, localMyVotes = [];
 
 // Online
 let ws = null, myName = '', myRoom = '', isHost = false;
-let mpPlayers = [], mpScores = {}, mpRounds = 5;
+let mpPlayers = [], mpScores = {}, mpRounds = 10;
 let mpHasVoted = false;
-let mpCurrentPrompt = null, mpCurrentRound = 0, mpTotalRounds = 5;
+let mpCurrentPrompt = null, mpCurrentRound = 0, mpTotalRounds = 10;
 let reconnectAttempts = 0;
+let hubFlow = false;
+let hubScores = {};
 
 // ── UTILS ─────────────────────────────────────────────────────
 function showPhase(id){
@@ -487,7 +527,38 @@ let mpPaused = false;
 function mpTogglePause(){ mpSend({type: mpPaused ? 'resume_game' : 'pause_game'}); }
 function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
 function mpDisconnectFull(){mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';showPhase('phase-home');}
-function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';showPhase('phase-home');}
+function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';if(hubFlow){location.href='/';}else{showPhase('phase-home');}}
+function hubLeave(){mpSend({type:'leave_room'});if(ws){ws.onclose=null;ws.close();ws=null;}myRoom='';myName='';isHost=false;hubFlow=false;location.href='/';}
+function returnToHub(){if(isHost)mpSend({type:'return_to_hub'});}
+function setWaitingRounds(r,btn){
+  mpRounds=r;
+  document.querySelectorAll('#waiting-rounds-row .round-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.r)===r));
+  mpSend({type:'set_game_config',rounds:r});
+}
+function renderWaitingScreen(msg){
+  const players=msg.players||[];
+  const hostName=msg.host||'';
+  document.getElementById('waiting-count').textContent=players.length;
+  document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
+    const crown=p===hostName?'<span style="color:var(--accent);">👑</span>':'';
+    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    return `<div class="lobby-player">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+  }).join('');
+  document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
+  document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
+  if(msg.gameConfig&&msg.gameConfig.rounds){
+    mpRounds=msg.gameConfig.rounds;
+    document.querySelectorAll('#waiting-rounds-row .round-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.r)===mpRounds));
+  }
+  const hs=msg.hubScores||{};
+  const hsEntries=Object.entries(hs).sort((a,b)=>b[1]-a[1]);
+  if(hsEntries.some(([,v])=>v>0)){
+    document.getElementById('waiting-hub-scores-section').style.display='block';
+    document.getElementById('waiting-hub-scores-body').innerHTML=hsEntries.map(([name,pts],i)=>
+      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${name}</td><td style="font-size:13px;color:var(--accent);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
+    ).join('');
+  }
+}
 
 function mpWsConnect(cb){
   if(ws&&ws.readyState===WebSocket.OPEN){cb&&cb();return;}
@@ -537,22 +608,50 @@ function handleMsg(msg){
   switch(msg.type){
     case 'joined':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
-      showPhase('phase-mp-lobby'); break;
+      if(!hubFlow) localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
+      if(hubFlow) showPhase('phase-mp-waiting');
+      else showPhase('phase-mp-lobby'); break;
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
-      showPhase('phase-mp-lobby'); break;
+      if(!hubFlow) localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
+      if(hubFlow) showPhase('phase-mp-waiting');
+      else showPhase('phase-mp-lobby'); break;
     case 'room_state':
       mpPlayers=msg.players||[];
-      renderMpLobby(msg); break;
+      if(hubFlow) renderWaitingScreen(msg);
+      else renderMpLobby(msg); break;
+    case 'hub_state':
+      mpPlayers=msg.players||[];
+      if(msg.gameConfig&&msg.gameConfig.rounds) mpRounds=msg.gameConfig.rounds;
+      hubScores=msg.hubScores||{};
+      renderWaitingScreen(msg); break;
+    case 'hub_scores_updated':
+      hubScores=msg.hubScores||{}; break;
+    case 'config_updated':
+      if(msg.gameConfig&&msg.gameConfig.rounds){
+        mpRounds=msg.gameConfig.rounds;
+        document.querySelectorAll('#waiting-rounds-row .round-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.r)===mpRounds));
+      }
+      break;
+    case 'game_launching':
+      if(msg.gameType==='hub'){
+        const p=new URLSearchParams({room:msg.code,name:myName});
+        location.href='/?'+p.toString();
+      }
+      break;
     case 'error':
       document.getElementById('mp-entry-err').textContent=msg.msg||'Error.';
       document.getElementById('mp-join-err').textContent=msg.msg||'Error.'; break;
     case 'new_host':
       isHost=true; notify('You are now the host.');
-      document.getElementById('mp-host-area').style.display='block';
-      document.getElementById('mp-guest-area').style.display='none'; break;
+      if(hubFlow){
+        document.getElementById('waiting-host-area').style.display='block';
+        document.getElementById('waiting-guest-area').style.display='none';
+      } else {
+        document.getElementById('mp-host-area').style.display='block';
+        document.getElementById('mp-guest-area').style.display='none';
+      }
+      break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
     case 'player_offline': notify(msg.name+' disconnected…'); break;
     case 'player_left': notify(msg.name+' left the room.'); break;
@@ -582,7 +681,9 @@ function handleMsg(msg){
     case 'hottakes_over':
       clearMpTimer(); renderMpResult(msg); break;
     case 'back_to_lobby':
-      mpScores={}; showPhase('phase-mp-lobby'); break;
+      mpScores={};
+      if(hubFlow) showPhase('phase-mp-waiting');
+      else showPhase('phase-mp-lobby'); break;
   }
 }
 
@@ -724,13 +825,44 @@ function renderMpResult(msg){
     lb.appendChild(row);
   });
   const btn=document.getElementById('mp-again-btn');
-  if(isHost){btn.textContent='PLAY AGAIN';btn.onclick=()=>mpSend({type:'new_game'});}
-  else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-lobby');}
+  const hubBtn=document.getElementById('mp-return-hub-btn');
+  if(hubFlow){
+    btn.style.display='none';
+    hubBtn.style.display='block';
+    if(!isHost){hubBtn.textContent='Waiting for host to return to hub…';hubBtn.disabled=true;hubBtn.style.opacity='0.5';}
+    else{hubBtn.textContent='↩ Return to Game Hub';hubBtn.disabled=false;hubBtn.style.opacity='1';}
+    const hsEntries=Object.entries(hubScores).sort((a,b)=>b[1]-a[1]);
+    if(hsEntries.some(([,v])=>v>0)){
+      document.getElementById('mp-result-hub-scores').style.display='block';
+      document.getElementById('mp-result-hub-body').innerHTML=hsEntries.map(([name,pts],i)=>
+        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${i+1}. ${name}</span><span style="color:var(--accent);font-weight:700;">${pts} pts</span></div>`
+      ).join('');
+    }
+  } else {
+    btn.style.display='block'; hubBtn.style.display='none';
+    if(isHost){btn.textContent='PLAY AGAIN';btn.onclick=()=>mpSend({type:'new_game'});}
+    else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-lobby');}
+  }
   showPhase('phase-mp-result');
 }
 
 // ── INIT ──────────────────────────────────────────────────────
 (function init(){
+  // Hub flow: arrived from home page with ?room=...&name=...
+  const params=new URLSearchParams(location.search);
+  const autoRoom=params.get('room');
+  const autoName=params.get('name');
+  const autoRounds=params.get('rounds');
+  if(autoRoom&&autoName){
+    hubFlow=true;
+    myRoom=autoRoom.toUpperCase();
+    myName=autoName;
+    if(autoRounds) mpRounds=parseInt(autoRounds);
+    history.replaceState(null,'',location.pathname);
+    mpWsConnect(()=>mpSend({type:'join_room',code:myRoom,name:myName}));
+    showPhase('phase-mp-waiting');
+    return;
+  }
   localPlayerCount=3; buildInputs();
   try{
     const s=JSON.parse(localStorage.getItem('ht_session'));

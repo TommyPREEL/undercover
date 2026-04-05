@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f8;--muted:#7a7a9a;--accent:#e8375a;--cyan:#38e5c5;--font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;--radius:12px;--radius-sm:8px;}
+:root{--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f8;--muted:#7a7a9a;--accent:#e8375a;--cyan:#38e5c5;--gold:#f5c542;--font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;--radius:12px;--radius-sm:8px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(232,55,90,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,55,90,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
@@ -32,51 +32,525 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .game-tag{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-top:6px;}
 .game-arrow{color:var(--muted);font-size:20px;flex-shrink:0;transition:transform 0.2s;}
 .game-card:hover .game-arrow{transform:translateX(4px);color:var(--accent);}
-.game-card.coming-soon{opacity:0.4;cursor:not-allowed;pointer-events:none;}
-.game-card.coming-soon .game-tag{color:var(--muted);}
+
+/* Hub section */
+.hub-section{margin-bottom:2.5rem;}
+.hub-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.btn-hub{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 18px;cursor:pointer;color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:600;text-align:center;transition:all 0.15s;}
+.btn-hub:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent);}
+.btn-hub.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-hub.primary:hover{background:#d02d4f;}
+.hub-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--font-body);font-size:15px;outline:none;transition:border-color 0.15s;margin-bottom:10px;}
+.hub-input:focus{border-color:var(--accent);}
+.hub-input::placeholder{color:var(--muted);}
+.hub-error{font-size:12px;color:var(--accent);min-height:18px;margin-bottom:8px;}
+
+/* Lobby list */
+.lobby-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;}
+.lobby-item-info{flex:1;}
+.lobby-item-code{font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--gold);}
+.lobby-item-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.lobby-join-btn{background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 14px;color:var(--text);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.lobby-join-btn:hover{border-color:var(--gold);color:var(--gold);}
+.no-lobbies{font-size:13px;color:var(--muted);text-align:center;padding:16px 0;}
+
+/* In-hub view */
+.hub-view{display:none;}
+.hub-code-big{font-family:var(--font-display);font-size:72px;letter-spacing:8px;color:var(--gold);text-align:center;padding:0.5rem 0;line-height:1;}
+.hub-code-label{font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;text-align:center;margin-bottom:1.5rem;}
+.player-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.player-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;font-weight:500;}
+.player-row .crown{color:var(--gold);font-size:16px;}
+.player-row .you-tag{font-size:10px;background:rgba(245,197,66,0.12);color:var(--gold);border:1px solid rgba(245,197,66,0.25);border-radius:20px;padding:2px 8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-left:auto;}
+
+/* Hub scores */
+.scores-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;}
+.scores-table th{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);}
+.scores-table td{font-size:13px;padding:8px 10px;border-bottom:1px solid var(--border);}
+.scores-table tr:last-child td{border-bottom:none;}
+.scores-table .pts{color:var(--gold);font-weight:700;text-align:right;}
+.scores-table .rank{color:var(--muted);width:24px;}
+
+/* Game selector */
+.game-sel-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.game-sel-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text);font-family:var(--font-body);}
+.game-sel-btn .gs-icon{font-size:24px;display:block;margin-bottom:4px;}
+.game-sel-btn .gs-name{font-family:var(--font-display);font-size:16px;letter-spacing:1px;}
+.game-sel-btn:hover{border-color:var(--border2);background:var(--surface2);}
+.game-sel-btn.active{border-color:var(--gold);background:rgba(245,197,66,0.08);}
+
+/* Config selectors */
+.config-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.config-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:0.06em;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:var(--font-body);}
+.config-btn:hover{border-color:var(--border2);color:var(--text);}
+.config-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,197,66,0.08);}
+
+.btn-launch{width:100%;background:var(--accent);border:none;border-radius:var(--radius);padding:16px;font-family:var(--font-display);font-size:28px;letter-spacing:2px;color:#fff;cursor:pointer;transition:background 0.15s;margin-top:4px;}
+.btn-launch:hover{background:#d02d4f;}
+.btn-launch:disabled{opacity:0.4;cursor:not-allowed;}
+.guest-waiting{font-size:13px;color:var(--muted);text-align:center;padding:12px 0;}
+.btn-leave{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;color:var(--muted);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;margin-top:10px;width:100%;}
+.btn-leave:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Panel transitions */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;color:var(--text);z-index:100;opacity:0;transition:opacity 0.2s;pointer-events:none;}
+#toast.show{opacity:1;}
 </style>
 </head>
 <body>
+<div id="toast"></div>
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="container">
   <div class="logo">GAME<span>ROOM</span></div>
-  <div class="tagline">Pick a game &amp; play</div>
+  <div class="tagline" id="main-tagline">Pick a game &amp; play</div>
 
-  <div class="section-label">Available games</div>
-  <div class="games-grid">
+  <!-- ── LANDING VIEW ── -->
+  <div id="view-landing">
 
-    <a class="game-card" href="/games/undercover/">
-      <div class="game-icon">🕵️</div>
-      <div class="game-info">
-        <div class="game-title">UNDERCOVER</div>
-        <div class="game-desc">Find the spy before they fool everyone. Social deduction with anime, Pokémon &amp; more.</div>
-        <div class="game-tag">2–12 players · Local &amp; Online</div>
+    <!-- Hub section -->
+    <div class="hub-section">
+      <div class="section-label">Play together</div>
+
+      <!-- Entry panel: name + buttons -->
+      <div id="panel-entry" class="panel active">
+        <input class="hub-input" id="hub-name" placeholder="Your name…" maxlength="20" autocomplete="off"/>
+        <div class="hub-btn-row">
+          <button class="btn-hub primary" onclick="hubCreate()">＋ Create Lobby</button>
+          <button class="btn-hub" onclick="showJoinPanel()">→ Join Lobby</button>
+        </div>
+        <div class="hub-error" id="entry-error"></div>
       </div>
-      <div class="game-arrow">→</div>
-    </a>
 
-    <a class="game-card" href="/games/millionaire/" style="--accent:#f5c542;">
-      <div class="game-icon">💰</div>
-      <div class="game-info">
-        <div class="game-title">MILLIONAIRE</div>
-        <div class="game-desc">15 questions, $1,000,000 on the line. Geek edition — video games, anime, TV &amp; more.</div>
-        <div class="game-tag">2–8 players · Local &amp; Online</div>
+      <!-- Join panel: code input -->
+      <div id="panel-join" class="panel">
+        <input class="hub-input" id="hub-join-name" placeholder="Your name…" maxlength="20" autocomplete="off"/>
+        <input class="hub-input" id="hub-code" placeholder="Room code…" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;font-family:var(--font-display);font-size:20px;"/>
+        <div class="hub-btn-row">
+          <button class="btn-hub" onclick="showEntryPanel()">← Back</button>
+          <button class="btn-hub primary" onclick="hubJoin()">Join →</button>
+        </div>
+        <div class="hub-error" id="join-error"></div>
       </div>
-      <div class="game-arrow">→</div>
-    </a>
 
-    <a class="game-card" href="/games/hottakes/" style="--accent:#9b59b6;">
-      <div class="game-icon">🔥</div>
-      <div class="game-info">
-        <div class="game-title">HOT TAKES</div>
-        <div class="game-desc">Agree or disagree on spicy geek opinions. Vote secretly, reveal together, score points.</div>
-        <div class="game-tag">2–12 players · Local &amp; Online</div>
+      <!-- Public lobbies list -->
+      <div id="panel-lobbies" style="margin-top:12px;">
+        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Open lobbies</span>
+          <span id="lobby-refresh" style="cursor:pointer;font-size:10px;color:var(--muted);" onclick="fetchLobbies()">↺ refresh</span>
+        </div>
+        <div id="lobby-list-container"><div class="no-lobbies">Loading…</div></div>
       </div>
-      <div class="game-arrow">→</div>
-    </a>
+    </div>
 
+    <!-- Solo game cards -->
+    <div class="section-label">Play solo / local</div>
+    <div class="games-grid">
+      <a class="game-card" href="/games/undercover/">
+        <div class="game-icon">🕵️</div>
+        <div class="game-info">
+          <div class="game-title">UNDERCOVER</div>
+          <div class="game-desc">Find the spy before they fool everyone. Social deduction with anime, Pokémon &amp; more.</div>
+          <div class="game-tag">2–12 players · Local</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+      <a class="game-card" href="/games/millionaire/" style="--accent:#f5c542;">
+        <div class="game-icon">💰</div>
+        <div class="game-info">
+          <div class="game-title">MILLIONAIRE</div>
+          <div class="game-desc">15 questions, $1,000,000 on the line. Geek edition — video games, anime, TV &amp; more.</div>
+          <div class="game-tag">1 player · Local</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+      <a class="game-card" href="/games/hottakes/" style="--accent:#9b59b6;">
+        <div class="game-icon">🔥</div>
+        <div class="game-info">
+          <div class="game-title">HOT TAKES</div>
+          <div class="game-desc">Agree or disagree on spicy geek opinions. Vote secretly, reveal together, score points.</div>
+          <div class="game-tag">1 player · Local</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ── HUB LOBBY VIEW ── -->
+  <div id="view-hub" class="hub-view">
+    <div class="hub-code-big" id="hub-code-display">----</div>
+    <div class="hub-code-label">Room code — share with friends
+      <button onclick="copyCode()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;margin-left:8px;">🔗 copy</button>
+    </div>
+
+    <div class="section-label">Players (<span id="hub-player-count">0</span>)</div>
+    <div id="hub-player-list" class="player-list"></div>
+
+    <!-- Global scores (hidden until 1+ game played) -->
+    <div id="hub-scores-section" style="display:none;">
+      <div class="section-label">Global scores</div>
+      <table class="scores-table" id="hub-scores-table">
+        <thead><tr><th>#</th><th>Player</th><th style="text-align:right;">Points</th></tr></thead>
+        <tbody id="hub-scores-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Host controls -->
+    <div id="hub-host-area" style="display:none;">
+      <div class="section-label">Choose a game</div>
+      <div class="game-sel-row">
+        <button class="game-sel-btn active" data-game="undercover" onclick="selectGame('undercover',this)">
+          <span class="gs-icon">🕵️</span><span class="gs-name">UNDERCOVER</span>
+        </button>
+        <button class="game-sel-btn" data-game="millionaire" onclick="selectGame('millionaire',this)">
+          <span class="gs-icon">💰</span><span class="gs-name">MILLIONAIRE</span>
+        </button>
+        <button class="game-sel-btn" data-game="hottakes" onclick="selectGame('hottakes',this)">
+          <span class="gs-icon">🔥</span><span class="gs-name">HOT TAKES</span>
+        </button>
+      </div>
+
+      <!-- Undercover config -->
+      <div id="cfg-undercover" class="config-section">
+        <div class="section-label">Mode</div>
+        <div class="config-row">
+          <button class="config-btn active" data-val="characters" onclick="setCfgMode('characters',this)">Characters</button>
+          <button class="config-btn" data-val="anime" onclick="setCfgMode('anime',this)">Anime</button>
+          <button class="config-btn" data-val="pokemon" onclick="setCfgMode('pokemon',this)">Pokémon</button>
+          <button class="config-btn" data-val="videogames" onclick="setCfgMode('videogames',this)">Video Games</button>
+          <button class="config-btn" data-val="movies" onclick="setCfgMode('movies',this)">Movies</button>
+          <button class="config-btn" data-val="tvshows" onclick="setCfgMode('tvshows',this)">TV Shows</button>
+          <button class="config-btn" data-val="random" onclick="setCfgMode('random',this)">🎲 Random</button>
+        </div>
+      </div>
+
+      <!-- Millionaire config -->
+      <div id="cfg-millionaire" class="config-section" style="display:none;">
+        <div class="section-label">Theme</div>
+        <div class="config-row">
+          <button class="config-btn active" data-val="videogames" onclick="setCfgTheme('videogames',this)">Video Games</button>
+          <button class="config-btn" data-val="anime" onclick="setCfgTheme('anime',this)">Anime</button>
+          <button class="config-btn" data-val="tvshows" onclick="setCfgTheme('tvshows',this)">TV Shows</button>
+          <button class="config-btn" data-val="geek" onclick="setCfgTheme('geek',this)">Geek Mix</button>
+        </div>
+      </div>
+
+      <!-- Hot Takes config -->
+      <div id="cfg-hottakes" class="config-section" style="display:none;">
+        <div class="section-label">Rounds</div>
+        <div class="config-row">
+          <button class="config-btn" data-val="5" onclick="setCfgRounds(5,this)">5</button>
+          <button class="config-btn active" data-val="10" onclick="setCfgRounds(10,this)">10</button>
+          <button class="config-btn" data-val="15" onclick="setCfgRounds(15,this)">15</button>
+          <button class="config-btn" data-val="20" onclick="setCfgRounds(20,this)">20</button>
+        </div>
+      </div>
+
+      <button class="btn-launch" id="btn-launch" onclick="launchGame()">LAUNCH →</button>
+    </div>
+
+    <div id="hub-guest-area" style="display:none;" class="guest-waiting">Waiting for host to launch a game…</div>
+
+    <button class="btn-leave" onclick="hubLeave()">← Leave lobby</button>
   </div>
 </div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────
+let ws = null;
+let myName = '', myRoom = '', isHost = false;
+let hubPlayers = [], hubScores = {};
+let selectedGame = 'undercover';
+let gameConfig = { mode: 'characters', theme: 'videogames', rounds: 10 };
+let pollInterval = null;
+let toastTimer = null;
+
+// ── Init ──────────────────────────────────────────────────────
+const urlParams = new URLSearchParams(location.search);
+const autoRoom = urlParams.get('room');
+const autoName = urlParams.get('name');
+if (autoRoom && autoName) {
+  myRoom = autoRoom.toUpperCase();
+  myName = autoName;
+  history.replaceState(null, '', '/');
+  connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName }));
+} else {
+  fetchLobbies();
+  pollInterval = setInterval(fetchLobbies, 8000);
+}
+
+// ── Panels ────────────────────────────────────────────────────
+function showEntryPanel() {
+  document.getElementById('panel-entry').classList.add('active');
+  document.getElementById('panel-join').classList.remove('active');
+}
+function showJoinPanel() {
+  document.getElementById('panel-entry').classList.remove('active');
+  document.getElementById('panel-join').classList.add('active');
+  const n = document.getElementById('hub-name').value.trim();
+  if (n) document.getElementById('hub-join-name').value = n;
+  document.getElementById('hub-join-name').focus();
+}
+
+// ── WebSocket ─────────────────────────────────────────────────
+function connectHub(onOpen) {
+  if (ws && ws.readyState === WebSocket.OPEN) { onOpen && onOpen(); return; }
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}`);
+  ws.onopen = () => onOpen && onOpen();
+  ws.onmessage = e => handleMsg(JSON.parse(e.data));
+  ws.onclose = () => {
+    ws = null;
+    if (myRoom) setTimeout(() => connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName })), 2000);
+  };
+  ws.onerror = () => {};
+}
+function wsSend(msg) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg)); }
+
+// ── Lobbies list ──────────────────────────────────────────────
+function fetchLobbies() {
+  if (myRoom) return; // in hub, no need
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${proto}//${location.host}`);
+    ws.onopen = () => wsSend({ type: 'list_lobbies' });
+    ws.onmessage = e => handleMsg(JSON.parse(e.data));
+    ws.onerror = () => {};
+    ws.onclose = () => { if (!myRoom) ws = null; };
+  } else {
+    wsSend({ type: 'list_lobbies' });
+  }
+}
+function renderLobbies(lobbies) {
+  const c = document.getElementById('lobby-list-container');
+  if (!lobbies.length) { c.innerHTML = '<div class="no-lobbies">No open lobbies right now</div>'; return; }
+  c.innerHTML = lobbies.map(l => `
+    <div class="lobby-item">
+      <div class="lobby-item-info">
+        <div class="lobby-item-code">${l.code}</div>
+        <div class="lobby-item-meta">Host: ${l.host} · ${l.playerCount} player${l.playerCount !== 1 ? 's' : ''}</div>
+      </div>
+      <button class="lobby-join-btn" onclick="quickJoin('${l.code}')">Join</button>
+    </div>
+  `).join('');
+}
+function quickJoin(code) {
+  document.getElementById('hub-code').value = code;
+  showJoinPanel();
+  document.getElementById('hub-join-name').focus();
+}
+
+// ── Create / Join ─────────────────────────────────────────────
+function hubCreate() {
+  const name = document.getElementById('hub-name').value.trim();
+  if (!name) { document.getElementById('entry-error').textContent = 'Enter your name.'; return; }
+  myName = name;
+  document.getElementById('entry-error').textContent = '';
+  connectHub(() => wsSend({ type: 'create_hub_room', name }));
+}
+function hubJoin() {
+  const name = document.getElementById('hub-join-name').value.trim();
+  const code = document.getElementById('hub-code').value.trim().toUpperCase();
+  if (!name) { document.getElementById('join-error').textContent = 'Enter your name.'; return; }
+  if (!code) { document.getElementById('join-error').textContent = 'Enter a room code.'; return; }
+  myName = name;
+  document.getElementById('join-error').textContent = '';
+  connectHub(() => wsSend({ type: 'join_hub_room', code, name }));
+}
+function hubLeave() {
+  wsSend({ type: 'leave_room' });
+  if (ws) { ws.onclose = null; ws.close(); ws = null; }
+  myRoom = ''; myName = ''; isHost = false;
+  showLanding();
+  fetchLobbies();
+  pollInterval = setInterval(fetchLobbies, 8000);
+}
+
+// ── Hub view ──────────────────────────────────────────────────
+function showLanding() {
+  document.getElementById('view-landing').style.display = 'block';
+  document.getElementById('view-hub').style.display = 'none';
+  document.getElementById('main-tagline').textContent = 'Pick a game & play';
+}
+function showHubView(code) {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  document.getElementById('view-landing').style.display = 'none';
+  document.getElementById('view-hub').style.display = 'block';
+  document.getElementById('hub-code-display').textContent = code;
+  document.getElementById('main-tagline').textContent = 'Lobby — invite your friends';
+}
+function renderHubState(msg) {
+  hubPlayers = msg.players || [];
+  hubScores = msg.hubScores || {};
+  const hostName = msg.host || '';
+
+  // Player list
+  document.getElementById('hub-player-count').textContent = hubPlayers.length;
+  document.getElementById('hub-player-list').innerHTML = hubPlayers.map(p => {
+    const crown = p === hostName ? '<span class="crown">👑</span>' : '';
+    const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
+    return `<div class="player-row">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+  }).join('');
+
+  // Scores
+  const entries = Object.entries(hubScores).sort((a, b) => b[1] - a[1]);
+  if (entries.some(([, v]) => v > 0)) {
+    document.getElementById('hub-scores-section').style.display = 'block';
+    document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
+      `<tr><td class="rank">${i + 1}</td><td>${name}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+    ).join('');
+  }
+
+  // Host vs guest controls
+  document.getElementById('hub-host-area').style.display = isHost ? 'block' : 'none';
+  document.getElementById('hub-guest-area').style.display = isHost ? 'none' : 'block';
+
+  // Sync config from server
+  if (msg.gameConfig) {
+    if (msg.gameConfig.mode) syncConfigBtn('cfg-undercover', msg.gameConfig.mode);
+    if (msg.gameConfig.theme) syncConfigBtn('cfg-millionaire', msg.gameConfig.theme);
+    if (msg.gameConfig.rounds) syncConfigBtn('cfg-hottakes', String(msg.gameConfig.rounds));
+    gameConfig = { ...gameConfig, ...msg.gameConfig };
+  }
+  if (msg.gameType && msg.gameType !== 'hub') {
+    selectGameUI(msg.gameType);
+  }
+}
+function syncConfigBtn(sectionId, val) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  section.querySelectorAll('.config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === String(val)));
+}
+
+// ── Game selection ────────────────────────────────────────────
+function selectGame(game, btn) {
+  selectedGame = game;
+  selectGameUI(game);
+  wsSend({ type: 'set_game_config', gameType: game });
+}
+function selectGameUI(game) {
+  selectedGame = game;
+  document.querySelectorAll('.game-sel-btn').forEach(b => b.classList.toggle('active', b.dataset.game === game));
+  document.querySelectorAll('.config-section').forEach(s => s.style.display = 'none');
+  const cfgEl = document.getElementById('cfg-' + game);
+  if (cfgEl) cfgEl.style.display = 'block';
+}
+function setCfgMode(val, btn) {
+  gameConfig.mode = val;
+  document.querySelectorAll('#cfg-undercover .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  wsSend({ type: 'set_game_config', mode: val });
+}
+function setCfgTheme(val, btn) {
+  gameConfig.theme = val;
+  document.querySelectorAll('#cfg-millionaire .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+  wsSend({ type: 'set_game_config', theme: val });
+}
+function setCfgRounds(val, btn) {
+  gameConfig.rounds = val;
+  document.querySelectorAll('#cfg-hottakes .config-btn').forEach(b => b.classList.toggle('active', b.dataset.val === String(val)));
+  wsSend({ type: 'set_game_config', rounds: val });
+}
+
+function launchGame() {
+  wsSend({ type: 'launch_game', gameType: selectedGame, ...gameConfig });
+}
+function copyCode() {
+  const url = `${location.origin}/?room=${myRoom}&name=`;
+  navigator.clipboard.writeText(`${location.origin}/?room=${myRoom}`).catch(() => {});
+  notify('Link copied!');
+}
+
+// ── Navigate to game ──────────────────────────────────────────
+function navigateToGame(gameType, code, config) {
+  if (gameType === 'hub') {
+    // Return: already on home, just show hub view
+    showHubView(code);
+    return;
+  }
+  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/' };
+  const base = paths[gameType];
+  if (!base) return;
+  const params = new URLSearchParams({ room: code, name: myName });
+  if (config) {
+    if (config.mode) params.set('mode', config.mode);
+    if (config.theme) params.set('theme', config.theme);
+    if (config.rounds) params.set('rounds', config.rounds);
+  }
+  location.href = base + '?' + params.toString();
+}
+
+// ── Message handler ───────────────────────────────────────────
+function handleMsg(msg) {
+  switch (msg.type) {
+    case 'lobby_list':
+      renderLobbies(msg.lobbies || []);
+      break;
+    case 'hub_joined':
+      myRoom = msg.code;
+      myName = msg.name;
+      isHost = msg.isHost;
+      showHubView(msg.code);
+      break;
+    case 'hub_state':
+      renderHubState(msg);
+      break;
+    case 'hub_scores_updated':
+      hubScores = msg.hubScores || {};
+      // re-render scores table
+      const entries = Object.entries(hubScores).sort((a, b) => b[1] - a[1]);
+      if (entries.some(([, v]) => v > 0)) {
+        document.getElementById('hub-scores-section').style.display = 'block';
+        document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
+          `<tr><td class="rank">${i + 1}</td><td>${name}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+        ).join('');
+      }
+      break;
+    case 'config_updated':
+      if (msg.gameConfig) {
+        gameConfig = { ...gameConfig, ...msg.gameConfig };
+        if (msg.gameConfig.mode) syncConfigBtn('cfg-undercover', msg.gameConfig.mode);
+        if (msg.gameConfig.theme) syncConfigBtn('cfg-millionaire', msg.gameConfig.theme);
+        if (msg.gameConfig.rounds) syncConfigBtn('cfg-hottakes', String(msg.gameConfig.rounds));
+      }
+      if (msg.gameType) selectGameUI(msg.gameType);
+      break;
+    case 'game_launching':
+      navigateToGame(msg.gameType, msg.code, msg.gameConfig);
+      break;
+    case 'new_host':
+      isHost = (msg.name === myName);
+      document.getElementById('hub-host-area').style.display = isHost ? 'block' : 'none';
+      document.getElementById('hub-guest-area').style.display = isHost ? 'none' : 'block';
+      notify(isHost ? 'You are now the host.' : `${msg.name} is now the host.`);
+      break;
+    case 'player_left':
+      notify(`${msg.name} left the lobby.`);
+      break;
+    case 'player_offline':
+      notify(`${msg.name} disconnected…`);
+      break;
+    case 'player_online':
+      notify(`${msg.name} reconnected ↩`);
+      break;
+    case 'hub_error':
+      document.getElementById('entry-error').textContent = msg.msg || 'Error.';
+      document.getElementById('join-error').textContent = msg.msg || 'Error.';
+      break;
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function notify(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
 </body>
 </html>

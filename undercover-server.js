@@ -134,6 +134,15 @@ function revealHotTakesPrompt(room) {
     room.htEndTimer = setTimeout(() => {
       broadcast(room, { type: 'hottakes_over', scores: { ...room.htScores } });
       room.phase = 'result';
+      // Accumulate hub scores
+      if (room.hubScores) {
+        const totalRounds = room.htPrompts.length;
+        for (const [name, votes] of Object.entries(room.htScores)) {
+          const pts = totalRounds > 0 ? Math.round((votes / totalRounds) * 1000) : 0;
+          room.hubScores[name] = (room.hubScores[name] || 0) + pts;
+        }
+        broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+      }
     }, 4000);
   } else {
     room.htNextTimer = setTimeout(() => sendHotTakesPrompt(room), 4000);
@@ -191,6 +200,14 @@ function revealMillQuestion(room) {
     room.millEndTimer = setTimeout(() => {
       broadcast(room, { type: 'millionaire_over', scores: { ...room.millScores } });
       room.phase = 'result';
+      // Accumulate hub scores
+      if (room.hubScores) {
+        for (const [name, prize] of Object.entries(room.millScores)) {
+          const pts = Math.round((prize / 1000000) * 1000);
+          room.hubScores[name] = (room.hubScores[name] || 0) + pts;
+        }
+        broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+      }
     }, 3500);
   } else {
     room.millNextTimer = setTimeout(() => sendMillQuestion(room), 3500);
@@ -199,6 +216,15 @@ function revealMillQuestion(room) {
 
 function generateCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function broadcast(room, data, exceptSocket = null) {
@@ -231,14 +257,24 @@ function doElimination(room, targetName) {
       ),
     });
     room.phase = 'result';
+    // Accumulate hub scores
+    if (room.hubScores) {
+      for (const [id, p] of Object.entries(room.players)) {
+        const isSpy = room.spyIds.includes(id);
+        let pts = 0;
+        if (allSpiesCaught) pts = isSpy ? 0 : 800;   // civs win: civilians get 800
+        else if (spyWins)   pts = isSpy ? 1000 : 0;  // spy wins: spy gets 1000
+        room.hubScores[p.name] = (room.hubScores[p.name] || 0) + pts;
+      }
+      broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+    }
   } else {
     room.round++;
     room.speakIndex = 0;
     room.softVotes = {};
-    const activeIds = Object.entries(room.players)
+    const activeIds = shuffle(Object.entries(room.players)
       .filter(([,p]) => !room.eliminated.includes(p.name))
-      .map(([id]) => id)
-      .sort(() => Math.random() - 0.5);
+      .map(([id]) => id));
     room.speakOrder = activeIds.map(id => room.players[id].name);
     broadcast(room, {
       type: 'phase_play',
@@ -259,6 +295,20 @@ function roomState(room) {
     players: Object.values(room.players).map(p => p.name),
     phase: room.phase,
     mode: room.mode,
+    gameType: room.gameType,
+    hubScores: { ...(room.hubScores || {}) },
+  };
+}
+
+function hubState(room) {
+  return {
+    type: 'hub_state',
+    code: room.code,
+    host: room.players[room.host]?.name || '',
+    players: Object.values(room.players).map(p => p.name),
+    hubScores: { ...(room.hubScores || {}) },
+    gameType: room.gameType,
+    gameConfig: { ...(room.gameConfig || {}) },
   };
 }
 
@@ -300,10 +350,157 @@ function handleMessage(socket, raw, playerId) {
         speakIndex: 0,
         round: 1,
         departed: {},
+        hubScores: {},
+        gameConfig: { mode: 'characters', theme: 'videogames', rounds: 10 },
       };
       wsSend(socket, { type: 'joined', code, name, isHost: true });
       wsSend(socket, roomState(rooms[code]));
       console.log(`Room ${code} created by ${name}`);
+      break;
+    }
+
+    case 'create_hub_room': {
+      const code = generateCode();
+      const name = (msg.name || 'Player').trim().slice(0, 20);
+      rooms[code] = {
+        code,
+        host: playerId,
+        players: { [playerId]: { name, socket, ready: false, online: true } },
+        phase: 'hub',
+        mode: 'characters',
+        gameType: 'hub',
+        gameData: null,
+        eliminated: [],
+        speakOrder: [],
+        speakIndex: 0,
+        round: 1,
+        departed: {},
+        hubScores: { [name]: 0 },
+        gameConfig: { mode: 'characters', theme: 'videogames', rounds: 10 },
+      };
+      wsSend(socket, { type: 'hub_joined', code, name, isHost: true });
+      wsSend(socket, hubState(rooms[code]));
+      console.log(`Hub room ${code} created by ${name}`);
+      break;
+    }
+
+    case 'join_hub_room': {
+      const hjCode = (msg.code || '').toUpperCase().trim();
+      const hjName = (msg.name || 'Player').trim().slice(0, 20);
+      const hjRoom = rooms[hjCode];
+      if (!hjRoom) { wsSend(socket, { type: 'hub_error', msg: 'Room not found.' }); return; }
+      if (hjRoom.phase !== 'hub') { wsSend(socket, { type: 'hub_error', msg: 'Game already in progress.' }); return; }
+      const takenNames = Object.values(hjRoom.players).map(p => p.name.toLowerCase());
+      if (takenNames.includes(hjName.toLowerCase())) { wsSend(socket, { type: 'hub_error', msg: 'Name already taken.' }); return; }
+      hjRoom.players[playerId] = { name: hjName, socket, ready: false, online: true };
+      if (!hjRoom.hubScores[hjName]) hjRoom.hubScores[hjName] = 0;
+      wsSend(socket, { type: 'hub_joined', code: hjCode, name: hjName, isHost: false });
+      broadcast(hjRoom, hubState(hjRoom));
+      console.log(`${hjName} joined hub room ${hjCode}`);
+      break;
+    }
+
+    case 'hub_rejoin': {
+      const hrCode = (msg.code || '').toUpperCase().trim();
+      const hrName = (msg.name || '').trim();
+      const hrRoom = rooms[hrCode];
+      if (!hrRoom) { wsSend(socket, { type: 'hub_error', msg: 'Room not found or expired.' }); return; }
+      let existingId = null;
+      for (const [id, p] of Object.entries(hrRoom.players)) {
+        if (p.name.toLowerCase() === hrName.toLowerCase()) { existingId = id; break; }
+      }
+      if (!existingId && hrRoom.departed) {
+        for (const [id, d] of Object.entries(hrRoom.departed)) {
+          if (d.name.toLowerCase() === hrName.toLowerCase()) {
+            hrRoom.players[playerId] = { name: d.name, socket, ready: false, online: true };
+            delete hrRoom.departed[id];
+            existingId = playerId;
+            break;
+          }
+        }
+      }
+      if (!existingId) { wsSend(socket, { type: 'hub_error', msg: 'Player not found in room.' }); return; }
+      if (disconnectTimers[existingId]) { clearTimeout(disconnectTimers[existingId]); delete disconnectTimers[existingId]; }
+      if (existingId !== playerId) {
+        hrRoom.players[playerId] = { ...hrRoom.players[existingId], socket, online: true };
+        delete hrRoom.players[existingId];
+        if (hrRoom.host === existingId) hrRoom.host = playerId;
+      } else {
+        hrRoom.players[playerId].socket = socket;
+        hrRoom.players[playerId].online = true;
+      }
+      const hrIsHost = hrRoom.host === playerId;
+      wsSend(socket, { type: 'hub_joined', code: hrCode, name: hrName, isHost: hrIsHost });
+      broadcast(hrRoom, hubState(hrRoom));
+      console.log(`${hrName} rejoined hub room ${hrCode}`);
+      break;
+    }
+
+    case 'list_lobbies': {
+      const lobbies = Object.values(rooms)
+        .filter(r => r.phase === 'hub')
+        .map(r => ({
+          code: r.code,
+          host: r.players[r.host]?.name || '?',
+          playerCount: Object.keys(r.players).length,
+          gameType: r.gameType,
+        }));
+      wsSend(socket, { type: 'lobby_list', lobbies });
+      break;
+    }
+
+    case 'set_game_config': {
+      if (!room || room.host !== playerId) return;
+      if (!room.gameConfig) room.gameConfig = {};
+      if (msg.mode !== undefined) { room.gameConfig.mode = msg.mode; room.mode = msg.mode; }
+      if (msg.theme !== undefined) room.gameConfig.theme = msg.theme;
+      if (msg.rounds !== undefined) room.gameConfig.rounds = msg.rounds;
+      broadcast(room, { type: 'config_updated', gameConfig: { ...room.gameConfig } });
+      break;
+    }
+
+    case 'launch_game': {
+      if (!room || room.host !== playerId) return;
+      if (msg.mode !== undefined) { room.gameConfig = room.gameConfig || {}; room.gameConfig.mode = msg.mode; room.mode = msg.mode; }
+      if (msg.theme !== undefined) { room.gameConfig = room.gameConfig || {}; room.gameConfig.theme = msg.theme; }
+      if (msg.rounds !== undefined) { room.gameConfig = room.gameConfig || {}; room.gameConfig.rounds = msg.rounds; }
+      room.gameType = msg.gameType;
+      room.phase = 'hub_waiting';
+      broadcast(room, {
+        type: 'game_launching',
+        gameType: msg.gameType,
+        code: room.code,
+        gameConfig: { ...(room.gameConfig || {}) },
+        players: Object.values(room.players).map(p => p.name),
+        host: room.players[room.host]?.name || '',
+      });
+      console.log(`Hub room ${room.code} launching ${msg.gameType}`);
+      break;
+    }
+
+    case 'return_to_hub': {
+      if (!room || room.host !== playerId) return;
+      if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
+      if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      room.paused = false;
+      room.phase = 'hub';
+      room.gameType = 'hub';
+      room.eliminated = [];
+      room.speakOrder = [];
+      room.speakIndex = 0;
+      room.round = 1;
+      room.departed = {};
+      for (const p of Object.values(room.players)) p.ready = false;
+      broadcast(room, {
+        type: 'game_launching',
+        gameType: 'hub',
+        code: room.code,
+        gameConfig: { ...(room.gameConfig || {}) },
+        players: Object.values(room.players).map(p => p.name),
+        host: room.players[room.host]?.name || '',
+        hubScores: { ...room.hubScores },
+      });
+      console.log(`Hub room ${room.code} returned to hub`);
       break;
     }
 
@@ -312,8 +509,22 @@ function handleMessage(socket, raw, playerId) {
       const name = (msg.name || 'Player').trim().slice(0, 20);
       if (!rooms[code]) { wsSend(socket, { type: 'error', msg: 'Room not found.' }); return; }
       const r = rooms[code];
+      // Allow rejoining by name if player is already in the room (hub flow)
+      const existingEntry = Object.entries(r.players).find(([,p]) => p.name.toLowerCase() === name.toLowerCase());
+      if (existingEntry) {
+        const [eid] = existingEntry;
+        if (disconnectTimers[eid]) { clearTimeout(disconnectTimers[eid]); delete disconnectTimers[eid]; }
+        r.players[playerId] = { ...r.players[eid], socket, online: true };
+        delete r.players[eid];
+        if (r.host === eid) r.host = playerId;
+        if (r.spyIds) r.spyIds = r.spyIds.map(id => id === eid ? playerId : id);
+        const rIsHost = r.host === playerId;
+        wsSend(socket, { type: 'joined', code, name, isHost: rIsHost });
+        broadcast(r, roomState(r));
+        console.log(`${name} rejoined room ${code} (hub flow)`);
+        break;
+      }
       if (r.phase !== 'lobby') { wsSend(socket, { type: 'error', msg: 'Game already started.' }); return; }
-
       const takenNames = Object.values(r.players).map(p => p.name.toLowerCase());
       if (takenNames.includes(name.toLowerCase())) { wsSend(socket, { type: 'error', msg: 'Name already taken in this room.' }); return; }
       r.players[playerId] = { name, socket, ready: false };
@@ -342,8 +553,7 @@ function handleMessage(socket, raw, playerId) {
 
       const ids = Object.keys(room.players);
       const spyCount = Math.max(1, Math.floor(ids.length / 3));
-      const shuffledIds = [...ids].sort(() => Math.random() - 0.5);
-      room.spyIds = shuffledIds.slice(0, spyCount);
+      room.spyIds = shuffle(ids).slice(0, spyCount);
 
       room.phase = 'reveal';
       room.eliminated = [];
@@ -354,7 +564,7 @@ function handleMessage(socket, raw, playerId) {
       room.undercoverWord = undercover;
 
       // Shuffle speak order
-      room.speakOrder = [...ids].sort(() => Math.random() - 0.5).map(id => room.players[id].name);
+      room.speakOrder = shuffle(ids).map(id => room.players[id].name);
 
       // Send each player their own word privately
       for (const [id, player] of Object.entries(room.players)) {
@@ -493,10 +703,9 @@ function handleMessage(socket, raw, playerId) {
 
     case 'extra_round': {
       if (!room || room.host !== playerId) return;
-      const activeIds = Object.entries(room.players)
+      const activeIds = shuffle(Object.entries(room.players)
         .filter(([,p]) => !room.eliminated.includes(p.name))
-        .map(([id]) => id)
-        .sort(() => Math.random() - 0.5);
+        .map(([id]) => id));
       room.speakOrder = activeIds.map(id => room.players[id].name);
       room.speakIndex = 0;
       room.softVotes = {};
@@ -544,7 +753,11 @@ function handleMessage(socket, raw, playerId) {
           room.host = Object.keys(room.players)[0];
           broadcast(room, { type: 'new_host', name: room.players[room.host].name });
         }
-        broadcast(room, roomState(room));
+        if (room.gameType === 'hub' || room.phase === 'hub') {
+          broadcast(room, hubState(room));
+        } else {
+          broadcast(room, roomState(room));
+        }
         broadcast(room, { type: 'player_left', name: leaveName });
       }
       console.log(`${leaveName} explicitly left room ${room.code}`);
@@ -828,7 +1041,11 @@ server.on('upgrade', (req, socket, head) => {
               room.host = Object.keys(room.players)[0];
               broadcast(room, { type: 'new_host', name: room.players[room.host].name });
             }
-            broadcast(room, roomState(room));
+            if (room.gameType === 'hub' || room.phase === 'hub') {
+              broadcast(room, hubState(room));
+            } else {
+              broadcast(room, roomState(room));
+            }
             broadcast(room, { type: 'player_left', name });
           }
         }, 5 * 60 * 1000);
