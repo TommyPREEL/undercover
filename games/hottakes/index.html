@@ -236,6 +236,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <span class="vote-emoji">💧</span>DISAGREE
     </button>
   </div>
+  <button class="btn-ghost" onclick="showPhase('phase-local-setup')" style="margin-top:1.5rem;">✕ Cancel Game</button>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
@@ -335,6 +336,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     </button>
   </div>
   <div class="waiting-msg" id="mp-vote-waiting" style="display:none;">Vote sent — waiting for others…</div>
+  <div id="mp-host-cancel" style="display:none;">
+    <button class="btn-ghost" onclick="mpSend({type:'cancel_round'})" style="margin-top:1.5rem;">✕ Cancel Game</button>
+  </div>
 </div>
 
 <!-- ── MP REVEAL ─────────────────────────────────────────────── -->
@@ -533,7 +537,8 @@ function handleMsg(msg){
     case 'player_left': notify(msg.name+' left the room.'); break;
     case 'hottakes_prompt':
       mpCurrentPrompt=msg; mpCurrentRound=msg.round; mpTotalRounds=msg.total;
-      mpHasVoted=false; renderMpVote(msg); showPhase('phase-mp-vote'); break;
+      mpHasVoted=false; renderMpVote(msg); showPhase('phase-mp-vote');
+      document.getElementById('mp-host-cancel').style.display=isHost?'block':'none'; break;
     case 'hottakes_reveal':
       clearMpTimer(); renderMpReveal(msg); showPhase('phase-mp-reveal'); break;
     case 'hottakes_over':
