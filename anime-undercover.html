@@ -1354,19 +1354,27 @@ function nextSpeaker(){
   if(clue&&speakIndex<speakOrder.length)clueLog.push({player:speakOrder[speakIndex],clue});
   speakIndex++;renderSpeaker();renderClueLog();
 }
+function groupClueLog(log){
+  const order=[]; const map={};
+  log.forEach(e=>{
+    if(!map[e.player]){map[e.player]=[];order.push(e.player);}
+    map[e.player].push(e.clue);
+  });
+  return order.map((p,i)=>({num:i+1,player:p,clues:map[p]}));
+}
 function renderClueLog(){
   const el=document.getElementById('clue-log');
   if(!el)return;
   if(!clueLog.length){el.style.display='none';return;}
   el.style.display='block';
-  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+clueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">"${e.clue}"</span></div>`).join('')+'</div>';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+groupClueLog(clueLog).map(e=>`<div class="clue-entry"><span class="clue-num">${e.num}</span><span class="clue-player">${e.player}</span><span class="clue-text">${e.clues.map(c=>`"${c}"`).join(', ')}</span></div>`).join('')+'</div>';
 }
 function renderMpClueLog(){
   const el=document.getElementById('mp-clue-log');
   if(!el)return;
   if(!mpClueLog.length){el.style.display='none';return;}
   el.style.display='block';
-  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+mpClueLog.map((e,i)=>`<div class="clue-entry"><span class="clue-num">${i+1}</span><span class="clue-player">${e.player}</span><span class="clue-text">"${e.clue}"</span></div>`).join('')+'</div>';
+  el.innerHTML='<div class="clue-log"><div class="clue-log-title">📋 Clue log</div>'+groupClueLog(mpClueLog).map(e=>`<div class="clue-entry"><span class="clue-num">${e.num}</span><span class="clue-player">${e.player}</span><span class="clue-text">${e.clues.map(c=>`"${c}"`).join(', ')}</span></div>`).join('')+'</div>';
 }
 function renderLocalStrawPoll(active){
   const voteGrid=document.getElementById('vote-grid');
