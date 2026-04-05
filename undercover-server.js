@@ -103,6 +103,7 @@ function sendHotTakesPrompt(room) {
 
 function revealHotTakesPrompt(room) {
   clearTimeout(room.htTimer);
+  if (room.phase !== 'playing') return;
   const idx = room.htCurrentRound;
   const agreeNames = [];
   const disagreeNames = [];
@@ -157,6 +158,7 @@ function sendMillQuestion(room) {
 
 function revealMillQuestion(room) {
   clearTimeout(room.millTimer);
+  if (room.phase !== 'playing') return;
   const qi = room.millCurrentQi;
   const q = room.millQuestions[qi];
   const correct = q.ans;
@@ -510,6 +512,9 @@ function handleMessage(socket, raw, playerId) {
 
     case 'cancel_round': {
       if (!room || room.host !== playerId) return;
+      if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
+      if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
       room.speakOrder = [];
@@ -529,6 +534,9 @@ function handleMessage(socket, raw, playerId) {
 
     case 'new_game': {
       if (!room || room.host !== playerId) return;
+      if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
+      if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
       room.speakOrder = [];
