@@ -512,6 +512,7 @@ function getLoaderText(mode){
   return map[mode]||map.characters;
 }
 
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function showPhase(id){
   document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -566,7 +567,7 @@ function startGame(){
   if(Math.random()<0.5){civilianWord=pair[0];undercoverWord=pair[1];}
   else{civilianWord=pair[1];undercoverWord=pair[0];}
   const spyCount=Math.max(1,Math.floor(names.length/3));
-  const shuffled=[...names].sort(()=>Math.random()-0.5);
+  const shuffled=shuffle(names);
   undercoverPlayers=shuffled.slice(0,spyCount); roles={};
   names.forEach(p=>{roles[p]=undercoverPlayers.includes(p)?'spy':'civilian';});
   const hints={
@@ -635,7 +636,7 @@ function buildRevealCards(){
 
 function shuffleSpeakOrder(){
   const active=players.filter(p=>!eliminated.includes(p));
-  speakOrder=[...active].sort(()=>Math.random()-0.5);
+  speakOrder=shuffle(active);
   speakIndex=0;
 }
 function goToPlay(){
@@ -734,7 +735,7 @@ function renderLocalStrawPoll(active){
 function localExtraRound(){
   localVoteTally={};
   const active=players.filter(p=>!eliminated.includes(p));
-  speakOrder=[...active].sort(()=>Math.random()-0.5);
+  speakOrder=shuffle(active);
   speakIndex=0;
   document.getElementById('vote-grid').innerHTML='';
   document.getElementById('vote-prompt').style.display='none';
