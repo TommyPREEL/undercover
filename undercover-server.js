@@ -372,6 +372,25 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'cancel_round': {
+      if (!room || room.host !== playerId) return;
+      room.phase = 'lobby';
+      room.eliminated = [];
+      room.speakOrder = [];
+      room.speakIndex = 0;
+      room.round = 1;
+      room.gameData = null;
+      room.spyIds = [];
+      room.softVotes = {};
+      room.elimVotes = {};
+      room.departed = {};
+      for (const p of Object.values(room.players)) p.ready = false;
+      broadcast(room, roomState(room));
+      broadcast(room, { type: 'back_to_lobby' });
+      console.log(`Room ${room.code} round cancelled by host`);
+      break;
+    }
+
     case 'new_game': {
       if (!room || room.host !== playerId) return;
       room.phase = 'lobby';

@@ -400,6 +400,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="vote-prompt" id="mp-vote-prompt" style="display:none;"><b>Everyone spoke</b> — host votes to eliminate the spy.</div>
   <div class="vote-grid" id="mp-vote-grid"></div>
   <div class="error-msg" id="mp-vote-error"></div>
+  <button id="mp-cancel-round-btn" onclick="mpCancelRound()" style="display:none;margin-top:1.5rem;width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-display);font-size:14px;letter-spacing:1px;cursor:pointer;">✕ CANCEL ROUND</button>
 </div>
 
 <!-- ── RESULT ─────────────────────────────────────────────────────── -->
@@ -1690,7 +1691,13 @@ function renderMpPlay(){
   document.getElementById('mp-vote-grid').innerHTML='';
   document.getElementById('mp-vote-prompt').style.display='none';
   document.getElementById('mp-clue-log').style.display='none';
+  document.getElementById('mp-cancel-round-btn').style.display=isHost?'block':'none';
   renderMpSpeaker();
+}
+
+function mpCancelRound(){
+  if(!confirm('Cancel this round and return everyone to the lobby?')) return;
+  mpSend({type:'cancel_round'});
 }
 
 function renderMpSpeaker(){
