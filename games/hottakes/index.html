@@ -208,7 +208,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div class="phase" id="phase-local-setup">
   <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
   <div class="logo"><span class="hot">LOCAL</span> <span class="cold">SETUP</span></div>
-  <div class="tagline">Pass the phone — vote in secret, reveal together</div>
+  <div class="tagline">Solo mode — where do you stand?</div>
   <div class="label">Rounds</div>
   <div class="rounds-row">
     <button class="round-btn active" data-r="5" onclick="setRounds(this)">5</button>
@@ -216,14 +216,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     <button class="round-btn" data-r="10" onclick="setRounds(this)">10</button>
     <button class="round-btn" data-r="15" onclick="setRounds(this)">15</button>
   </div>
-  <div class="label">Players</div>
-  <div class="count-row">
-    <button class="count-btn" onclick="changeCount(-1)">− Remove</button>
-    <button class="count-btn" onclick="changeCount(1)">+ Add</button>
-  </div>
-  <div class="player-inputs" id="local-inputs"></div>
-  <div class="error-msg" id="local-setup-err"></div>
-  <button class="btn-primary" onclick="startLocal()" style="margin-top:1rem;">START →</button>
+  <button class="btn-primary" onclick="startLocal()">START →</button>
 </div>
 
 <!-- ── LOCAL VOTE ────────────────────────────────────────────── -->
@@ -235,58 +228,22 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="statement-card">
     <div class="statement-text" id="local-statement"></div>
   </div>
-  <!-- Cover + vote cycle per player -->
-  <div id="local-cover" style="display:none;">
-    <div class="cover-screen">
-      <div class="cover-name" id="local-cover-name"></div>
-      <div class="cover-sub">It's your turn — tap when ready to vote privately</div>
-    </div>
-    <button class="btn-primary" onclick="showVoteButtons()">I'M READY TO VOTE →</button>
+  <div class="vote-row">
+    <button class="vote-btn agree-btn" id="local-agree-btn" onclick="castLocalVote('agree')">
+      <span class="vote-emoji">🔥</span>AGREE
+    </button>
+    <button class="vote-btn disagree-btn" id="local-disagree-btn" onclick="castLocalVote('disagree')">
+      <span class="vote-emoji">💧</span>DISAGREE
+    </button>
   </div>
-  <div id="local-vote-area" style="display:none;">
-    <div class="label" id="local-voter-label"></div>
-    <div class="vote-row">
-      <button class="vote-btn agree-btn" onclick="castLocalVote('agree')">
-        <span class="vote-emoji">🔥</span>AGREE
-      </button>
-      <button class="vote-btn disagree-btn" onclick="castLocalVote('disagree')">
-        <span class="vote-emoji">💧</span>DISAGREE
-      </button>
-    </div>
-  </div>
-  <div id="local-voted-confirm" style="display:none;">
-    <div class="cover-screen">
-      <div style="font-size:36px;margin-bottom:8px;">✓</div>
-      <div class="cover-sub" id="local-voted-sub">Vote recorded — pass the phone!</div>
-    </div>
-    <button class="btn-primary" id="local-next-voter-btn" onclick="nextLocalVoter()">NEXT →</button>
-  </div>
-</div>
-
-<!-- ── LOCAL REVEAL ──────────────────────────────────────────── -->
-<div class="phase" id="phase-local-reveal">
-  <div class="round-indicator">
-    <span class="round-badge">ROUND <span id="local-rev-round">1</span></span>
-    <span class="category-badge" id="local-rev-category">Anime</span>
-  </div>
-  <div class="statement-card" style="margin-bottom:1rem;">
-    <div class="statement-text" id="local-rev-statement"></div>
-  </div>
-  <div class="reveal-card">
-    <div class="reveal-split" id="local-rev-split"></div>
-    <div id="local-rev-majority"></div>
-    <div class="points-earned" id="local-rev-points"></div>
-  </div>
-  <div class="score-strip" id="local-score-strip"></div>
-  <button class="btn-primary" id="local-continue-btn" onclick="localNextRound()">NEXT ROUND →</button>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
   <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← HOME</a>
-  <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
-  <div class="tagline">The majority has spoken</div>
-  <div class="leaderboard" id="local-leaderboard"></div>
+  <div class="logo"><span class="hot">YOUR</span> <span class="cold">TAKES</span></div>
+  <div class="tagline">Here's where you stand</div>
+  <div id="local-vote-log" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;"></div>
   <button class="btn-primary" onclick="showPhase('phase-local-setup')">PLAY AGAIN</button>
 </div>
 
@@ -413,11 +370,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 // ── STATE ─────────────────────────────────────────────────────
 let selectedMode = 'local';
 
-// Local
-let localPlayerCount = 3, localPlayerNames = [], localRounds = 5;
-let localScores = {}, localRoundIndex = 0, localQueue = [];
-let localCurrentVoterIndex = 0, localVotesThisRound = {};
-let localCurrentPrompt = null;
+// Local (single player)
+let localRounds = 5, localRoundIndex = 0, localQueue = [];
+let localCurrentPrompt = null, localMyVotes = [];
 
 // Online
 let ws = null, myName = '', myRoom = '', isHost = false;
@@ -454,129 +409,47 @@ function goFromHome(){
 
 // ── LOCAL SETUP ───────────────────────────────────────────────
 function setRounds(btn){
-  document.querySelectorAll('.rounds-row .round-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#phase-local-setup .round-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   localRounds=parseInt(btn.dataset.r);
 }
-function changeCount(d){
-  localPlayerCount=Math.min(8,Math.max(2,localPlayerCount+d));
-  buildInputs();
-}
-function buildInputs(){
-  const c=document.getElementById('local-inputs'); c.innerHTML='';
-  for(let i=0;i<localPlayerCount;i++){
-    const row=document.createElement('div'); row.className='player-row';
-    row.innerHTML=`<span class="player-num">${i+1}</span><input type="text" placeholder="Player ${i+1}" maxlength="20" value="${localPlayerNames[i]||''}"/>`;
-    c.appendChild(row);
-  }
-}
 function startLocal(){
-  const inputs=document.querySelectorAll('#local-inputs input');
-  localPlayerNames=Array.from(inputs).map((inp,i)=>inp.value.trim()||`Player ${i+1}`);
-  if(localPlayerNames.length<2){document.getElementById('local-setup-err').textContent='Need at least 2 players.';return;}
-  localScores={};
-  localPlayerNames.forEach(n=>localScores[n]=0);
   localQueue=shuffle(PROMPTS).slice(0,localRounds);
   localRoundIndex=0;
+  localMyVotes=[];
   runLocalRound();
 }
 function runLocalRound(){
   localCurrentPrompt=localQueue[localRoundIndex];
-  localCurrentVoterIndex=0;
-  localVotesThisRound={};
   document.getElementById('local-round-num').textContent=localRoundIndex+1;
   document.getElementById('local-rounds-total').textContent=localRounds;
   document.getElementById('local-statement').textContent=localCurrentPrompt.text;
   document.getElementById('local-category').textContent=localCurrentPrompt.category;
-  // Hide vote area, show cover for first player
-  document.getElementById('local-cover').style.display='block';
-  document.getElementById('local-vote-area').style.display='none';
-  document.getElementById('local-voted-confirm').style.display='none';
-  document.getElementById('local-cover-name').textContent=localPlayerNames[0];
+  document.getElementById('local-agree-btn').disabled=false;
+  document.getElementById('local-disagree-btn').disabled=false;
   showPhase('phase-local-vote');
 }
-function showVoteButtons(){
-  document.getElementById('local-cover').style.display='none';
-  document.getElementById('local-vote-area').style.display='block';
-  document.getElementById('local-voted-confirm').style.display='none';
-  document.getElementById('local-voter-label').textContent=localPlayerNames[localCurrentVoterIndex]+" — vote now:";
-  document.querySelectorAll('.vote-btn').forEach(b=>{b.disabled=false;b.className=b.className.replace(' selected-agree','').replace(' selected-disagree','');});
-}
 function castLocalVote(vote){
-  localVotesThisRound[localPlayerNames[localCurrentVoterIndex]]=vote;
-  document.getElementById('local-vote-area').style.display='none';
-  document.getElementById('local-voted-confirm').style.display='block';
-  const isLast=localCurrentVoterIndex===localPlayerNames.length-1;
-  document.getElementById('local-voted-sub').textContent=isLast?'All votes in! Ready to reveal.':'Vote recorded — pass the phone!';
-  document.getElementById('local-next-voter-btn').textContent=isLast?'REVEAL →':'NEXT PLAYER →';
-}
-function nextLocalVoter(){
-  localCurrentVoterIndex++;
-  if(localCurrentVoterIndex>=localPlayerNames.length){
-    showLocalReveal();
-    return;
-  }
-  document.getElementById('local-voted-confirm').style.display='none';
-  document.getElementById('local-cover').style.display='block';
-  document.getElementById('local-cover-name').textContent=localPlayerNames[localCurrentVoterIndex];
-}
-function showLocalReveal(){
-  const prompt=localCurrentPrompt;
-  const votes=localVotesThisRound;
-  const agreeNames=Object.keys(votes).filter(n=>votes[n]==='agree');
-  const disagreeNames=Object.keys(votes).filter(n=>votes[n]==='disagree');
-  const total=localPlayerNames.length;
-  const agreePct=Math.round(agreeNames.length/total*100);
-  const disagreePct=100-agreePct;
-
-  document.getElementById('local-rev-round').textContent=localRoundIndex+1;
-  document.getElementById('local-rev-category').textContent=prompt.category;
-  document.getElementById('local-rev-statement').textContent=prompt.text;
-
-  document.getElementById('local-rev-split').innerHTML=`
-    <div class="split-side agree-side">
-      <div class="split-label agree-side">🔥 Agree</div>
-      <div class="split-pct">${agreePct}%</div>
-      <div class="split-names">${agreeNames.join(', ')||'—'}</div>
-    </div>
-    <div class="split-side disagree-side">
-      <div class="split-label disagree-side">💧 Disagree</div>
-      <div class="split-pct">${disagreePct}%</div>
-      <div class="split-names">${disagreeNames.join(', ')||'—'}</div>
-    </div>`;
-
-  let majority=null, majorityClass='tied', majorityText='TIE — no points this round';
-  let pointEarners=[];
-  if(agreeNames.length>disagreeNames.length){majority='agree';majorityClass='agree';majorityText='🔥 AGREE wins the majority!';pointEarners=agreeNames;}
-  else if(disagreeNames.length>agreeNames.length){majority='disagree';majorityClass='disagree';majorityText='💧 DISAGREE wins the majority!';pointEarners=disagreeNames;}
-
-  document.getElementById('local-rev-majority').innerHTML=`<div class="majority-badge ${majorityClass}">${majorityText}</div>`;
-  pointEarners.forEach(n=>{localScores[n]=(localScores[n]||0)+1;});
-
-  const isLast=localRoundIndex>=localRounds-1;
-  document.getElementById('local-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.join(', ')}`:'No points awarded.';
-  document.getElementById('local-continue-btn').textContent=isLast?'SEE RESULTS →':'NEXT ROUND →';
-
-  renderLocalScoreStrip();
-  showPhase('phase-local-reveal');
-}
-function renderLocalScoreStrip(){
-  const strip=document.getElementById('local-score-strip');
-  strip.innerHTML=localPlayerNames.map(n=>`<div class="score-chip">${n}: ${localScores[n]||0}pt</div>`).join('');
-}
-function localNextRound(){
+  document.getElementById('local-agree-btn').disabled=true;
+  document.getElementById('local-disagree-btn').disabled=true;
+  localMyVotes.push({text:localCurrentPrompt.text, category:localCurrentPrompt.category, vote});
   localRoundIndex++;
-  if(localRoundIndex>=localRounds){showLocalResult();return;}
-  runLocalRound();
+  if(localRoundIndex>=localRounds){
+    showLocalResult();
+  } else {
+    setTimeout(runLocalRound, 300);
+  }
 }
 function showLocalResult(){
-  const sorted=[...localPlayerNames].sort((a,b)=>(localScores[b]||0)-(localScores[a]||0));
-  const lb=document.getElementById('local-leaderboard'); lb.innerHTML='';
-  sorted.forEach((name,i)=>{
-    const row=document.createElement('div'); row.className='lb-row';
-    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${localScores[name]||0}<span class="lb-pts"> pts</span></div>`;
-    lb.appendChild(row);
-  });
+  const log=document.getElementById('local-vote-log');
+  log.innerHTML=localMyVotes.map(v=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:20px;">${v.vote==='agree'?'🔥':'💧'}</span>
+      <div>
+        <div style="font-size:13px;font-weight:600;">${v.text}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">${v.category} · ${v.vote==='agree'?'Agree':'Disagree'}</div>
+      </div>
+    </div>`).join('');
   showPhase('phase-local-result');
 }
 

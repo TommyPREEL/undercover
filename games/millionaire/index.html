@@ -205,7 +205,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div class="phase" id="phase-local-setup">
   <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
   <div class="logo">LOCAL <span>SETUP</span></div>
-  <div class="tagline">Pass the phone — each player takes the hot seat</div>
+  <div class="tagline">Solo challenge — how far can you go?</div>
 
   <div class="label">Theme</div>
   <div class="theme-row" id="local-theme-row">
@@ -215,19 +215,11 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     <button class="theme-btn" data-theme="geek" onclick="setLocalTheme(this)">🧠 Geek Trivia</button>
   </div>
 
-  <div class="label">Players</div>
-  <div class="count-row">
-    <button class="count-btn" onclick="changePlayerCount(-1)">− Remove</button>
-    <button class="count-btn" onclick="changePlayerCount(1)">+ Add</button>
-  </div>
-  <div class="player-inputs" id="local-player-inputs"></div>
-  <div class="error-msg" id="local-setup-error"></div>
-  <button class="btn-primary" onclick="startLocalGame()" style="margin-top:1rem;">START GAME →</button>
+  <button class="btn-primary" onclick="startLocalGame()">START GAME →</button>
 </div>
 
 <!-- ── LOCAL PLAY ────────────────────────────────────────────── -->
 <div class="phase" id="phase-local-play">
-  <div id="local-hotseat-banner" class="hotseat-banner"></div>
   <div class="game-layout">
     <div class="game-main">
       <div class="question-box">
@@ -252,9 +244,11 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
   <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← HOME</a>
-  <div class="logo">FINAL <span>SCORES</span></div>
-  <div class="tagline">Who is the millionaire?</div>
-  <div class="leaderboard" id="local-leaderboard"></div>
+  <div class="logo">GAME <span>OVER</span></div>
+  <div class="reveal-box" style="margin-bottom:1.5rem;">
+    <div class="reveal-label" id="local-result-label">You earned</div>
+    <div class="reveal-score" id="local-result-score">$0</div>
+  </div>
   <button class="btn-primary" onclick="restartLocal()">PLAY AGAIN</button>
 </div>
 
@@ -403,9 +397,7 @@ function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
 let selectedHomeMode='local';
 let localTheme='videogames', mpTheme='videogames';
 
-// Local game
-let localPlayerNames=[], localPlayerCount=2;
-let localCurrentPlayer=0, localScores={};
+// Local game (single player)
 let localQuestions=[], localQIndex=0;
 let localSafeScore=0, localFiftyUsed=false, localAnswered=false;
 
@@ -451,35 +443,9 @@ function setLocalTheme(btn){
   localTheme=btn.dataset.theme;
 }
 
-function buildPlayerInputs(){
-  const c=document.getElementById('local-player-inputs');
-  c.innerHTML='';
-  for(let i=0;i<localPlayerCount;i++){
-    const row=document.createElement('div'); row.className='player-row';
-    row.innerHTML=`<span class="player-num">${i+1}</span><input type="text" placeholder="Player ${i+1}" maxlength="20" value="${localPlayerNames[i]||''}"/>`;
-    c.appendChild(row);
-  }
-}
-function changePlayerCount(d){
-  localPlayerCount=Math.min(6,Math.max(2,localPlayerCount+d));
-  buildPlayerInputs();
-}
 function startLocalGame(){
-  const inputs=document.querySelectorAll('#local-player-inputs input');
-  localPlayerNames=Array.from(inputs).map(i=>i.value.trim()||`Player ${inputs.indexOf?inputs.indexOf(i)+1:1}`);
-  // Re-index names properly
-  localPlayerNames=Array.from(inputs).map((inp,i)=>inp.value.trim()||`Player ${i+1}`);
-  if(localPlayerNames.length<2){document.getElementById('local-setup-error').textContent='Add at least 2 players.';return;}
-  localScores={};
-  localPlayerNames.forEach(n=>localScores[n]=0);
-  localCurrentPlayer=0;
-  runLocalPlayer();
-}
-function runLocalPlayer(){
-  const name=localPlayerNames[localCurrentPlayer];
   localQuestions=getQuestionsForSet(localTheme);
   localQIndex=0; localSafeScore=0; localFiftyUsed=false; localAnswered=false;
-  document.getElementById('local-hotseat-banner').textContent=`🎤 ${name}'s turn — Hot Seat!`;
   renderLocalLadder();
   renderLocalQuestion();
   showPhase('phase-local-play');
@@ -536,18 +502,13 @@ function submitLocalAnswer(choice){
       localQIndex++;
       if(SAFE_HAVENS.includes(localQIndex-1)) localSafeScore=PRIZE_LADDER[localQIndex-1];
       if(localQIndex>=15){
-        // Won!
-        localScores[localPlayerNames[localCurrentPlayer]]=PRIZE_LADDER[14];
-        showLocalIntermission(PRIZE_LADDER[14],true);
+        showLocalResult(PRIZE_LADDER[14], true);
       } else {
         renderLocalQuestion();
       }
     },1200);
   } else {
-    setTimeout(()=>{
-      localScores[localPlayerNames[localCurrentPlayer]]=localSafeScore;
-      showLocalIntermission(localSafeScore,false);
-    },1500);
+    setTimeout(()=>showLocalResult(localSafeScore, false),1500);
   }
 }
 
@@ -555,8 +516,7 @@ function localWalkAway(){
   if(localAnswered)return;
   localAnswered=true;
   const earned=localQIndex>0?PRIZE_LADDER[localQIndex-1]:0;
-  localScores[localPlayerNames[localCurrentPlayer]]=earned;
-  showLocalIntermission(earned,null);
+  showLocalResult(earned, null);
 }
 
 function useLocalFiftyFifty(){
@@ -573,31 +533,10 @@ function useLocalFiftyFifty(){
   });
 }
 
-function showLocalIntermission(score,won){
-  // Reuse question area to show result
-  const main=document.querySelector('#phase-local-play .game-main');
-  let msg=won===true?'🎉 YOU WON $1,000,000!':won===false?'❌ Wrong answer!':'🚶 Walked away!';
-  main.innerHTML=`<div class="reveal-box"><div style="font-size:13px;color:var(--muted);margin-bottom:8px;">${localPlayerNames[localCurrentPlayer]}</div><div style="font-size:14px;margin-bottom:8px;">${msg}</div><div class="reveal-score">${fmtMoney(score)}</div><div class="reveal-label">earned</div></div><button class="btn-primary" onclick="localNextPlayer()" style="margin-top:1rem;">${localCurrentPlayer<localPlayerNames.length-1?'NEXT PLAYER →':'SEE RESULTS →'}</button>`;
-}
-
-function localNextPlayer(){
-  localCurrentPlayer++;
-  if(localCurrentPlayer>=localPlayerNames.length){
-    showLocalResult();
-  } else {
-    runLocalPlayer();
-  }
-}
-
-function showLocalResult(){
-  const sorted=localPlayerNames.slice().sort((a,b)=>localScores[b]-localScores[a]);
-  const lb=document.getElementById('local-leaderboard');
-  lb.innerHTML='';
-  sorted.forEach((name,i)=>{
-    const row=document.createElement('div'); row.className='lb-row';
-    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${fmtMoney(localScores[name])}</div>`;
-    lb.appendChild(row);
-  });
+function showLocalResult(score, won){
+  const label = won===true ? '🎉 You won the million!' : won===false ? '❌ Wrong answer!' : '🚶 Walked away';
+  document.getElementById('local-result-label').textContent=label;
+  document.getElementById('local-result-score').textContent=fmtMoney(score);
   showPhase('phase-local-result');
 }
 
@@ -893,7 +832,6 @@ function renderMpResult(msg){
 
 // ── INIT ──────────────────────────────────────────────────────
 (function init(){
-  localPlayerCount=2; buildPlayerInputs();
   // Try session resume
   try{
     const s=JSON.parse(localStorage.getItem('mill_session'));
