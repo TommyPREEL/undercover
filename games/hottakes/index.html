@@ -226,6 +226,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── LOCAL VOTE ────────────────────────────────────────────── -->
 <div class="phase" id="phase-local-vote">
+  <div class="timer-wrap"><div class="timer-bar" id="local-timer-bar" style="width:100%"></div></div>
   <div class="round-indicator">
     <span class="round-badge">ROUND <span id="local-round-num">1</span> / <span id="local-rounds-total">5</span></span>
     <span class="category-badge" id="local-category">Anime</span>
@@ -429,10 +430,11 @@ function setRounds(btn){
   btn.classList.add('active');
   localRounds=parseInt(btn.dataset.r);
 }
-function pauseLocalGame(){ document.getElementById('local-pause-overlay').style.display='flex'; }
-function resumeLocalGame(){ document.getElementById('local-pause-overlay').style.display='none'; }
+function pauseLocalGame(){ clearLocalTimer(); document.getElementById('local-pause-overlay').style.display='flex'; }
+function resumeLocalGame(){ document.getElementById('local-pause-overlay').style.display='none'; startLocalTimer(localTimerRemaining); }
 
 function startLocal(){
+  clearLocalTimer();
   localQueue=shuffle(PROMPTS).slice(0,localRounds);
   localRoundIndex=0;
   localMyVotes=[];
@@ -447,8 +449,10 @@ function runLocalRound(){
   document.getElementById('local-agree-btn').disabled=false;
   document.getElementById('local-disagree-btn').disabled=false;
   showPhase('phase-local-vote');
+  startLocalTimer(LOCAL_HT_TIMER);
 }
 function castLocalVote(vote){
+  clearLocalTimer();
   document.getElementById('local-agree-btn').disabled=true;
   document.getElementById('local-disagree-btn').disabled=true;
   localMyVotes.push({text:localCurrentPrompt.text, category:localCurrentPrompt.category, vote});
@@ -572,7 +576,7 @@ function handleMsg(msg){
         document.getElementById('mp-disagree-btn').disabled=false;
       }
       if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
-      startMpTimer(msg.timeLeft); break;
+      startMpTimer(msg.timeLeft, 15); break;
     case 'hottakes_reveal':
       clearMpTimer(); renderMpReveal(msg); showPhase('phase-mp-reveal'); break;
     case 'hottakes_over':
@@ -595,16 +599,41 @@ function renderMpLobby(msg){
   document.getElementById('mp-guest-area').style.display=isHost?'none':'block';
 }
 
+// ── LOCAL TIMER ───────────────────────────────────────────────
+const LOCAL_HT_TIMER=15;
+let localTimerInterval=null, localTimerRemaining=LOCAL_HT_TIMER;
+function startLocalTimer(seconds){
+  clearLocalTimer();
+  localTimerRemaining=seconds;
+  const bar=document.getElementById('local-timer-bar');
+  bar.style.width=(seconds/LOCAL_HT_TIMER*100)+'%'; bar.classList.remove('urgent');
+  if(seconds<=3) bar.classList.add('urgent');
+  localTimerInterval=setInterval(()=>{
+    localTimerRemaining--;
+    bar.style.width=Math.max(0,localTimerRemaining/LOCAL_HT_TIMER*100)+'%';
+    if(localTimerRemaining<=3) bar.classList.add('urgent');
+    if(localTimerRemaining<=0){
+      clearLocalTimer();
+      // Time's up — advance without recording a vote
+      localRoundIndex++;
+      if(localRoundIndex>=localRounds) showLocalResult(); else runLocalRound();
+    }
+  },1000);
+}
+function clearLocalTimer(){if(localTimerInterval){clearInterval(localTimerInterval);localTimerInterval=null;}}
+
 // ── MP TIMER ──────────────────────────────────────────────────
-function startMpTimer(seconds){
+function startMpTimer(seconds, total){
   clearMpTimer();
   let secs=seconds;
+  const totalSecs=total||seconds;
   const bar=document.getElementById('mp-timer-bar');
-  bar.style.width='100%'; bar.classList.remove('urgent');
+  bar.style.width=(seconds/totalSecs*100)+'%'; bar.classList.remove('urgent');
+  if(seconds<=3) bar.classList.add('urgent');
   mpTimerInterval=setInterval(()=>{
     secs--;
-    bar.style.width=Math.max(0,secs/seconds*100)+'%';
-    if(secs<=5)bar.classList.add('urgent');
+    bar.style.width=Math.max(0,secs/totalSecs*100)+'%';
+    if(secs<=3)bar.classList.add('urgent');
     if(secs<=0)clearMpTimer();
   },1000);
 }

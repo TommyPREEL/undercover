@@ -225,6 +225,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── LOCAL PLAY ────────────────────────────────────────────── -->
 <div class="phase" id="phase-local-play">
+  <div class="timer-wrap"><div class="timer-bar" id="local-timer-bar" style="width:100%"></div></div>
   <div class="game-layout">
     <div class="game-main">
       <div class="question-box">
@@ -456,6 +457,7 @@ function setLocalTheme(btn){
 }
 
 function startLocalGame(){
+  clearLocalTimer();
   localQuestions=getQuestionsForSet(localTheme);
   localQIndex=0; localSafeScore=0; localFiftyUsed=false; localAnswered=false;
   renderLocalLadder();
@@ -484,6 +486,7 @@ function renderLocalQuestion(){
   document.getElementById('local-fifty-btn').className='lifeline-btn'+(localFiftyUsed?' used':'');
   document.getElementById('local-fifty-btn').disabled=localFiftyUsed;
   localAnswered=false;
+  startLocalTimer(LOCAL_TIMER);
 
   const letters=['a','b','c','d'];
   const container=document.getElementById('local-answers');
@@ -500,13 +503,14 @@ function renderLocalQuestion(){
 
 function submitLocalAnswer(choice){
   if(localAnswered)return;
+  clearLocalTimer();
   localAnswered=true;
   const q=localQuestions[localQIndex];
   const correct=q.ans;
   document.querySelectorAll('#local-answers .ans-btn').forEach(btn=>{
     btn.disabled=true;
     if(btn.dataset.letter===correct)btn.classList.add('correct');
-    else if(btn.dataset.letter===choice)btn.classList.add('wrong');
+    else if(choice&&btn.dataset.letter===choice)btn.classList.add('wrong');
     else btn.classList.add('locked');
   });
   if(choice===correct){
@@ -526,6 +530,7 @@ function submitLocalAnswer(choice){
 
 function localWalkAway(){
   if(localAnswered)return;
+  clearLocalTimer();
   localAnswered=true;
   const earned=localQIndex>0?PRIZE_LADDER[localQIndex-1]:0;
   showLocalResult(earned, null);
@@ -554,16 +559,17 @@ function showLocalResult(score, won){
 
 function restartLocal(){showPhase('phase-local-setup');}
 function cancelLocalGame(){
-  const o=document.getElementById('local-pause-overlay');
-  o.style.display='none';
+  clearLocalTimer();
+  document.getElementById('local-pause-overlay').style.display='none';
   showPhase('phase-local-setup');
 }
 function pauseLocalGame(){
-  const o=document.getElementById('local-pause-overlay');
-  o.style.display='flex';
+  clearLocalTimer();
+  document.getElementById('local-pause-overlay').style.display='flex';
 }
 function resumeLocalGame(){
   document.getElementById('local-pause-overlay').style.display='none';
+  if(!localAnswered) startLocalTimer(localTimerRemaining);
 }
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
@@ -697,7 +703,7 @@ function handleMpMsg(msg){
       document.getElementById('mp-paused-banner').style.display='none';
       if(!mpHasAnswered) document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=false);
       if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
-      startMpTimer(msg.timeLeft);
+      startMpTimer(msg.timeLeft, TIMER_SECONDS);
       break;
     case 'millionaire_reveal':
       if((msg.newlyEliminated||[]).includes(myName)){
@@ -748,15 +754,35 @@ function renderMpLadder(currentQi){
   }
 }
 
+// ── LOCAL TIMER ───────────────────────────────────────────────
+const LOCAL_TIMER=30;
+let localTimerInterval=null, localTimerRemaining=LOCAL_TIMER;
+function startLocalTimer(seconds){
+  clearLocalTimer();
+  localTimerRemaining=seconds;
+  const bar=document.getElementById('local-timer-bar');
+  bar.style.width=(seconds/LOCAL_TIMER*100)+'%'; bar.classList.remove('urgent');
+  if(seconds<=5) bar.classList.add('urgent');
+  localTimerInterval=setInterval(()=>{
+    localTimerRemaining--;
+    bar.style.width=Math.max(0,localTimerRemaining/LOCAL_TIMER*100)+'%';
+    if(localTimerRemaining<=5) bar.classList.add('urgent');
+    if(localTimerRemaining<=0){clearLocalTimer(); if(!localAnswered) submitLocalAnswer(null);}
+  },1000);
+}
+function clearLocalTimer(){if(localTimerInterval){clearInterval(localTimerInterval);localTimerInterval=null;}}
+
 // ── MP TIMER ──────────────────────────────────────────────────
-function startMpTimer(seconds){
+function startMpTimer(seconds, total){
   clearMpTimer();
   mpTimerSecs=seconds;
+  const totalSecs=total||seconds;
   const bar=document.getElementById('mp-timer-bar');
-  bar.style.width='100%'; bar.classList.remove('urgent');
+  bar.style.width=(seconds/totalSecs*100)+'%'; bar.classList.remove('urgent');
+  if(seconds<=5) bar.classList.add('urgent');
   mpTimerInterval=setInterval(()=>{
     mpTimerSecs--;
-    const pct=Math.max(0,mpTimerSecs/seconds*100);
+    const pct=Math.max(0,mpTimerSecs/totalSecs*100);
     bar.style.width=pct+'%';
     if(mpTimerSecs<=5)bar.classList.add('urgent');
     if(mpTimerSecs<=0)clearMpTimer();
