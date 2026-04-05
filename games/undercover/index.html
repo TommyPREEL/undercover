@@ -268,7 +268,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── MP WAITING (hub flow) ──────────────────────────────────── -->
 <div class="phase" id="phase-mp-waiting">
-  <a class="back-btn" href="#" onclick="hubLeave();return false;">← LOBBY</a>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
   <div class="section-title">UNDER<span style="color:var(--accent)">COVER</span></div>
   <div class="section-sub">Online — waiting for host</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
@@ -787,7 +787,16 @@ function mpReady(){
 function mpForceStart(){ mpSend({type:'force_ready'}); }
 function mpLeaveRoom(){if(ws&&ws.readyState===WebSocket.OPEN)mpSend({type:'leave_room'});clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}location.href='/';}
 function mpNewGame(){mpSend({type:'new_game'});}
-function hubLeave(){clearInterval(_wsHeartbeat);if(ws){ws.onclose=null;ws.close();}location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName);}
+function hubLeave(){
+  if(isHost){
+    mpSend({type:'return_to_hub'});
+    // game_launching handler will navigate everyone
+  } else {
+    clearInterval(_wsHeartbeat);
+    if(ws){ws.onclose=null;ws.close();}
+    location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName);
+  }
+}
 function returnToHub(){if(isHost)mpSend({type:'return_to_hub'});}
 function waitSetMode(mode){
   mpMode=mode;
@@ -806,6 +815,7 @@ function renderWaitingScreen(msg){
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
   document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
+  document.getElementById('waiting-back-btn').style.display=isHost?'inline-flex':'none';
   const startBtn=document.getElementById('waiting-start-btn');
   if(startBtn){startBtn.disabled=players.length<3;startBtn.style.opacity=players.length<3?0.5:1;}
   if(msg.gameConfig&&msg.gameConfig.mode||msg.mode){
