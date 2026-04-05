@@ -230,7 +230,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // ── State ─────────────────────────────────────────────────────
 let ws = null;
 let myName = '', myRoom = '', isHost = false;
-let hubPlayers = [], hubScores = {};
+let hubPlayers = [], hubScores = {}, hubHostName = '';
 let selectedGame = 'undercover';
 let pollInterval = null;
 let toastTimer = null;
@@ -353,6 +353,7 @@ function renderHubState(msg) {
   hubPlayers = msg.players || [];
   hubScores = msg.hubScores || {};
   const hostName = msg.host || '';
+  hubHostName = hostName;
 
   // Player list
   document.getElementById('hub-player-count').textContent = hubPlayers.length;
@@ -453,6 +454,7 @@ function handleMsg(msg) {
       break;
     case 'new_host':
       isHost = (msg.name === myName);
+      hubHostName = msg.name;
       document.getElementById('hub-host-area').style.display = isHost ? 'block' : 'none';
       document.getElementById('hub-guest-area').style.display = isHost ? 'none' : 'block';
       notify(isHost ? 'You are now the host.' : `${msg.name} is now the host.`);
@@ -461,6 +463,13 @@ function handleMsg(msg) {
       notify(`${msg.name} left the lobby.`);
       break;
     case 'player_offline':
+      hubPlayers = hubPlayers.filter(p => p !== msg.name);
+      document.getElementById('hub-player-count').textContent = hubPlayers.length;
+      document.getElementById('hub-player-list').innerHTML = hubPlayers.map(p => {
+        const crown = p === hubHostName ? '<span class="crown">👑</span>' : '';
+        const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
+        return `<div class="player-row">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+      }).join('');
       notify(`${msg.name} disconnected…`);
       break;
     case 'player_online':

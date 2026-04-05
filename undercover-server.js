@@ -1165,7 +1165,8 @@ server.on('upgrade', (req, socket, head) => {
         const name = room.players[playerId].name;
         room.players[playerId].socket = null;
         room.players[playerId].online = false;
-        console.log(`${name} disconnected from room ${code} (grace period started)`);
+        const gracePeriod = (room.phase === 'lobby' || room.phase === 'hub') ? 10000 : 5 * 60 * 1000;
+        console.log(`${name} disconnected from room ${code} (grace period: ${gracePeriod/1000}s)`);
         broadcast(room, { type: 'player_offline', name });
         disconnectTimers[playerId] = setTimeout(() => {
           if (!rooms[code] || !room.players[playerId]) return;
@@ -1193,7 +1194,7 @@ server.on('upgrade', (req, socket, head) => {
             }
             broadcast(room, { type: 'player_left', name });
           }
-        }, 5 * 60 * 1000);
+        }, gracePeriod);
         break;
       }
     }

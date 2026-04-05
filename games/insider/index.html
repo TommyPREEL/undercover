@@ -521,23 +521,27 @@ function handleMsg(msg){
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       showPhase('phase-mp-waiting'); break;
     case 'room_state':
-      mpPlayers=msg.players||[]; renderWaitingScreen(msg); break;
+      mpPlayers=msg.players||[]; hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_state':
-      mpPlayers=msg.players||[]; hubScores=msg.hubScores||{}; renderWaitingScreen(msg); break;
+      mpPlayers=msg.players||[]; hubScores=msg.hubScores||{}; hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_scores_updated':
       hubScores=msg.hubScores||{}; break;
     case 'config_updated': break;
     case 'game_launching':
       if(msg.gameType==='hub'){ location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName); } break;
     case 'new_host':
-      isHost=true; notify('You are now the host.');
+      isHost=true; hostName=msg.name||''; notify('You are now the host.');
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       document.getElementById('waiting-back-btn').style.display='inline-flex';
       break;
     case 'player_left': notify(msg.name+' left the room.'); break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
-    case 'player_offline': notify(msg.name+' disconnected…'); break;
+    case 'player_offline':
+      mpPlayers=mpPlayers.filter(p=>p!==msg.name);
+      notify(msg.name+' disconnected…');
+      renderWaitingScreen({players:mpPlayers,host:hostName,hubScores});
+      break;
     case 'insider_start':
       showRoleReveal(msg); break;
     case 'insider_question':
