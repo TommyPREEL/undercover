@@ -491,6 +491,10 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/favicon.ico') { res.writeHead(204); res.end(); return; }
   let filePath = path.join(__dirname, reqPath === '/' ? 'index.html' : reqPath);
   if (!filePath.startsWith(__dirname)) { res.writeHead(403); res.end(); return; }
+  // Serve index.html for directory paths
+  if (filePath.endsWith('/') || !path.extname(filePath)) {
+    filePath = path.join(filePath, 'index.html');
+  }
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
     const ext = path.extname(filePath);

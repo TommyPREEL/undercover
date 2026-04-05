@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY undercover-server.js .
 COPY index.html .
-COPY undercover.html .
 COPY manifest.json .
 COPY sw.js .
 COPY icon-192.svg .
 COPY icon-512.svg .
+COPY games/ games/
 
 EXPOSE 80
 
