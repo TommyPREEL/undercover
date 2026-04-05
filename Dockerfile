@@ -3,7 +3,8 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY undercover-server.js .
-COPY anime-undercover.html .
+COPY index.html .
+COPY undercover.html .
 COPY manifest.json .
 COPY sw.js .
 COPY icon-192.svg .
