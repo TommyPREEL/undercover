@@ -603,14 +603,14 @@ function handleMessage(socket, raw, playerId) {
       room.paused = false;
       if (room.gameType === 'millionaire') {
         const ms = room.millPauseTimeLeft || 5000;
-        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000) });
+        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000), timeLeftMs: ms });
         room.millTimerStartedAt = Date.now();
         room.millTimerDuration = ms;
         room.millTimer = setTimeout(() => revealMillQuestion(room), ms);
       }
       if (room.gameType === 'hottakes') {
         const ms = room.htPauseTimeLeft || 5000;
-        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000) });
+        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000), timeLeftMs: ms });
         room.htTimerStartedAt = Date.now();
         room.htTimerDuration = ms;
         room.htTimer = setTimeout(() => revealHotTakesPrompt(room), ms);

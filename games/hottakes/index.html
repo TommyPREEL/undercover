@@ -125,7 +125,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 /* Timer bar */
 .timer-wrap{height:4px;background:var(--surface3);border-radius:2px;margin-bottom:1rem;overflow:hidden;}
-.timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 1s linear,background 0.5s;}
+.timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:background 0.5s;}
 .timer-bar.urgent{background:var(--hot);}
 
 /* Reveal */
@@ -394,7 +394,7 @@ let localCurrentPrompt = null, localMyVotes = [];
 // Online
 let ws = null, myName = '', myRoom = '', isHost = false;
 let mpPlayers = [], mpScores = {}, mpRounds = 5;
-let mpHasVoted = false, mpTimerInterval = null;
+let mpHasVoted = false;
 let mpCurrentPrompt = null, mpCurrentRound = 0, mpTotalRounds = 5;
 let reconnectAttempts = 0;
 
@@ -431,7 +431,7 @@ function setRounds(btn){
   localRounds=parseInt(btn.dataset.r);
 }
 function pauseLocalGame(){ clearLocalTimer(); document.getElementById('local-pause-overlay').style.display='flex'; }
-function resumeLocalGame(){ document.getElementById('local-pause-overlay').style.display='none'; startLocalTimer(localTimerRemaining); }
+function resumeLocalGame(){ document.getElementById('local-pause-overlay').style.display='none'; startLocalTimer(localTimerRemainingMs); }
 
 function startLocal(){
   clearLocalTimer();
@@ -449,7 +449,7 @@ function runLocalRound(){
   document.getElementById('local-agree-btn').disabled=false;
   document.getElementById('local-disagree-btn').disabled=false;
   showPhase('phase-local-vote');
-  startLocalTimer(LOCAL_HT_TIMER);
+  startLocalTimer(LOCAL_HT_TIMER*1000);
 }
 function castLocalVote(vote){
   clearLocalTimer();
@@ -576,7 +576,7 @@ function handleMsg(msg){
         document.getElementById('mp-disagree-btn').disabled=false;
       }
       if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
-      startMpTimer(msg.timeLeft, 15); break;
+      startMpTimer(msg.timeLeftMs || msg.timeLeft*1000, 15000); break;
     case 'hottakes_reveal':
       clearMpTimer(); renderMpReveal(msg); showPhase('phase-mp-reveal'); break;
     case 'hottakes_over':
@@ -601,41 +601,50 @@ function renderMpLobby(msg){
 
 // ── LOCAL TIMER ───────────────────────────────────────────────
 const LOCAL_HT_TIMER=15;
-let localTimerInterval=null, localTimerRemaining=LOCAL_HT_TIMER;
-function startLocalTimer(seconds){
+let localTimerInterval=null, localTimerEndTime=0, localTimerRemainingMs=LOCAL_HT_TIMER*1000;
+function startLocalTimer(ms){
   clearLocalTimer();
-  localTimerRemaining=seconds;
+  const totalMs=LOCAL_HT_TIMER*1000;
+  localTimerEndTime=Date.now()+ms;
   const bar=document.getElementById('local-timer-bar');
-  bar.style.width=(seconds/LOCAL_HT_TIMER*100)+'%'; bar.classList.remove('urgent');
-  if(seconds<=3) bar.classList.add('urgent');
-  localTimerInterval=setInterval(()=>{
-    localTimerRemaining--;
-    bar.style.width=Math.max(0,localTimerRemaining/LOCAL_HT_TIMER*100)+'%';
-    if(localTimerRemaining<=3) bar.classList.add('urgent');
-    if(localTimerRemaining<=0){
+  bar.classList.remove('urgent');
+  function tick(){
+    const remaining=localTimerEndTime-Date.now();
+    const pct=Math.max(0,remaining/totalMs*100);
+    bar.style.width=pct+'%';
+    if(remaining<=3000) bar.classList.add('urgent');
+    if(remaining<=0){
       clearLocalTimer();
       // Time's up — advance without recording a vote
       localRoundIndex++;
       if(localRoundIndex>=localRounds) showLocalResult(); else runLocalRound();
     }
-  },1000);
+  }
+  tick();
+  localTimerInterval=setInterval(tick,100);
 }
-function clearLocalTimer(){if(localTimerInterval){clearInterval(localTimerInterval);localTimerInterval=null;}}
+function clearLocalTimer(){
+  if(localTimerInterval){clearInterval(localTimerInterval);localTimerInterval=null;}
+  localTimerRemainingMs=Math.max(0,localTimerEndTime-Date.now());
+}
 
 // ── MP TIMER ──────────────────────────────────────────────────
-function startMpTimer(seconds, total){
+let mpTimerInterval=null, mpTimerEndTime=0;
+function startMpTimer(ms, totalMs){
   clearMpTimer();
-  let secs=seconds;
-  const totalSecs=total||seconds;
+  if(!totalMs) totalMs=ms;
+  mpTimerEndTime=Date.now()+ms;
   const bar=document.getElementById('mp-timer-bar');
-  bar.style.width=(seconds/totalSecs*100)+'%'; bar.classList.remove('urgent');
-  if(seconds<=3) bar.classList.add('urgent');
-  mpTimerInterval=setInterval(()=>{
-    secs--;
-    bar.style.width=Math.max(0,secs/totalSecs*100)+'%';
-    if(secs<=3)bar.classList.add('urgent');
-    if(secs<=0)clearMpTimer();
-  },1000);
+  bar.classList.remove('urgent');
+  function tick(){
+    const remaining=mpTimerEndTime-Date.now();
+    const pct=Math.max(0,remaining/totalMs*100);
+    bar.style.width=pct+'%';
+    if(remaining<=3000)bar.classList.add('urgent');
+    if(remaining<=0)clearMpTimer();
+  }
+  tick();
+  mpTimerInterval=setInterval(tick,100);
 }
 function clearMpTimer(){if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null;}}
 
@@ -650,7 +659,7 @@ function renderMpVote(msg){
   ab.disabled=false; db.disabled=false;
   ab.className='vote-btn agree-btn'; db.className='vote-btn disagree-btn';
   renderMpScoreStrip('mp-score-strip');
-  startMpTimer(msg.timeLimit||15);
+  startMpTimer((msg.timeLimit||15)*1000, 15000);
 }
 function mpVote(vote){
   if(mpHasVoted||mpPaused)return;
