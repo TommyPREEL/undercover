@@ -182,36 +182,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div id="toast"></div>
 <div class="container">
 
-<!-- ── HOME ─────────────────────────────────────────────────── -->
-<div class="phase active" id="phase-home">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
-  <div class="tagline">Geek Edition · Vote · Debate · Find the majority</div>
-  <div class="label" style="margin-bottom:12px;">How to play</div>
-  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1.5rem;">
-    A spicy statement appears. Everyone secretly votes <span style="color:var(--hot);">🔥 AGREE</span> or <span style="color:var(--cold);">💧 DISAGREE</span>.<br/>
-    <b style="color:var(--text);">Majority wins</b> — players in the majority earn a point.<br/>
-    Tied vote? No one scores. After all rounds: whoever has the most points wins!
-  </div>
-  <div class="label">Choose mode</div>
-  <div class="mode-cards">
-    <div class="mode-card active" id="home-local-card" onclick="selectMode('local')">
-      <div class="mode-icon">📱</div>
-      <div class="mode-label">LOCAL</div>
-      <div class="mode-sub">Pass the phone</div>
-    </div>
-    <div class="mode-card" id="home-online-card" onclick="selectMode('online')">
-      <div class="mode-icon">🌐</div>
-      <div class="mode-label">ONLINE</div>
-      <div class="mode-sub">Play together</div>
-    </div>
-  </div>
-  <button class="btn-primary" onclick="goFromHome()">LET'S GO →</button>
-</div>
-
 <!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
-<div class="phase" id="phase-local-setup">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
+<div class="phase active" id="phase-local-setup">
+  <a class="back-btn" href="/">← HOME</a>
   <div class="logo"><span class="hot">LOCAL</span> <span class="cold">SETUP</span></div>
   <div class="tagline">Solo mode — where do you stand?</div>
   <div class="label">Rounds</div>
@@ -250,79 +223,11 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← HOME</a>
+  <a class="back-btn" href="/">← HOME</a>
   <div class="logo"><span class="hot">YOUR</span> <span class="cold">TAKES</span></div>
   <div class="tagline">Here's where you stand</div>
   <div id="local-vote-log" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;"></div>
   <button class="btn-primary" onclick="showPhase('phase-local-setup')">PLAY AGAIN</button>
-</div>
-
-<!-- ── MP ENTRY ───────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-entry">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
-  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
-  <div class="tagline">Online Multiplayer</div>
-  <div class="label">Your name</div>
-  <div class="player-row" style="margin-bottom:1.5rem;">
-    <input type="text" id="mp-name" placeholder="Enter your name" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')mpConnectAndEnter()"/>
-  </div>
-  <button class="btn-primary" onclick="mpConnectAndEnter()">PLAY ONLINE</button>
-  <div class="error-msg" id="mp-entry-err"></div>
-</div>
-
-<!-- ── MP CHOOSE ─────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-choose">
-  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
-  <div class="tagline" id="mp-choose-tagline">Online Multiplayer</div>
-  <div class="mp-mode-row" style="margin-top:1rem;">
-    <button class="mp-mode-btn" onclick="mpCreate()">
-      <span class="mp-icon">✨</span>
-      <span class="mp-label">CREATE</span>
-      <span class="mp-sub">New room</span>
-    </button>
-    <button class="mp-mode-btn" onclick="showPhase('phase-mp-join')">
-      <span class="mp-icon">🔑</span>
-      <span class="mp-label">JOIN</span>
-      <span class="mp-sub">Enter code</span>
-    </button>
-  </div>
-  <button class="btn-ghost" onclick="mpDisconnectFull()">← Disconnect</button>
-</div>
-
-<!-- ── MP JOIN ────────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-join">
-  <div class="section-title">JOIN ROOM</div>
-  <div class="section-sub">Enter the 4-letter room code</div>
-  <div class="player-row" style="margin-bottom:1.5rem;">
-    <input type="text" id="mp-code" placeholder="ABCD" maxlength="4"
-      style="font-family:var(--font-display);font-size:36px;letter-spacing:6px;text-transform:uppercase;text-align:center;"
-      oninput="this.value=this.value.toUpperCase()" autocomplete="off"
-      onkeydown="if(event.key==='Enter')mpJoin()"/>
-  </div>
-  <button class="btn-primary" onclick="mpJoin()">JOIN ROOM</button>
-  <button class="btn-ghost" onclick="showPhase('phase-mp-choose')">← Back</button>
-  <div class="error-msg" id="mp-join-err"></div>
-</div>
-
-<!-- ── MP LOBBY ──────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-lobby">
-  <div class="section-title">ROOM <span id="mp-lobby-code" style="color:var(--accent)"></span></div>
-  <div class="section-sub">Share the code with your friends</div>
-  <div class="code-display" id="mp-code-display"></div>
-  <div class="label">Players (<span id="mp-count">0</span>)</div>
-  <div id="mp-player-list" class="player-lobby-list"></div>
-  <div id="mp-host-area" style="display:none;">
-    <div class="label">Rounds</div>
-    <div class="rounds-row">
-      <button class="round-btn active" data-r="5" onclick="setMpRounds(this)">5</button>
-      <button class="round-btn" data-r="8" onclick="setMpRounds(this)">8</button>
-      <button class="round-btn" data-r="10" onclick="setMpRounds(this)">10</button>
-      <button class="round-btn" data-r="15" onclick="setMpRounds(this)">15</button>
-    </div>
-    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
-  </div>
-  <div id="mp-guest-area" style="display:none;" class="waiting-msg">Waiting for the host to start…</div>
-  <button class="btn-ghost" onclick="mpLeaveRoom()" style="margin-top:10px;">← Leave room</button>
 </div>
 
 <!-- ── MP VOTE ────────────────────────────────────────────────── -->
@@ -453,17 +358,6 @@ function notify(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ── HOME ──────────────────────────────────────────────────────
-function selectMode(m){
-  selectedMode=m;
-  document.getElementById('home-local-card').classList.toggle('active',m==='local');
-  document.getElementById('home-online-card').classList.toggle('active',m==='online');
-}
-function goFromHome(){
-  if(selectedMode==='local') showPhase('phase-local-setup');
-  else showPhase('phase-mp-entry');
-}
-
 // ── LOCAL SETUP ───────────────────────────────────────────────
 function setRounds(btn){
   document.querySelectorAll('#phase-local-setup .round-btn').forEach(b=>b.classList.remove('active'));
@@ -517,17 +411,10 @@ function showLocalResult(){
 }
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
-function setMpRounds(btn){
-  document.querySelectorAll('#phase-mp-lobby .round-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  mpRounds=parseInt(btn.dataset.r);
-}
-
 let mpPaused = false;
 function mpTogglePause(){ mpSend({type: mpPaused ? 'resume_game' : 'pause_game'}); }
 function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
-function mpDisconnectFull(){mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';showPhase('phase-home');}
-function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';if(hubFlow){location.href='/';}else{showPhase('phase-home');}}
+function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';location.href='/';}
 function hubLeave(){mpSend({type:'leave_room'});if(ws){ws.onclose=null;ws.close();ws=null;}myRoom='';myName='';isHost=false;hubFlow=false;location.href='/';}
 function returnToHub(){if(isHost)mpSend({type:'return_to_hub'});}
 function setWaitingRounds(r,btn){
@@ -577,28 +464,6 @@ function mpWsConnect(cb){
 }
 function mpSend(obj){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(obj));}
 
-function mpConnectAndEnter(){
-  const name=(document.getElementById('mp-name').value||'').trim();
-  const err=document.getElementById('mp-entry-err');
-  if(!name){err.textContent='Enter your name.';return;}
-  myName=name.slice(0,20);
-  err.textContent='Connecting…';
-  mpWsConnect(()=>{
-    err.textContent='';
-    document.getElementById('mp-choose-tagline').textContent='Hi '+myName+' — create or join a room';
-    showPhase('phase-mp-choose');
-  });
-}
-function mpCreate(){
-  mpSend({type:'create_room',gameType:'hottakes',name:myName,mode:'hottakes'});
-}
-function mpJoin(){
-  const code=(document.getElementById('mp-code').value||'').trim().toUpperCase();
-  const err=document.getElementById('mp-join-err');
-  if(code.length!==4){err.textContent='Enter a 4-letter code.';return;}
-  err.textContent='';
-  mpSend({type:'join_room',code,name:myName});
-}
 function mpStartGame(){
   const prompts=shuffle(PROMPTS).slice(0,mpRounds);
   mpSend({type:'start_hottakes',rounds:mpRounds,prompts});
@@ -608,18 +473,13 @@ function handleMsg(msg){
   switch(msg.type){
     case 'joined':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      if(!hubFlow) localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
-      if(hubFlow) showPhase('phase-mp-waiting');
-      else showPhase('phase-mp-lobby'); break;
+      showPhase('phase-mp-waiting'); break;
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      if(!hubFlow) localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
-      if(hubFlow) showPhase('phase-mp-waiting');
-      else showPhase('phase-mp-lobby'); break;
+      showPhase('phase-mp-waiting'); break;
     case 'room_state':
       mpPlayers=msg.players||[];
-      if(hubFlow) renderWaitingScreen(msg);
-      else renderMpLobby(msg); break;
+      renderWaitingScreen(msg); break;
     case 'hub_state':
       mpPlayers=msg.players||[];
       if(msg.gameConfig&&msg.gameConfig.rounds) mpRounds=msg.gameConfig.rounds;
@@ -639,18 +499,10 @@ function handleMsg(msg){
         location.href='/?'+p.toString();
       }
       break;
-    case 'error':
-      document.getElementById('mp-entry-err').textContent=msg.msg||'Error.';
-      document.getElementById('mp-join-err').textContent=msg.msg||'Error.'; break;
     case 'new_host':
       isHost=true; notify('You are now the host.');
-      if(hubFlow){
-        document.getElementById('waiting-host-area').style.display='block';
-        document.getElementById('waiting-guest-area').style.display='none';
-      } else {
-        document.getElementById('mp-host-area').style.display='block';
-        document.getElementById('mp-guest-area').style.display='none';
-      }
+      document.getElementById('waiting-host-area').style.display='block';
+      document.getElementById('waiting-guest-area').style.display='none';
       break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
     case 'player_offline': notify(msg.name+' disconnected…'); break;
@@ -682,22 +534,8 @@ function handleMsg(msg){
       clearMpTimer(); renderMpResult(msg); break;
     case 'back_to_lobby':
       mpScores={};
-      if(hubFlow) showPhase('phase-mp-waiting');
-      else showPhase('phase-mp-lobby'); break;
+      showPhase('phase-mp-waiting'); break;
   }
-}
-
-function renderMpLobby(msg){
-  document.getElementById('mp-lobby-code').textContent=myRoom;
-  document.getElementById('mp-code-display').textContent=myRoom;
-  document.getElementById('mp-count').textContent=(msg.players||[]).length;
-  const list=document.getElementById('mp-player-list');
-  list.innerHTML=(msg.players||[]).map(p=>{
-    const isH=p===msg.host, isMe=p===myName;
-    return `<div class="lobby-player">${isH?'<span class="crown">👑</span>':''}<span style="flex:1">${p}</span>${isMe?'<span class="you-tag">YOU</span>':''}</div>`;
-  }).join('');
-  document.getElementById('mp-host-area').style.display=isHost?'block':'none';
-  document.getElementById('mp-guest-area').style.display=isHost?'none':'block';
 }
 
 // ── LOCAL TIMER ───────────────────────────────────────────────
@@ -841,7 +679,7 @@ function renderMpResult(msg){
   } else {
     btn.style.display='block'; hubBtn.style.display='none';
     if(isHost){btn.textContent='PLAY AGAIN';btn.onclick=()=>mpSend({type:'new_game'});}
-    else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-lobby');}
+    else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-waiting');}
   }
   showPhase('phase-mp-result');
 }

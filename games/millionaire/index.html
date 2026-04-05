@@ -185,30 +185,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <div class="container">
 
-<!-- ── HOME ─────────────────────────────────────────────────── -->
-<div class="phase active" id="phase-home">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo">MILLION<span>AIRE</span></div>
-  <div class="tagline">Geek Edition · Video Games · Anime · TV · Geek Trivia</div>
-  <div class="label">Choose mode</div>
-  <div class="mode-cards">
-    <div class="mode-card active" id="home-local-card" onclick="selectHomeMode('local')">
-      <div class="mode-icon">📱</div>
-      <div class="mode-label">LOCAL</div>
-      <div class="mode-sub">Pass the phone</div>
-    </div>
-    <div class="mode-card" id="home-online-card" onclick="selectHomeMode('online')">
-      <div class="mode-icon">🌐</div>
-      <div class="mode-label">ONLINE</div>
-      <div class="mode-sub">Play together</div>
-    </div>
-  </div>
-  <button class="btn-primary" onclick="goFromHome()">LET'S PLAY →</button>
-</div>
-
 <!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
-<div class="phase" id="phase-local-setup">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
+<div class="phase active" id="phase-local-setup">
+  <a class="back-btn" href="/">← HOME</a>
   <div class="logo">LOCAL <span>SETUP</span></div>
   <div class="tagline">Solo challenge — how far can you go?</div>
 
@@ -252,81 +231,13 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← HOME</a>
+  <a class="back-btn" href="/">← HOME</a>
   <div class="logo">GAME <span>OVER</span></div>
   <div class="reveal-box" style="margin-bottom:1.5rem;">
     <div class="reveal-label" id="local-result-label">You earned</div>
     <div class="reveal-score" id="local-result-score">$0</div>
   </div>
   <button class="btn-primary" onclick="restartLocal()">PLAY AGAIN</button>
-</div>
-
-<!-- ── MP ENTRY ───────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-entry">
-  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
-  <div class="logo">MILLION<span>AIRE</span></div>
-  <div class="tagline">Online Multiplayer</div>
-  <div class="label">Your name</div>
-  <div class="player-row" style="margin-bottom:1.5rem;">
-    <input type="text" id="mp-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')mpConnectAndEnter()"/>
-  </div>
-  <button class="btn-primary" onclick="mpConnectAndEnter()">PLAY ONLINE</button>
-  <div class="error-msg" id="mp-entry-error"></div>
-</div>
-
-<!-- ── MP CHOOSE ─────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-choose">
-  <div class="logo">MILLION<span>AIRE</span></div>
-  <div class="tagline" id="mp-choose-tagline">Online Multiplayer</div>
-  <div class="mp-mode-row" style="margin-top:1rem;">
-    <button class="mp-mode-btn" onclick="mpCreate()">
-      <span class="mp-icon">✨</span>
-      <span class="mp-label">CREATE</span>
-      <span class="mp-sub">New room</span>
-    </button>
-    <button class="mp-mode-btn" onclick="showPhase('phase-mp-join')">
-      <span class="mp-icon">🔑</span>
-      <span class="mp-label">JOIN</span>
-      <span class="mp-sub">Enter code</span>
-    </button>
-  </div>
-  <button class="btn-ghost" onclick="mpDisconnectFull()">← Disconnect</button>
-</div>
-
-<!-- ── MP JOIN ────────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-join">
-  <div class="section-title">JOIN ROOM</div>
-  <div class="section-sub">Enter the 4-letter room code</div>
-  <div class="player-row" style="margin-bottom:1.5rem;">
-    <input type="text" id="mp-code-input" placeholder="ABCD" maxlength="4"
-      style="font-family:var(--font-display);font-size:36px;letter-spacing:6px;text-transform:uppercase;text-align:center;"
-      oninput="this.value=this.value.toUpperCase()" autocomplete="off"
-      onkeydown="if(event.key==='Enter')mpJoin()"/>
-  </div>
-  <button class="btn-primary" onclick="mpJoin()">JOIN ROOM</button>
-  <button class="btn-ghost" onclick="showPhase('phase-mp-choose')">← Back</button>
-  <div class="error-msg" id="mp-join-error"></div>
-</div>
-
-<!-- ── MP LOBBY ──────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-lobby">
-  <div class="section-title">ROOM <span id="mp-lobby-code" style="color:var(--gold)"></span></div>
-  <div class="section-sub">Share the code with your friends</div>
-  <div class="code-display" id="mp-code-display"></div>
-  <div class="label">Players (<span id="mp-lobby-count">0</span>)</div>
-  <div id="mp-player-list" class="player-lobby-list"></div>
-  <div id="mp-host-controls" style="display:none;">
-    <div class="label">Theme</div>
-    <div class="theme-row" id="mp-host-theme-row">
-      <button class="theme-btn active" data-theme="videogames" onclick="setMpHostTheme(this)">🎮 Video Games</button>
-      <button class="theme-btn" data-theme="anime" onclick="setMpHostTheme(this)">⛩️ Anime</button>
-      <button class="theme-btn" data-theme="tv" onclick="setMpHostTheme(this)">🎬 TV & Movies</button>
-      <button class="theme-btn" data-theme="geek" onclick="setMpHostTheme(this)">🧠 Geek Trivia</button>
-    </div>
-    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
-  </div>
-  <div id="mp-guest-waiting" style="display:none;" class="waiting-msg">Waiting for host to start the game…</div>
-  <button class="btn-ghost" onclick="mpLeaveRoom()" style="margin-top:10px;">← Leave room</button>
 </div>
 
 <!-- ── MP PLAY ────────────────────────────────────────────────── -->
@@ -479,15 +390,6 @@ function notify(msg){
 }
 
 // ── HOME ──────────────────────────────────────────────────────
-function selectHomeMode(mode){
-  selectedHomeMode=mode;
-  document.getElementById('home-local-card').classList.toggle('active',mode==='local');
-  document.getElementById('home-online-card').classList.toggle('active',mode==='online');
-}
-function goFromHome(){
-  if(selectedHomeMode==='local') showPhase('phase-local-setup');
-  else showPhase('phase-mp-entry');
-}
 
 // ── LOCAL SETUP ───────────────────────────────────────────────
 function setLocalTheme(btn){
@@ -613,15 +515,7 @@ function resumeLocalGame(){
 }
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
-function setMpHostTheme(btn){
-  document.querySelectorAll('#mp-host-theme-row .theme-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  mpTheme=btn.dataset.theme;
-  mpSend({type:'set_mode',mode:mpTheme});
-}
-
 function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
-function mpDisconnectFull(){mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';showPhase('phase-home');}
 
 function mpWsConnect(onOpen){
   if(ws&&ws.readyState===WebSocket.OPEN){onOpen&&onOpen();return;}
@@ -645,29 +539,6 @@ function mpSend(obj){
   if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
 }
 
-function mpConnectAndEnter(){
-  const name=(document.getElementById('mp-name-input').value||'').trim();
-  const err=document.getElementById('mp-entry-error');
-  if(!name){err.textContent='Enter your name.';return;}
-  myName=name.slice(0,20);
-  err.textContent='Connecting…';
-  mpWsConnect(()=>{
-    err.textContent='';
-    document.getElementById('mp-choose-tagline').textContent='Hi '+myName+' — create or join a room';
-    showPhase('phase-mp-choose');
-  });
-}
-
-function mpCreate(){
-  mpSend({type:'create_room',gameType:'millionaire',name:myName,mode:mpTheme});
-}
-function mpJoin(){
-  const code=(document.getElementById('mp-code-input').value||'').trim().toUpperCase();
-  const err=document.getElementById('mp-join-error');
-  if(code.length!==4){err.textContent='Enter a 4-letter code.';return;}
-  err.textContent='';
-  mpSend({type:'join_room',code,name:myName});
-}
 
 let mpPaused = false;
 function mpCancelGame(){ mpSend({type:'cancel_round'}); }
@@ -680,35 +551,29 @@ function mpStartGame(){
   const questions=getQuestionsForSet(mpTheme);
   mpSend({type:'start_millionaire',questions});
 }
-function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';if(hubFlow){location.href='/';}else{showPhase('phase-home');}}
+function mpLeaveRoom(){mpSend({type:'leave_room'});mpDisconnect();localStorage.removeItem('mill_session');myRoom='';myName='';location.href='/';}
 
 function handleMpMsg(msg){
   switch(msg.type){
     case 'joined':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      if(!hubFlow) localStorage.setItem('mill_session',JSON.stringify({name:myName,room:myRoom}));
-      if(hubFlow) showPhase('phase-mp-waiting');
-      else showPhase('phase-mp-lobby');
+      showPhase('phase-mp-waiting');
       break;
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
-      if(!hubFlow) localStorage.setItem('mill_session',JSON.stringify({name:myName,room:myRoom}));
       mpPlayers=msg.players||[];
       if(msg.phase==='playing'){
         showPhase('phase-mp-play');
         document.getElementById('mp-reveal-info').style.display='block';
         document.getElementById('mp-reveal-info').innerHTML='<div class="waiting-msg">Reconnected — waiting for next question…</div>';
-      } else if(hubFlow) {
-        showPhase('phase-mp-waiting');
       } else {
-        showPhase('phase-mp-lobby');
+        showPhase('phase-mp-waiting');
       }
       break;
     case 'room_state':
       mpPlayers=msg.players||[];
       mpTheme=msg.mode||'videogames';
-      if(hubFlow) renderWaitingScreen(msg);
-      else renderMpLobby(msg);
+      renderWaitingScreen(msg);
       break;
     case 'hub_state':
       mpPlayers=msg.players||[];
@@ -738,13 +603,8 @@ function handleMpMsg(msg){
       break;
     case 'new_host':
       isHost=true; notify('You are now the host.');
-      if(hubFlow){
-        document.getElementById('waiting-host-area').style.display='block';
-        document.getElementById('waiting-guest-area').style.display='none';
-      } else {
-        document.getElementById('mp-host-controls').style.display='block';
-        document.getElementById('mp-guest-waiting').style.display='none';
-      }
+      document.getElementById('waiting-host-area').style.display='block';
+      document.getElementById('waiting-guest-area').style.display='none';
       break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
     case 'player_offline': notify(msg.name+' disconnected…'); break;
@@ -789,30 +649,11 @@ function handleMpMsg(msg){
       break;
     case 'back_to_lobby':
       mpScores={}; mpEliminated=false; clearMpTimer();
-      if(hubFlow) showPhase('phase-mp-waiting');
-      else showPhase('phase-mp-lobby');
+      showPhase('phase-mp-waiting');
       break;
   }
 }
 
-function renderMpLobby(msg){
-  const host=msg.host;
-  document.getElementById('mp-lobby-code').textContent=myRoom;
-  document.getElementById('mp-code-display').textContent=myRoom;
-  document.getElementById('mp-lobby-count').textContent=(msg.players||[]).length;
-  const list=document.getElementById('mp-player-list');
-  list.innerHTML=(msg.players||[]).map(p=>{
-    const isH=p===host, isMe=p===myName;
-    return `<div class="lobby-player">${isH?'<span class="crown">👑</span>':''}<span style="flex:1">${p}</span>${isMe?'<span class="you-tag">YOU</span>':''}</div>`;
-  }).join('');
-  document.getElementById('mp-host-controls').style.display=isHost?'block':'none';
-  document.getElementById('mp-guest-waiting').style.display=isHost?'none':'block';
-  if(isHost){
-    document.querySelectorAll('#mp-host-theme-row .theme-btn').forEach(b=>{
-      b.classList.toggle('active',b.dataset.theme===mpTheme);
-    });
-  }
-}
 
 // ── MP LADDER ─────────────────────────────────────────────────
 function renderMpLadder(currentQi){
@@ -997,7 +838,7 @@ function renderMpResult(msg){
       btn.onclick=()=>mpSend({type:'new_game'});
     } else {
       btn.textContent='BACK TO LOBBY';
-      btn.onclick=()=>showPhase('phase-mp-lobby');
+      btn.onclick=()=>showPhase('phase-mp-waiting');
     }
   }
   showPhase('phase-mp-result');
