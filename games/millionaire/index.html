@@ -231,6 +231,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="ladder" id="local-ladder"></div>
     </div>
   </div>
+  <button class="btn-ghost" onclick="cancelLocalGame()" style="margin-top:1.5rem;">✕ Cancel Game</button>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
@@ -308,6 +309,9 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="label">Prize Ladder</div>
       <div class="ladder" id="mp-ladder"></div>
     </div>
+  </div>
+  <div id="mp-host-cancel" style="display:none;">
+    <button class="btn-ghost" onclick="mpCancelGame()" style="margin-top:1.5rem;">✕ Cancel Game</button>
   </div>
 </div>
 
@@ -560,6 +564,7 @@ function showLocalResult(){
 }
 
 function restartLocal(){showPhase('phase-local-setup');}
+function cancelLocalGame(){showPhase('phase-local-setup');}
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
 function setMpTheme(btn){
@@ -583,9 +588,12 @@ function mpConnect(onOpen){
   ws.onopen=()=>{reconnectAttempts=0;onOpen&&onOpen();};
   ws.onmessage=e=>{try{handleMpMsg(JSON.parse(e.data));}catch(_){}};
   ws.onclose=()=>{
-    if(reconnectAttempts<5){
+    if(myRoom&&myName&&reconnectAttempts<5){
       reconnectAttempts++;
-      setTimeout(()=>mpConnect(),2000);
+      notify('Connection lost, reconnecting…');
+      setTimeout(()=>mpConnect(()=>{
+        mpSend({type:'rejoin_room',code:myRoom,name:myName});
+      }),2000*reconnectAttempts);
     }
   };
   ws.onerror=()=>{};
@@ -612,7 +620,12 @@ function mpJoin(){
   });
 }
 
+function mpCancelGame(){
+  mpSend({type:'cancel_round'});
+}
+
 function mpStartGame(){
+  mpFiftyUsed=false; mpHasAnswered=false; mpScores={}; mpCurrentQi=0;
   const questions=getQuestionsForSet(mpTheme);
   mpSend({type:'start_millionaire',questions});
 }
@@ -620,12 +633,27 @@ function mpStartGame(){
 function handleMpMsg(msg){
   switch(msg.type){
     case 'joined':
-      myRoom=msg.code; isHost=msg.isHost;
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       localStorage.setItem('mill_session',JSON.stringify({name:myName,room:myRoom}));
       document.getElementById('mp-pre-join').style.display='none';
       document.getElementById('mp-in-room').style.display='block';
       document.getElementById('mp-room-code-display').textContent=myRoom;
       showPhase('phase-mp-lobby');
+      break;
+    case 'rejoin_ack':
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      localStorage.setItem('mill_session',JSON.stringify({name:myName,room:myRoom}));
+      mpPlayers=msg.players||[];
+      document.getElementById('mp-pre-join').style.display='none';
+      document.getElementById('mp-in-room').style.display='block';
+      document.getElementById('mp-room-code-display').textContent=myRoom;
+      if(msg.phase==='playing'){
+        showPhase('phase-mp-play');
+        document.getElementById('mp-reveal-info').style.display='block';
+        document.getElementById('mp-reveal-info').innerHTML='<div class="waiting-msg">Reconnected — waiting for next question…</div>';
+      } else {
+        showPhase('phase-mp-lobby');
+      }
       break;
     case 'room_state':
       mpPlayers=msg.players||[];
@@ -642,10 +670,12 @@ function handleMpMsg(msg){
       break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
     case 'player_offline': notify(msg.name+' disconnected…'); break;
+    case 'player_left': notify(msg.name+' left the room.'); break;
     case 'millionaire_question':
       mpCurrentQi=msg.qi; mpHasAnswered=false; mpCurrentQ=msg;
       renderMpQuestion(msg);
       showPhase('phase-mp-play');
+      document.getElementById('mp-host-cancel').style.display=isHost?'block':'none';
       break;
     case 'millionaire_reveal':
       renderMpReveal(msg);
@@ -655,6 +685,7 @@ function handleMpMsg(msg){
       renderMpResult(msg);
       break;
     case 'back_to_lobby':
+      myRoom=''; isHost=false; mpScores={};
       localStorage.removeItem('mill_session');
       document.getElementById('mp-pre-join').style.display='block';
       document.getElementById('mp-in-room').style.display='none';

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Hot Takes — Geek Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0f0f8;--muted:#7a7a9a;
+  --accent:#9b59b6;--hot:#e74c3c;--cold:#3498db;
+  --green:#2ecc71;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(155,89,182,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(155,89,182,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.2;}
+.orb-1{width:400px;height:400px;background:var(--hot);top:-100px;right:-100px;}
+.orb-2{width:300px;height:300px;background:var(--cold);bottom:-50px;left:-80px;}
+.container{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
+.phase{display:none;}.phase.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;background:transparent;border:none;cursor:pointer;padding:8px 0;margin-bottom:1.5rem;transition:color 0.15s;text-decoration:none;font-family:var(--font-body);}
+.back-btn:hover{color:var(--text);}
+
+.logo{font-family:var(--font-display);font-size:56px;line-height:0.9;letter-spacing:2px;margin-bottom:4px;}
+.logo .hot{color:var(--hot);}
+.logo .cold{color:var(--cold);}
+.tagline{font-size:12px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2rem;}
+.label{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:600;}
+
+/* Mode cards */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;}
+.mode-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;text-align:center;transition:all 0.15s;}
+.mode-card:hover{border-color:var(--border2);}
+.mode-card.active{border-color:var(--accent);background:rgba(155,89,182,0.07);}
+.mode-icon{font-size:28px;margin-bottom:6px;}
+.mode-label{font-family:var(--font-display);font-size:20px;letter-spacing:1px;}
+.mode-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* Buttons */
+.btn-primary{width:100%;padding:16px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-family:var(--font-display);font-size:22px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;}
+.btn-primary:hover{background:#8e44ad;transform:translateY(-1px);}
+.btn-secondary{width:100%;padding:14px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:10px;}
+.btn-secondary:hover{background:var(--surface2);border-color:var(--accent);}
+.btn-ghost{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+
+/* Player input */
+.player-inputs{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.player-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 4px 4px 14px;transition:border-color 0.2s;}
+.player-row:focus-within{border-color:var(--accent);}
+.player-num{font-family:var(--font-display);font-size:18px;color:var(--muted);width:20px;flex-shrink:0;}
+.player-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-body);font-size:15px;padding:8px 0;}
+.player-row input::placeholder{color:var(--muted);}
+.count-row{display:flex;gap:8px;margin-bottom:1rem;}
+.count-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:13px;padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.count-btn:hover{border-color:var(--border2);}
+
+/* Round selector */
+.rounds-row{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.round-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-family:var(--font-display);font-size:18px;padding:8px 18px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.round-btn.active{border-color:var(--accent);color:var(--accent);}
+
+/* MP lobby */
+.mp-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:var(--font-body);font-size:15px;outline:none;transition:border-color 0.2s;margin-bottom:8px;}
+.mp-input:focus{border-color:var(--accent);}
+.room-code-display{font-family:var(--font-display);font-size:64px;letter-spacing:8px;color:var(--accent);text-align:center;margin:1rem 0;}
+.player-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
+.player-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;}
+.player-chip.host{border-color:var(--accent);color:var(--accent);}
+.error-msg{color:var(--hot);font-size:13px;margin-top:6px;min-height:18px;}
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+.waiting-msg{text-align:center;color:var(--muted);font-size:14px;padding:12px;animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* ── GAME SCREEN ──────────────────────────────────────────── */
+
+/* Round indicator */
+.round-indicator{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.round-badge{font-family:var(--font-display);font-size:14px;letter-spacing:2px;color:var(--muted);}
+.category-badge{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.2);border-radius:20px;padding:4px 10px;}
+
+/* Statement card */
+.statement-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem 1.5rem;margin-bottom:1.25rem;min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;}
+.statement-text{font-size:20px;font-weight:700;line-height:1.4;color:var(--text);}
+
+/* Cover screen */
+.cover-screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem 1.5rem;margin-bottom:1rem;text-align:center;}
+.cover-name{font-family:var(--font-display);font-size:36px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;}
+.cover-sub{font-size:13px;color:var(--muted);}
+
+/* Vote buttons */
+.vote-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;}
+.vote-btn{padding:24px 16px;border:2px solid transparent;border-radius:var(--radius);font-family:var(--font-display);font-size:28px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.vote-btn .vote-emoji{font-size:36px;}
+.vote-btn.agree-btn{background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.3);color:var(--hot);}
+.vote-btn.agree-btn:hover:not(:disabled){background:rgba(231,76,60,0.18);border-color:var(--hot);transform:translateY(-2px);}
+.vote-btn.disagree-btn{background:rgba(52,152,219,0.08);border-color:rgba(52,152,219,0.3);color:var(--cold);}
+.vote-btn.disagree-btn:hover:not(:disabled){background:rgba(52,152,219,0.18);border-color:var(--cold);transform:translateY(-2px);}
+.vote-btn:disabled{opacity:0.4;cursor:default;transform:none !important;}
+.vote-btn.selected-agree{background:rgba(231,76,60,0.22);border-color:var(--hot);}
+.vote-btn.selected-disagree{background:rgba(52,152,219,0.22);border-color:var(--cold);}
+
+/* Timer bar */
+.timer-wrap{height:4px;background:var(--surface3);border-radius:2px;margin-bottom:1rem;overflow:hidden;}
+.timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 1s linear,background 0.5s;}
+.timer-bar.urgent{background:var(--hot);}
+
+/* Reveal */
+.reveal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+.reveal-split{display:flex;gap:12px;margin-bottom:1rem;}
+.split-side{flex:1;border-radius:var(--radius-sm);padding:14px 12px;text-align:center;}
+.split-side.agree-side{background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.25);}
+.split-side.disagree-side{background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);}
+.split-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.split-label.agree-side{color:var(--hot);}
+.split-label.disagree-side{color:var(--cold);}
+.split-pct{font-family:var(--font-display);font-size:40px;letter-spacing:1px;}
+.split-side.agree-side .split-pct{color:var(--hot);}
+.split-side.disagree-side .split-pct{color:var(--cold);}
+.split-names{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+
+/* Result row */
+.majority-badge{display:inline-block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:12px;}
+.majority-badge.agree{background:rgba(231,76,60,0.15);color:var(--hot);border:1px solid rgba(231,76,60,0.3);}
+.majority-badge.disagree{background:rgba(52,152,219,0.15);color:var(--cold);border:1px solid rgba(52,152,219,0.3);}
+.majority-badge.tied{background:rgba(155,89,182,0.15);color:var(--accent);border:1px solid rgba(155,89,182,0.3);}
+.points-earned{font-size:13px;color:var(--muted);}
+.points-earned b{color:var(--green);}
+
+/* Score strip */
+.score-strip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;}
+.score-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:13px;}
+.score-chip.me{border-color:var(--accent);color:var(--accent);}
+
+/* Leaderboard */
+.leaderboard{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.lb-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;}
+.lb-rank{font-family:var(--font-display);font-size:24px;width:32px;flex-shrink:0;color:var(--muted);}
+.lb-row:first-child .lb-rank{color:#f5c542;}
+.lb-row:nth-child(2) .lb-rank{color:#aaa;}
+.lb-row:nth-child(3) .lb-rank{color:#cd7f32;}
+.lb-name{flex:1;font-weight:600;}
+.lb-score{font-family:var(--font-display);font-size:22px;color:var(--accent);letter-spacing:1px;}
+.lb-pts{font-size:11px;color:var(--muted);}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div id="toast"></div>
+<div class="container">
+
+<!-- ── HOME ─────────────────────────────────────────────────── -->
+<div class="phase active" id="phase-home">
+  <a class="back-btn" href="/">← HOME</a>
+  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
+  <div class="tagline">Geek Edition · Vote · Debate · Find the majority</div>
+  <div class="label" style="margin-bottom:12px;">How to play</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1.5rem;">
+    A spicy statement appears. Everyone secretly votes <span style="color:var(--hot);">🔥 AGREE</span> or <span style="color:var(--cold);">💧 DISAGREE</span>.<br/>
+    <b style="color:var(--text);">Majority wins</b> — players in the majority earn a point.<br/>
+    Tied vote? No one scores. After all rounds: whoever has the most points wins!
+  </div>
+  <div class="label">Choose mode</div>
+  <div class="mode-cards">
+    <div class="mode-card active" id="home-local-card" onclick="selectMode('local')">
+      <div class="mode-icon">📱</div>
+      <div class="mode-label">LOCAL</div>
+      <div class="mode-sub">Pass the phone</div>
+    </div>
+    <div class="mode-card" id="home-online-card" onclick="selectMode('online')">
+      <div class="mode-icon">🌐</div>
+      <div class="mode-label">ONLINE</div>
+      <div class="mode-sub">Play together</div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="goFromHome()">LET'S GO →</button>
+</div>
+
+<!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
+<div class="phase" id="phase-local-setup">
+  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
+  <div class="logo"><span class="hot">LOCAL</span> <span class="cold">SETUP</span></div>
+  <div class="tagline">Pass the phone — vote in secret, reveal together</div>
+  <div class="label">Rounds</div>
+  <div class="rounds-row">
+    <button class="round-btn active" data-r="5" onclick="setRounds(this)">5</button>
+    <button class="round-btn" data-r="8" onclick="setRounds(this)">8</button>
+    <button class="round-btn" data-r="10" onclick="setRounds(this)">10</button>
+    <button class="round-btn" data-r="15" onclick="setRounds(this)">15</button>
+  </div>
+  <div class="label">Players</div>
+  <div class="count-row">
+    <button class="count-btn" onclick="changeCount(-1)">− Remove</button>
+    <button class="count-btn" onclick="changeCount(1)">+ Add</button>
+  </div>
+  <div class="player-inputs" id="local-inputs"></div>
+  <div class="error-msg" id="local-setup-err"></div>
+  <button class="btn-primary" onclick="startLocal()" style="margin-top:1rem;">START →</button>
+</div>
+
+<!-- ── LOCAL VOTE ────────────────────────────────────────────── -->
+<div class="phase" id="phase-local-vote">
+  <div class="round-indicator">
+    <span class="round-badge">ROUND <span id="local-round-num">1</span> / <span id="local-rounds-total">5</span></span>
+    <span class="category-badge" id="local-category">Anime</span>
+  </div>
+  <div class="statement-card">
+    <div class="statement-text" id="local-statement"></div>
+  </div>
+  <!-- Cover + vote cycle per player -->
+  <div id="local-cover" style="display:none;">
+    <div class="cover-screen">
+      <div class="cover-name" id="local-cover-name"></div>
+      <div class="cover-sub">It's your turn — tap when ready to vote privately</div>
+    </div>
+    <button class="btn-primary" onclick="showVoteButtons()">I'M READY TO VOTE →</button>
+  </div>
+  <div id="local-vote-area" style="display:none;">
+    <div class="label" id="local-voter-label"></div>
+    <div class="vote-row">
+      <button class="vote-btn agree-btn" onclick="castLocalVote('agree')">
+        <span class="vote-emoji">🔥</span>AGREE
+      </button>
+      <button class="vote-btn disagree-btn" onclick="castLocalVote('disagree')">
+        <span class="vote-emoji">💧</span>DISAGREE
+      </button>
+    </div>
+  </div>
+  <div id="local-voted-confirm" style="display:none;">
+    <div class="cover-screen">
+      <div style="font-size:36px;margin-bottom:8px;">✓</div>
+      <div class="cover-sub" id="local-voted-sub">Vote recorded — pass the phone!</div>
+    </div>
+    <button class="btn-primary" id="local-next-voter-btn" onclick="nextLocalVoter()">NEXT →</button>
+  </div>
+</div>
+
+<!-- ── LOCAL REVEAL ──────────────────────────────────────────── -->
+<div class="phase" id="phase-local-reveal">
+  <div class="round-indicator">
+    <span class="round-badge">ROUND <span id="local-rev-round">1</span></span>
+    <span class="category-badge" id="local-rev-category">Anime</span>
+  </div>
+  <div class="statement-card" style="margin-bottom:1rem;">
+    <div class="statement-text" id="local-rev-statement"></div>
+  </div>
+  <div class="reveal-card">
+    <div class="reveal-split" id="local-rev-split"></div>
+    <div id="local-rev-majority"></div>
+    <div class="points-earned" id="local-rev-points"></div>
+  </div>
+  <div class="score-strip" id="local-score-strip"></div>
+  <button class="btn-primary" id="local-continue-btn" onclick="localNextRound()">NEXT ROUND →</button>
+</div>
+
+<!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
+<div class="phase" id="phase-local-result">
+  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← HOME</a>
+  <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
+  <div class="tagline">The majority has spoken</div>
+  <div class="leaderboard" id="local-leaderboard"></div>
+  <button class="btn-primary" onclick="showPhase('phase-local-setup')">PLAY AGAIN</button>
+</div>
+
+<!-- ── MP LOBBY ──────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-lobby">
+  <a class="back-btn" href="/" onclick="mpDisconnect();return true;">← HOME</a>
+  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
+  <div class="tagline">Online Multiplayer</div>
+
+  <div id="mp-pre">
+    <div class="label">Your name</div>
+    <input class="mp-input" id="mp-name" placeholder="Enter your name…" maxlength="20"/>
+    <div class="label" style="margin-top:12px;">Rounds</div>
+    <div class="rounds-row">
+      <button class="round-btn active" data-r="5" onclick="setMpRounds(this)">5</button>
+      <button class="round-btn" data-r="8" onclick="setMpRounds(this)">8</button>
+      <button class="round-btn" data-r="10" onclick="setMpRounds(this)">10</button>
+      <button class="round-btn" data-r="15" onclick="setMpRounds(this)">15</button>
+    </div>
+    <button class="btn-primary" onclick="mpCreate()">CREATE ROOM</button>
+    <hr/>
+    <div class="label">Or join a room</div>
+    <input class="mp-input" id="mp-code" placeholder="Room code (4 letters)…" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:var(--font-display);font-size:20px;"/>
+    <button class="btn-secondary" onclick="mpJoin()">JOIN ROOM</button>
+    <div class="error-msg" id="mp-err"></div>
+  </div>
+
+  <div id="mp-inroom" style="display:none;">
+    <div class="label">Room code</div>
+    <div class="room-code-display" id="mp-room-disp"></div>
+    <div class="label">Players (<span id="mp-count">0</span>)</div>
+    <div class="player-list" id="mp-player-list"></div>
+    <div id="mp-host-area" style="display:none;">
+      <div class="label" style="margin-top:8px;">Rounds</div>
+      <div class="rounds-row">
+        <button class="round-btn active" data-r="5" onclick="setMpRounds(this)">5</button>
+        <button class="round-btn" data-r="8" onclick="setMpRounds(this)">8</button>
+        <button class="round-btn" data-r="10" onclick="setMpRounds(this)">10</button>
+        <button class="round-btn" data-r="15" onclick="setMpRounds(this)">15</button>
+      </div>
+      <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
+    </div>
+    <div id="mp-guest-area" style="display:none;">
+      <div class="waiting-msg">Waiting for the host to start…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MP VOTE ────────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-vote">
+  <div class="score-strip" id="mp-score-strip"></div>
+  <div class="timer-wrap"><div class="timer-bar" id="mp-timer-bar" style="width:100%"></div></div>
+  <div class="round-indicator">
+    <span class="round-badge">ROUND <span id="mp-round-num">1</span> / <span id="mp-rounds-total">10</span></span>
+    <span class="category-badge" id="mp-category">Anime</span>
+  </div>
+  <div class="statement-card">
+    <div class="statement-text" id="mp-statement"></div>
+  </div>
+  <div class="vote-row">
+    <button class="vote-btn agree-btn" id="mp-agree-btn" onclick="mpVote('agree')">
+      <span class="vote-emoji">🔥</span>AGREE
+    </button>
+    <button class="vote-btn disagree-btn" id="mp-disagree-btn" onclick="mpVote('disagree')">
+      <span class="vote-emoji">💧</span>DISAGREE
+    </button>
+  </div>
+  <div class="waiting-msg" id="mp-vote-waiting" style="display:none;">Vote sent — waiting for others…</div>
+</div>
+
+<!-- ── MP REVEAL ─────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-reveal">
+  <div class="score-strip" id="mp-rev-score-strip"></div>
+  <div class="round-indicator">
+    <span class="round-badge">ROUND <span id="mp-rev-round">1</span></span>
+    <span class="category-badge" id="mp-rev-category">Anime</span>
+  </div>
+  <div class="statement-card" style="margin-bottom:1rem;">
+    <div class="statement-text" id="mp-rev-statement"></div>
+  </div>
+  <div class="reveal-card">
+    <div class="reveal-split" id="mp-rev-split"></div>
+    <div id="mp-rev-majority"></div>
+    <div class="points-earned" id="mp-rev-points"></div>
+  </div>
+  <div class="waiting-msg" id="mp-rev-waiting">Next round coming up…</div>
+</div>
+
+<!-- ── MP RESULT ─────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-result">
+  <a class="back-btn" href="/" onclick="mpDisconnect();return true;">← HOME</a>
+  <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
+  <div class="tagline">The majority has spoken</div>
+  <div class="leaderboard" id="mp-leaderboard"></div>
+  <button class="btn-primary" id="mp-again-btn">BACK TO LOBBY</button>
+</div>
+
+</div>
+<script src="data/prompts.js"></script>
+<script>
+// ── STATE ─────────────────────────────────────────────────────
+let selectedMode = 'local';
+
+// Local
+let localPlayerCount = 3, localPlayerNames = [], localRounds = 5;
+let localScores = {}, localRoundIndex = 0, localQueue = [];
+let localCurrentVoterIndex = 0, localVotesThisRound = {};
+let localCurrentPrompt = null;
+
+// Online
+let ws = null, myName = '', myRoom = '', isHost = false;
+let mpPlayers = [], mpScores = {}, mpRounds = 5;
+let mpHasVoted = false, mpTimerInterval = null;
+let mpCurrentPrompt = null, mpCurrentRound = 0, mpTotalRounds = 5;
+let reconnectAttempts = 0;
+
+// ── UTILS ─────────────────────────────────────────────────────
+function showPhase(id){
+  document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
+let toastTimer=null;
+function notify(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── HOME ──────────────────────────────────────────────────────
+function selectMode(m){
+  selectedMode=m;
+  document.getElementById('home-local-card').classList.toggle('active',m==='local');
+  document.getElementById('home-online-card').classList.toggle('active',m==='online');
+}
+function goFromHome(){
+  if(selectedMode==='local') showPhase('phase-local-setup');
+  else showPhase('phase-mp-lobby');
+}
+
+// ── LOCAL SETUP ───────────────────────────────────────────────
+function setRounds(btn){
+  document.querySelectorAll('.rounds-row .round-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  localRounds=parseInt(btn.dataset.r);
+}
+function changeCount(d){
+  localPlayerCount=Math.min(8,Math.max(2,localPlayerCount+d));
+  buildInputs();
+}
+function buildInputs(){
+  const c=document.getElementById('local-inputs'); c.innerHTML='';
+  for(let i=0;i<localPlayerCount;i++){
+    const row=document.createElement('div'); row.className='player-row';
+    row.innerHTML=`<span class="player-num">${i+1}</span><input type="text" placeholder="Player ${i+1}" maxlength="20" value="${localPlayerNames[i]||''}"/>`;
+    c.appendChild(row);
+  }
+}
+function startLocal(){
+  const inputs=document.querySelectorAll('#local-inputs input');
+  localPlayerNames=Array.from(inputs).map((inp,i)=>inp.value.trim()||`Player ${i+1}`);
+  if(localPlayerNames.length<2){document.getElementById('local-setup-err').textContent='Need at least 2 players.';return;}
+  localScores={};
+  localPlayerNames.forEach(n=>localScores[n]=0);
+  localQueue=shuffle(PROMPTS).slice(0,localRounds);
+  localRoundIndex=0;
+  runLocalRound();
+}
+function runLocalRound(){
+  localCurrentPrompt=localQueue[localRoundIndex];
+  localCurrentVoterIndex=0;
+  localVotesThisRound={};
+  document.getElementById('local-round-num').textContent=localRoundIndex+1;
+  document.getElementById('local-rounds-total').textContent=localRounds;
+  document.getElementById('local-statement').textContent=localCurrentPrompt.text;
+  document.getElementById('local-category').textContent=localCurrentPrompt.category;
+  // Hide vote area, show cover for first player
+  document.getElementById('local-cover').style.display='block';
+  document.getElementById('local-vote-area').style.display='none';
+  document.getElementById('local-voted-confirm').style.display='none';
+  document.getElementById('local-cover-name').textContent=localPlayerNames[0];
+  showPhase('phase-local-vote');
+}
+function showVoteButtons(){
+  document.getElementById('local-cover').style.display='none';
+  document.getElementById('local-vote-area').style.display='block';
+  document.getElementById('local-voted-confirm').style.display='none';
+  document.getElementById('local-voter-label').textContent=localPlayerNames[localCurrentVoterIndex]+" — vote now:";
+  document.querySelectorAll('.vote-btn').forEach(b=>{b.disabled=false;b.className=b.className.replace(' selected-agree','').replace(' selected-disagree','');});
+}
+function castLocalVote(vote){
+  localVotesThisRound[localPlayerNames[localCurrentVoterIndex]]=vote;
+  document.getElementById('local-vote-area').style.display='none';
+  document.getElementById('local-voted-confirm').style.display='block';
+  const isLast=localCurrentVoterIndex===localPlayerNames.length-1;
+  document.getElementById('local-voted-sub').textContent=isLast?'All votes in! Ready to reveal.':'Vote recorded — pass the phone!';
+  document.getElementById('local-next-voter-btn').textContent=isLast?'REVEAL →':'NEXT PLAYER →';
+}
+function nextLocalVoter(){
+  localCurrentVoterIndex++;
+  if(localCurrentVoterIndex>=localPlayerNames.length){
+    showLocalReveal();
+    return;
+  }
+  document.getElementById('local-voted-confirm').style.display='none';
+  document.getElementById('local-cover').style.display='block';
+  document.getElementById('local-cover-name').textContent=localPlayerNames[localCurrentVoterIndex];
+}
+function showLocalReveal(){
+  const prompt=localCurrentPrompt;
+  const votes=localVotesThisRound;
+  const agreeNames=Object.keys(votes).filter(n=>votes[n]==='agree');
+  const disagreeNames=Object.keys(votes).filter(n=>votes[n]==='disagree');
+  const total=localPlayerNames.length;
+  const agreePct=Math.round(agreeNames.length/total*100);
+  const disagreePct=100-agreePct;
+
+  document.getElementById('local-rev-round').textContent=localRoundIndex+1;
+  document.getElementById('local-rev-category').textContent=prompt.category;
+  document.getElementById('local-rev-statement').textContent=prompt.text;
+
+  document.getElementById('local-rev-split').innerHTML=`
+    <div class="split-side agree-side">
+      <div class="split-label agree-side">🔥 Agree</div>
+      <div class="split-pct">${agreePct}%</div>
+      <div class="split-names">${agreeNames.join(', ')||'—'}</div>
+    </div>
+    <div class="split-side disagree-side">
+      <div class="split-label disagree-side">💧 Disagree</div>
+      <div class="split-pct">${disagreePct}%</div>
+      <div class="split-names">${disagreeNames.join(', ')||'—'}</div>
+    </div>`;
+
+  let majority=null, majorityClass='tied', majorityText='TIE — no points this round';
+  let pointEarners=[];
+  if(agreeNames.length>disagreeNames.length){majority='agree';majorityClass='agree';majorityText='🔥 AGREE wins the majority!';pointEarners=agreeNames;}
+  else if(disagreeNames.length>agreeNames.length){majority='disagree';majorityClass='disagree';majorityText='💧 DISAGREE wins the majority!';pointEarners=disagreeNames;}
+
+  document.getElementById('local-rev-majority').innerHTML=`<div class="majority-badge ${majorityClass}">${majorityText}</div>`;
+  pointEarners.forEach(n=>{localScores[n]=(localScores[n]||0)+1;});
+
+  const isLast=localRoundIndex>=localRounds-1;
+  document.getElementById('local-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.join(', ')}`:'No points awarded.';
+  document.getElementById('local-continue-btn').textContent=isLast?'SEE RESULTS →':'NEXT ROUND →';
+
+  renderLocalScoreStrip();
+  showPhase('phase-local-reveal');
+}
+function renderLocalScoreStrip(){
+  const strip=document.getElementById('local-score-strip');
+  strip.innerHTML=localPlayerNames.map(n=>`<div class="score-chip">${n}: ${localScores[n]||0}pt</div>`).join('');
+}
+function localNextRound(){
+  localRoundIndex++;
+  if(localRoundIndex>=localRounds){showLocalResult();return;}
+  runLocalRound();
+}
+function showLocalResult(){
+  const sorted=[...localPlayerNames].sort((a,b)=>(localScores[b]||0)-(localScores[a]||0));
+  const lb=document.getElementById('local-leaderboard'); lb.innerHTML='';
+  sorted.forEach((name,i)=>{
+    const row=document.createElement('div'); row.className='lb-row';
+    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${localScores[name]||0}<span class="lb-pts"> pts</span></div>`;
+    lb.appendChild(row);
+  });
+  showPhase('phase-local-result');
+}
+
+// ── MULTIPLAYER ───────────────────────────────────────────────
+function mpDisconnect(){if(ws){ws.close();ws=null;}}
+
+function setMpRounds(btn){
+  document.querySelectorAll('.rounds-row .round-btn').forEach(b=>b.classList.remove('active'));
+  // Only update the set in the visible lobby section
+  btn.classList.add('active');
+  mpRounds=parseInt(btn.dataset.r);
+}
+
+function mpConnect(cb){
+  if(ws&&ws.readyState===WebSocket.OPEN){cb&&cb();return;}
+  const proto=location.protocol==='https:'?'wss':'ws';
+  ws=new WebSocket(`${proto}://${location.host}`);
+  ws.onopen=()=>{reconnectAttempts=0;cb&&cb();};
+  ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(_){}};
+  ws.onclose=()=>{if(reconnectAttempts<5){reconnectAttempts++;setTimeout(()=>mpConnect(),2000);}};
+  ws.onerror=()=>{};
+}
+function mpSend(obj){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(obj));}
+
+function mpCreate(){
+  myName=(document.getElementById('mp-name').value.trim()||'Player').slice(0,20);
+  document.getElementById('mp-err').textContent='';
+  mpConnect(()=>mpSend({type:'create_room',gameType:'hottakes',name:myName,mode:'hottakes'}));
+}
+function mpJoin(){
+  myName=(document.getElementById('mp-name').value.trim()||'Player').slice(0,20);
+  const code=document.getElementById('mp-code').value.trim().toUpperCase();
+  if(!code){document.getElementById('mp-err').textContent='Enter a room code.';return;}
+  mpConnect(()=>mpSend({type:'join_room',code,name:myName}));
+}
+function mpStartGame(){
+  const prompts=shuffle(PROMPTS).slice(0,mpRounds);
+  mpSend({type:'start_hottakes',rounds:mpRounds,prompts});
+}
+
+function handleMsg(msg){
+  switch(msg.type){
+    case 'joined':
+      myRoom=msg.code; isHost=msg.isHost;
+      localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
+      document.getElementById('mp-pre').style.display='none';
+      document.getElementById('mp-inroom').style.display='block';
+      document.getElementById('mp-room-disp').textContent=myRoom;
+      showPhase('phase-mp-lobby'); break;
+    case 'room_state':
+      mpPlayers=msg.players||[];
+      document.getElementById('mp-count').textContent=mpPlayers.length;
+      renderMpLobbyPlayers(msg);
+      break;
+    case 'error':
+      document.getElementById('mp-err').textContent=msg.msg||'Error.'; break;
+    case 'new_host':
+      isHost=true; notify('You are now the host.');
+      document.getElementById('mp-host-area').style.display='block';
+      document.getElementById('mp-guest-area').style.display='none'; break;
+    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_offline': notify(msg.name+' disconnected…'); break;
+    case 'hottakes_prompt':
+      mpCurrentPrompt=msg; mpCurrentRound=msg.round; mpTotalRounds=msg.total;
+      mpHasVoted=false; renderMpVote(msg); showPhase('phase-mp-vote'); break;
+    case 'hottakes_reveal':
+      clearMpTimer(); renderMpReveal(msg); showPhase('phase-mp-reveal'); break;
+    case 'hottakes_over':
+      clearMpTimer(); renderMpResult(msg); break;
+    case 'back_to_lobby':
+      localStorage.removeItem('ht_session');
+      document.getElementById('mp-pre').style.display='block';
+      document.getElementById('mp-inroom').style.display='none';
+      showPhase('phase-mp-lobby'); break;
+  }
+}
+
+function renderMpLobbyPlayers(msg){
+  const list=document.getElementById('mp-player-list');
+  list.innerHTML=(msg.players||[]).map(p=>`<div class="player-chip${p===msg.host?' host':''}">${p}${p===msg.host?' ★':''}</div>`).join('');
+  document.getElementById('mp-host-area').style.display=isHost?'block':'none';
+  document.getElementById('mp-guest-area').style.display=isHost?'none':'block';
+}
+
+// ── MP TIMER ──────────────────────────────────────────────────
+function startMpTimer(seconds){
+  clearMpTimer();
+  let secs=seconds;
+  const bar=document.getElementById('mp-timer-bar');
+  bar.style.width='100%'; bar.classList.remove('urgent');
+  mpTimerInterval=setInterval(()=>{
+    secs--;
+    bar.style.width=Math.max(0,secs/seconds*100)+'%';
+    if(secs<=5)bar.classList.add('urgent');
+    if(secs<=0)clearMpTimer();
+  },1000);
+}
+function clearMpTimer(){if(mpTimerInterval){clearInterval(mpTimerInterval);mpTimerInterval=null;}}
+
+// ── MP VOTE SCREEN ─────────────────────────────────────────────
+function renderMpVote(msg){
+  document.getElementById('mp-round-num').textContent=msg.round;
+  document.getElementById('mp-rounds-total').textContent=msg.total;
+  document.getElementById('mp-statement').textContent=msg.text;
+  document.getElementById('mp-category').textContent=msg.category;
+  document.getElementById('mp-vote-waiting').style.display='none';
+  const ab=document.getElementById('mp-agree-btn'), db=document.getElementById('mp-disagree-btn');
+  ab.disabled=false; db.disabled=false;
+  ab.className='vote-btn agree-btn'; db.className='vote-btn disagree-btn';
+  renderMpScoreStrip('mp-score-strip');
+  startMpTimer(msg.timeLimit||15);
+}
+function mpVote(vote){
+  if(mpHasVoted)return;
+  mpHasVoted=true;
+  clearMpTimer();
+  document.getElementById('mp-agree-btn').disabled=true;
+  document.getElementById('mp-disagree-btn').disabled=true;
+  if(vote==='agree')document.getElementById('mp-agree-btn').classList.add('selected-agree');
+  else document.getElementById('mp-disagree-btn').classList.add('selected-disagree');
+  document.getElementById('mp-vote-waiting').style.display='block';
+  mpSend({type:'hottakes_vote',round:mpCurrentRound,vote});
+}
+
+// ── MP REVEAL SCREEN ───────────────────────────────────────────
+function renderMpReveal(msg){
+  mpScores=msg.scores||{};
+  document.getElementById('mp-rev-round').textContent=msg.round;
+  document.getElementById('mp-rev-category').textContent=msg.category||'';
+  document.getElementById('mp-rev-statement').textContent=msg.text||'';
+
+  const agreeNames=msg.agreeNames||[];
+  const disagreeNames=msg.disagreeNames||[];
+  const total=(agreeNames.length+disagreeNames.length)||1;
+  const agreePct=Math.round(agreeNames.length/total*100);
+
+  document.getElementById('mp-rev-split').innerHTML=`
+    <div class="split-side agree-side">
+      <div class="split-label agree-side">🔥 Agree</div>
+      <div class="split-pct">${agreePct}%</div>
+      <div class="split-names">${agreeNames.join(', ')||'—'}</div>
+    </div>
+    <div class="split-side disagree-side">
+      <div class="split-label disagree-side">💧 Disagree</div>
+      <div class="split-pct">${100-agreePct}%</div>
+      <div class="split-names">${disagreeNames.join(', ')||'—'}</div>
+    </div>`;
+
+  let majorityClass='tied', majorityText='TIE — no points this round';
+  const pointEarners=msg.pointEarners||[];
+  if(agreeNames.length>disagreeNames.length){majorityClass='agree';majorityText='🔥 AGREE wins the majority!';}
+  else if(disagreeNames.length>agreeNames.length){majorityClass='disagree';majorityText='💧 DISAGREE wins the majority!';}
+
+  document.getElementById('mp-rev-majority').innerHTML=`<div class="majority-badge ${majorityClass}">${majorityText}</div>`;
+  document.getElementById('mp-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.join(', ')}`:'No points awarded.';
+  renderMpScoreStrip('mp-rev-score-strip');
+}
+
+function renderMpScoreStrip(id){
+  const strip=document.getElementById(id||'mp-score-strip');
+  if(!strip)return;
+  strip.innerHTML=mpPlayers.map(p=>`<div class="score-chip${p===myName?' me':''}">${p}: ${mpScores[p]||0}pt</div>`).join('');
+}
+
+// ── MP RESULT ─────────────────────────────────────────────────
+function renderMpResult(msg){
+  const scores=msg.scores||{};
+  const sorted=Object.entries(scores).sort(([,a],[,b])=>b-a);
+  const lb=document.getElementById('mp-leaderboard'); lb.innerHTML='';
+  sorted.forEach(([name,score],i)=>{
+    const row=document.createElement('div'); row.className='lb-row';
+    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${score}<span class="lb-pts"> pts</span></div>`;
+    lb.appendChild(row);
+  });
+  const btn=document.getElementById('mp-again-btn');
+  if(isHost){btn.textContent='PLAY AGAIN';btn.onclick=()=>mpSend({type:'new_game'});}
+  else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-lobby');}
+  showPhase('phase-mp-result');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+(function init(){
+  localPlayerCount=3; buildInputs();
+  try{
+    const s=JSON.parse(localStorage.getItem('ht_session'));
+    if(s&&s.name&&s.room){
+      myName=s.name;
+      document.getElementById('mp-name').value=myName;
+      mpConnect(()=>mpSend({type:'rejoin_room',code:s.room,name:s.name}));
+    }
+  }catch(_){}
+})();
+</script>
+</body>
+</html>

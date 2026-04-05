@@ -83,6 +83,60 @@ const disconnectTimers = {}; // playerId -> timeout
 const PRIZE_LADDER = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const MILL_SAFE_HAVENS = [4, 9];
 
+// ─── Hot Takes helpers ────────────────────────────────────────────────────────
+function sendHotTakesPrompt(room) {
+  const idx = room.htCurrentRound;
+  const prompt = room.htPrompts[idx];
+  room.htVotes = {};
+  broadcast(room, {
+    type: 'hottakes_prompt',
+    round: idx + 1,
+    total: room.htPrompts.length,
+    text: prompt.text,
+    category: prompt.category,
+    timeLimit: 15,
+  });
+  room.htTimer = setTimeout(() => revealHotTakesPrompt(room), 16000);
+}
+
+function revealHotTakesPrompt(room) {
+  clearTimeout(room.htTimer);
+  const idx = room.htCurrentRound;
+  const agreeNames = [];
+  const disagreeNames = [];
+  for (const [id, vote] of Object.entries(room.htVotes)) {
+    if (room.players[id]) {
+      (vote === 'agree' ? agreeNames : disagreeNames).push(room.players[id].name);
+    }
+  }
+  const agreeCount = agreeNames.length;
+  const disagreeCount = disagreeNames.length;
+  let pointEarners = [];
+  if (agreeCount !== disagreeCount) {
+    pointEarners = agreeCount > disagreeCount ? agreeNames : disagreeNames;
+    for (const name of pointEarners) {
+      room.htScores[name] = (room.htScores[name] || 0) + 1;
+    }
+  }
+  broadcast(room, {
+    type: 'hottakes_reveal',
+    round: idx + 1,
+    agreeNames,
+    disagreeNames,
+    pointEarners,
+    scores: { ...room.htScores },
+  });
+  room.htCurrentRound++;
+  if (room.htCurrentRound >= room.htPrompts.length) {
+    room.htEndTimer = setTimeout(() => {
+      broadcast(room, { type: 'hottakes_over', scores: { ...room.htScores } });
+      room.phase = 'result';
+    }, 4000);
+  } else {
+    room.htNextTimer = setTimeout(() => sendHotTakesPrompt(room), 4000);
+  }
+}
+
 function sendMillQuestion(room) {
   const qi = room.millCurrentQi;
   const q = room.millQuestions[qi];
@@ -500,6 +554,43 @@ function handleMessage(socket, raw, playerId) {
       if (onlineIds.every(id => room.millAnswers[id])) {
         clearTimeout(room.millTimer);
         revealMillQuestion(room);
+      }
+      break;
+    }
+
+    case 'start_hottakes': {
+      if (!room || room.host !== playerId || room.gameType !== 'hottakes') return;
+      const prompts = msg.prompts;
+      if (!Array.isArray(prompts) || prompts.length < 1) return;
+      room.phase = 'playing';
+      room.htPrompts = prompts;
+      room.htScores = {};
+      Object.values(room.players).forEach(p => { room.htScores[p.name] = 0; });
+      room.htCurrentRound = 0;
+      room.htVotes = {};
+      sendHotTakesPrompt(room);
+      console.log(`Room ${room.code} hot takes game started (${prompts.length} rounds)`);
+      break;
+    }
+
+    case 'hottakes_vote': {
+      if (!room || room.gameType !== 'hottakes' || room.phase !== 'playing') return;
+      if (msg.round !== room.htCurrentRound + 1) return;
+      if (room.htVotes[playerId]) return; // already voted
+      const vote = msg.vote;
+      if (!['agree', 'disagree'].includes(vote)) return;
+      room.htVotes[playerId] = vote;
+      // Broadcast vote count (without revealing who voted what yet)
+      const totalVoted = Object.keys(room.htVotes).length;
+      const totalPlayers = Object.values(room.players).filter(p => p.socket && !p.socket.destroyed).length;
+      broadcast(room, { type: 'hottakes_vote_count', voted: totalVoted, total: totalPlayers });
+      // If all online players voted, reveal immediately
+      const onlineIds = Object.entries(room.players)
+        .filter(([,p]) => p.socket && !p.socket.destroyed)
+        .map(([id]) => id);
+      if (onlineIds.every(id => room.htVotes[id])) {
+        clearTimeout(room.htTimer);
+        revealHotTakesPrompt(room);
       }
       break;
     }
