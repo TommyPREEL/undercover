@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Insider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--surface3:#22223a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#f0f0f8;--muted:#7a7a9a;
+  --accent:#22d3ee;--insider:#f97316;--master:#fbbf24;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(34,211,238,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.18;}
+.orb-1{width:400px;height:400px;background:var(--accent);top:-120px;right:-100px;}
+.orb-2{width:300px;height:300px;background:var(--insider);bottom:-60px;left:-80px;}
+.container{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
+.phase{display:none;}.phase.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;background:transparent;border:none;cursor:pointer;padding:8px 0;margin-bottom:1.5rem;transition:color 0.15s;text-decoration:none;font-family:var(--font-body);}
+.back-btn:hover{color:var(--text);}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:600;}
+.section-title{font-family:var(--font-display);font-size:42px;letter-spacing:2px;margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;}
+.btn-primary{width:100%;padding:16px;background:var(--accent);border:none;border-radius:var(--radius);color:#000;font-family:var(--font-display);font-size:22px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.btn-secondary{width:100%;padding:14px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:10px;}
+.btn-secondary:hover{background:var(--surface2);border-color:var(--accent);}
+.btn-ghost{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);}
+.player-lobby-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.lobby-player{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;font-weight:500;}
+.you-tag{font-size:10px;background:rgba(34,211,238,0.1);color:var(--accent);border:1px solid rgba(34,211,238,0.25);border-radius:20px;padding:2px 8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.waiting-msg{text-align:center;color:var(--muted);font-size:14px;padding:12px;animation:pulse 1.5s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+/* Category buttons */
+.cat-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem;}
+.cat-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;letter-spacing:.06em;cursor:pointer;color:var(--muted);transition:all 0.15s;font-family:var(--font-body);}
+.cat-btn:hover{border-color:var(--border2);color:var(--text);}
+.cat-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(34,211,238,0.07);}
+/* Hub scores */
+.hub-scores-table{width:100%;border-collapse:collapse;}
+/* Timer */
+.timer-wrap{height:4px;background:var(--surface2);border-radius:2px;margin-bottom:1rem;overflow:hidden;}
+.timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:background 0.5s;}
+.timer-bar.urgent{background:var(--insider);}
+/* Role reveal */
+.role-card{border:2px solid var(--border2);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+.role-card.master{border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.04);}
+.role-card.insider{border-color:rgba(249,115,22,0.4);background:rgba(249,115,22,0.04);}
+.role-card.civilian{border-color:rgba(34,211,238,0.25);background:rgba(34,211,238,0.03);}
+.role-badge{font-family:var(--font-display);font-size:38px;letter-spacing:3px;margin-bottom:8px;}
+.role-badge.master{color:var(--master);}
+.role-badge.insider{color:var(--insider);}
+.role-badge.civilian{color:var(--accent);}
+.role-word{font-family:var(--font-display);font-size:52px;letter-spacing:3px;line-height:1;margin:1rem 0;}
+.role-word.master{color:var(--master);}
+.role-word.insider{color:var(--insider);}
+.role-word.civilian{color:var(--muted);}
+.role-title{font-size:14px;color:var(--muted);margin-bottom:4px;}
+.role-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:.75rem;}
+.role-countdown{text-align:center;font-size:13px;color:var(--muted);margin-bottom:1rem;}
+/* Question feed */
+.q-feed{display:flex;flex-direction:column;gap:8px;max-height:38vh;overflow-y:auto;margin-bottom:1rem;padding-right:2px;}
+.q-feed::-webkit-scrollbar{width:3px;}
+.q-feed::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.q-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;}
+.q-item.wrong-guess{border-color:rgba(249,115,22,0.25);background:rgba(249,115,22,0.04);}
+.q-player{font-size:10px;color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:3px;}
+.q-question-text{font-size:14px;margin-bottom:6px;}
+.q-answer{font-family:var(--font-display);font-size:20px;letter-spacing:1px;}
+.q-answer.yes{color:#4ade80;}
+.q-answer.no{color:#f87171;}
+.q-answer.maybe{color:var(--master);}
+.q-answer.wrong{color:var(--insider);}
+.q-pending{color:var(--muted);font-size:12px;}
+.q-answer-btns{display:flex;gap:6px;margin-top:4px;}
+.q-answer-btns button{padding:4px 14px;border:1px solid var(--border2);border-radius:20px;background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.q-answer-btns button.yes-btn:hover{border-color:#4ade80;color:#4ade80;}
+.q-answer-btns button.no-btn:hover{border-color:#f87171;color:#f87171;}
+.q-answer-btns button.maybe-btn:hover{border-color:var(--master);color:var(--master);}
+.q-input-row{display:flex;gap:8px;margin-bottom:8px;}
+.q-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color 0.2s;}
+.q-input-row input:focus{border-color:var(--accent);}
+.q-send-btn{padding:10px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-display);font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.q-send-btn:hover{border-color:var(--accent);color:var(--accent);}
+.q-guess-toggle{width:100%;padding:8px;background:transparent;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all 0.15s;margin-bottom:6px;}
+.q-guess-toggle:hover{color:var(--accent);border-color:var(--accent);}
+.q-master-word{background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--font-display);font-size:32px;letter-spacing:2px;color:var(--master);text-align:center;margin-bottom:1rem;}
+.q-insider-word{background:rgba(249,115,22,0.07);border:1px solid rgba(249,115,22,0.25);border-radius:var(--radius-sm);padding:8px 14px;font-size:11px;color:var(--insider);text-align:center;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;}
+.q-insider-word span{font-family:var(--font-display);font-size:20px;letter-spacing:2px;margin-left:8px;}
+.q-timer-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;}
+.q-timer-text{font-family:var(--font-display);font-size:28px;color:var(--accent);}
+.q-empty{color:var(--muted);font-size:13px;text-align:center;padding:1.5rem;border:1px dashed var(--border);border-radius:var(--radius-sm);}
+/* Accusation */
+.acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem;}
+.acc-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:18px 10px;font-family:var(--font-display);font-size:20px;letter-spacing:1px;cursor:pointer;transition:all 0.15s;color:var(--text);}
+.acc-btn:hover:not(:disabled){border-color:var(--insider);color:var(--insider);background:rgba(249,115,22,0.07);}
+.acc-btn.voted{border-color:var(--insider);color:var(--insider);background:rgba(249,115,22,0.1);}
+.acc-btn:disabled{opacity:0.45;cursor:not-allowed;}
+.acc-info{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;}
+/* Toast */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;opacity:0;transition:all 0.25s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="container">
+
+<!-- ── NO HUB MESSAGE ─────────────────────────────────────────── -->
+<div id="no-hub-msg" style="display:none;padding:3rem 0;text-align:center;">
+  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">THE INSIDER</div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;">This game requires a multiplayer lobby.</div>
+  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#000;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;">GO TO HOME</a>
+</div>
+
+<!-- ── WAITING SCREEN ─────────────────────────────────────────── -->
+<div class="phase active" id="phase-mp-waiting">
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
+  <div class="section-title">THE <span style="color:var(--accent)">INSIDER</span></div>
+  <div class="section-sub">Hidden identity — yes/no questions</div>
+  <div class="label">Players (<span id="waiting-count">0</span>)</div>
+  <div id="waiting-player-list" class="player-lobby-list"></div>
+
+  <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
+    <div class="label">Global scores</div>
+    <table class="hub-scores-table"><thead><tr>
+      <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
+      <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
+      <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:right;padding:4px 8px;border-bottom:1px solid var(--border);">Pts</th>
+    </tr></thead><tbody id="waiting-hub-scores-body"></tbody></table>
+  </div>
+
+  <div id="waiting-host-area" style="display:none;">
+    <div class="label">Category</div>
+    <div class="cat-row">
+      <button class="cat-btn active" data-cat="random" onclick="selectCat('random',this)">🎲 Random</button>
+      <button class="cat-btn" data-cat="videogames" onclick="selectCat('videogames',this)">🎮 Games</button>
+      <button class="cat-btn" data-cat="anime_chars" onclick="selectCat('anime_chars',this)">⚔️ Anime Chars</button>
+      <button class="cat-btn" data-cat="anime" onclick="selectCat('anime',this)">📺 Anime</button>
+      <button class="cat-btn" data-cat="pokemon" onclick="selectCat('pokemon',this)">⚡ Pokémon</button>
+      <button class="cat-btn" data-cat="objects" onclick="selectCat('objects',this)">🎯 Objects</button>
+    </div>
+    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;">START GAME →</button>
+  </div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start…</div>
+</div>
+
+<!-- ── ROLE REVEAL ─────────────────────────────────────────────── -->
+<div class="phase" id="phase-role-reveal">
+  <div class="role-card" id="role-card">
+    <div class="role-badge" id="role-badge"></div>
+    <div class="role-title" id="role-title"></div>
+    <div class="role-word" id="role-word"></div>
+    <div class="role-hint" id="role-hint"></div>
+  </div>
+  <div class="role-countdown">Starting in <span id="role-count">6</span>s…</div>
+  <button class="btn-primary" onclick="readyToPlay()" style="margin-top:.75rem;">GOT IT →</button>
+</div>
+
+<!-- ── QUESTIONS PHASE ────────────────────────────────────────── -->
+<div class="phase" id="phase-questions">
+  <div class="timer-wrap"><div class="timer-bar" id="q-timer-bar" style="width:100%"></div></div>
+  <div class="q-timer-row">
+    <div class="label" style="margin-bottom:0;">FIND THE WORD</div>
+    <div class="q-timer-text" id="q-timer-text">3:00</div>
+  </div>
+  <div id="q-master-word" class="q-master-word" style="display:none;"></div>
+  <div id="q-insider-word" class="q-insider-word" style="display:none;">THE WORD: <span id="q-insider-word-val"></span></div>
+  <div id="q-feed" class="q-feed">
+    <div class="q-empty" id="q-empty-msg">No questions yet — be the first to ask!</div>
+  </div>
+  <div id="q-input-area">
+    <div class="q-input-row">
+      <input id="q-ask-input" type="text" placeholder="Ask a yes/no question…" maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')submitQuestion()"/>
+      <button class="q-send-btn" onclick="submitQuestion()">ASK</button>
+    </div>
+    <button class="q-guess-toggle" onclick="toggleGuess()">🎯 I know the word — GUESS</button>
+    <div id="q-guess-area" style="display:none;">
+      <div class="q-input-row">
+        <input id="q-guess-input" type="text" placeholder="Your guess…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')submitGuess()"/>
+        <button class="q-send-btn" onclick="submitGuess()" style="border-color:var(--accent);color:var(--accent);">GUESS</button>
+      </div>
+    </div>
+  </div>
+  <div id="q-host-note" style="display:none;">
+    <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);">👁️ Answer questions above — tap YES / NO / MAYBE</div>
+  </div>
+</div>
+
+<!-- ── ACCUSATION ─────────────────────────────────────────────── -->
+<div class="phase" id="phase-accusation">
+  <div class="timer-wrap"><div class="timer-bar" id="acc-timer-bar" style="width:100%"></div></div>
+  <div class="section-title">FIND THE <span style="color:var(--insider)">INSIDER</span></div>
+  <div class="acc-info" id="acc-info"></div>
+  <div id="acc-vote-count" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:1rem;"></div>
+  <div id="acc-grid" class="acc-grid"></div>
+  <div id="acc-master-note" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--muted);font-size:13px;">👁️ You are the Master — observe the vote.</div>
+  <div id="acc-voted-note" style="display:none;" class="waiting-msg">Vote cast — waiting for others…</div>
+</div>
+
+<!-- ── RESULT ─────────────────────────────────────────────────── -->
+<div class="phase" id="phase-result">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">The Insider was</div>
+    <div id="result-name" style="font-family:var(--font-display);font-size:56px;letter-spacing:3px;"></div>
+    <div id="result-outcome" style="display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;"></div>
+  </div>
+  <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.5rem;">Word: <b id="result-word" style="color:var(--text);"></b></div>
+  <div id="result-votes-section" style="margin-bottom:1.5rem;">
+    <div class="label">Votes</div>
+    <div id="result-votes"></div>
+  </div>
+  <div style="margin-bottom:1.5rem;">
+    <div class="label">Points earned</div>
+    <div id="result-scores"></div>
+  </div>
+  <div id="result-hub-section" style="display:none;margin-bottom:1.5rem;">
+    <div class="label">Global scores</div>
+    <div id="result-hub-scores"></div>
+  </div>
+  <div id="result-host-btns" style="display:none;">
+    <button class="btn-primary" onclick="mpSend({type:'new_game'})">PLAY AGAIN</button>
+    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;">RETURN TO LOBBY</button>
+  </div>
+  <div id="result-guest-btns" style="display:none;">
+    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;">RETURN TO LOBBY</button>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ── State ──────────────────────────────────────────────────────
+let ws = null, myRoom = '', myName = '', isHost = false;
+let hubFlow = false, hubScores = {};
+let myRole = '', myWord = null, hostName = '';
+let mpPlayers = [];
+let selectedCat = 'random';
+let myVote = null;
+let qTimerInterval = null, accTimerInterval = null;
+let qEndTime = 0;
+let roleCountdown = null;
+let reconnectAttempts = 0, toastTimer = null;
+
+const Q_TOTAL_MS = 180000; // 3 min
+const ACC_TOTAL_MS = 45000; // 45s
+
+// ── Helpers ────────────────────────────────────────────────────
+function showPhase(id){
+  document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+function notify(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Waiting screen ─────────────────────────────────────────────
+function selectCat(cat, btn){
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function renderWaitingScreen(msg){
+  const players = msg.players || [];
+  const hName = msg.host || '';
+  document.getElementById('waiting-count').textContent = players.length;
+  document.getElementById('waiting-player-list').innerHTML = players.map(p=>{
+    const crown = p===hName ? '<span style="color:var(--accent)">👑</span>' : '';
+    const you = p===myName ? '<span class="you-tag">YOU</span>' : '';
+    return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
+  }).join('');
+  document.getElementById('waiting-host-area').style.display = isHost?'block':'none';
+  document.getElementById('waiting-guest-area').style.display = isHost?'none':'block';
+  document.getElementById('waiting-back-btn').style.display = isHost?'inline-flex':'none';
+  const btn = document.getElementById('waiting-start-btn');
+  if(btn){ btn.disabled = players.length<4; btn.style.opacity = players.length<4?0.4:1; }
+  const hs = msg.hubScores || {};
+  const entries = Object.entries(hs).sort((a,b)=>b[1]-a[1]);
+  if(entries.some(([,v])=>v>0)){
+    document.getElementById('waiting-hub-scores-section').style.display = 'block';
+    document.getElementById('waiting-hub-scores-body').innerHTML = entries.map(([n,p],i)=>
+      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${esc(n)}</td><td style="font-size:13px;color:var(--accent);font-weight:700;text-align:right;padding:6px 8px;">${p}</td></tr>`
+    ).join('');
+  }
+}
+function mpStartGame(){
+  mpSend({type:'start_insider', category: selectedCat});
+}
+
+// ── Role reveal ────────────────────────────────────────────────
+function showRoleReveal(msg){
+  myRole = msg.role; myWord = msg.word; hostName = msg.host || '';
+  mpPlayers = msg.players || [];
+  const card = document.getElementById('role-card');
+  const badge = document.getElementById('role-badge');
+  const title = document.getElementById('role-title');
+  const word = document.getElementById('role-word');
+  const hint = document.getElementById('role-hint');
+  card.className = 'role-card ' + myRole;
+  if(myRole === 'master'){
+    badge.textContent = '👁️ MASTER'; badge.className = 'role-badge master';
+    title.textContent = 'You answer all questions honestly.';
+    word.textContent = myWord; word.className = 'role-word master';
+    hint.textContent = 'There is a secret Insider among the players who already knows this word.';
+  } else if(myRole === 'insider'){
+    badge.textContent = '🕵️ THE INSIDER'; badge.className = 'role-badge insider';
+    title.textContent = 'You already know the word.';
+    word.textContent = myWord; word.className = 'role-word insider';
+    hint.textContent = "Help the group guess the word without revealing you already know it. Don't get caught!";
+  } else {
+    badge.textContent = '👤 CIVILIAN'; badge.className = 'role-badge civilian';
+    title.textContent = "You don't know the word. Find it!";
+    word.textContent = '???'; word.className = 'role-word civilian';
+    hint.textContent = 'Ask yes/no questions to find the word. Then find the Insider hiding among you.';
+  }
+  showPhase('phase-role-reveal');
+  let count = 6;
+  document.getElementById('role-count').textContent = count;
+  clearInterval(roleCountdown);
+  roleCountdown = setInterval(()=>{
+    count--;
+    const el = document.getElementById('role-count');
+    if(el) el.textContent = count;
+    if(count <= 0){ clearInterval(roleCountdown); startQuestionsPhase(); }
+  }, 1000);
+}
+function readyToPlay(){ clearInterval(roleCountdown); startQuestionsPhase(); }
+
+// ── Questions phase ────────────────────────────────────────────
+function startQuestionsPhase(){
+  document.getElementById('q-feed').innerHTML = '<div class="q-empty" id="q-empty-msg">No questions yet — be the first to ask!</div>';
+  document.getElementById('q-master-word').style.display = myRole==='master' ? 'block' : 'none';
+  if(myRole==='master') document.getElementById('q-master-word').textContent = myWord;
+  document.getElementById('q-insider-word').style.display = myRole==='insider' ? 'block' : 'none';
+  if(myRole==='insider') document.getElementById('q-insider-word-val').textContent = myWord;
+  document.getElementById('q-input-area').style.display = myRole==='master' ? 'none' : 'block';
+  document.getElementById('q-host-note').style.display = myRole==='master' ? 'block' : 'none';
+  document.getElementById('q-guess-area').style.display = 'none';
+  qEndTime = Date.now() + Q_TOTAL_MS;
+  startQTimer();
+  showPhase('phase-questions');
+}
+function startQTimer(){
+  clearInterval(qTimerInterval);
+  const bar = document.getElementById('q-timer-bar');
+  bar.classList.remove('urgent');
+  qTimerInterval = setInterval(()=>{
+    const rem = qEndTime - Date.now();
+    bar.style.width = Math.max(0, rem/Q_TOTAL_MS*100) + '%';
+    const s = Math.max(0, Math.ceil(rem/1000));
+    const el = document.getElementById('q-timer-text');
+    if(el) el.textContent = `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+    if(rem <= 15000) bar.classList.add('urgent');
+    if(rem <= 0) clearInterval(qTimerInterval);
+  }, 100);
+}
+function submitQuestion(){
+  const input = document.getElementById('q-ask-input');
+  const q = (input.value||'').trim();
+  if(!q) return;
+  mpSend({type:'insider_ask', question: q});
+  input.value = '';
+}
+function toggleGuess(){
+  const area = document.getElementById('q-guess-area');
+  const visible = area.style.display !== 'none';
+  area.style.display = visible ? 'none' : 'block';
+  if(!visible) document.getElementById('q-guess-input').focus();
+}
+function submitGuess(){
+  const input = document.getElementById('q-guess-input');
+  const w = (input.value||'').trim();
+  if(!w) return;
+  mpSend({type:'insider_guess', word: w});
+  input.value = '';
+  document.getElementById('q-guess-area').style.display = 'none';
+}
+function addQuestion(id, player, question){
+  const empty = document.getElementById('q-empty-msg');
+  if(empty) empty.remove();
+  const feed = document.getElementById('q-feed');
+  const div = document.createElement('div');
+  div.className = 'q-item pending'; div.id = 'q-' + id;
+  const answerHtml = myRole === 'master'
+    ? `<div class="q-answer-btns"><button class="yes-btn" onclick="answerQ(${id},'yes')">YES</button><button class="no-btn" onclick="answerQ(${id},'no')">NO</button><button class="maybe-btn" onclick="answerQ(${id},'maybe')">MAYBE</button></div>`
+    : '<span class="q-pending">…</span>';
+  div.innerHTML = `<span class="q-player">${esc(player)}</span><div class="q-question-text">${esc(question)}</div>${answerHtml}`;
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+function revealAnswer(id, answer){
+  const div = document.getElementById('q-'+id);
+  if(!div) return;
+  div.classList.remove('pending'); div.classList.add('answered');
+  const old = div.querySelector('.q-pending, .q-answer-btns');
+  if(old){ const s=document.createElement('span'); s.className='q-answer '+answer; s.textContent=answer.toUpperCase(); old.replaceWith(s); }
+}
+function addWrongGuess(player, word){
+  const feed = document.getElementById('q-feed');
+  const div = document.createElement('div');
+  div.className = 'q-item wrong-guess';
+  div.innerHTML = `<span class="q-player">${esc(player)}</span><div class="q-question-text">guessed: "<em>${esc(word)}</em>" <span class="q-answer wrong">✗</span></div>`;
+  feed.appendChild(div);
+  feed.scrollTop = feed.scrollHeight;
+}
+function answerQ(id, answer){ mpSend({type:'insider_answer', questionId:id, answer}); }
+
+// ── Accusation phase ───────────────────────────────────────────
+function startAccusation(guesser, word){
+  clearInterval(qTimerInterval);
+  myVote = null;
+  document.getElementById('acc-info').innerHTML = `<b>${esc(guesser)}</b> guessed the word! Now vote for who you think is the Insider.`;
+  const grid = document.getElementById('acc-grid');
+  if(myRole === 'master'){
+    grid.style.display = 'none';
+    document.getElementById('acc-master-note').style.display = 'block';
+  } else {
+    grid.style.display = 'grid';
+    document.getElementById('acc-master-note').style.display = 'none';
+    const votable = mpPlayers.filter(p => p !== myName && p !== hostName);
+    grid.innerHTML = votable.map(p =>
+      `<button class="acc-btn" id="acc-${p.replace(/\W/g,'_')}" onclick="castVote('${esc(p)}')">${esc(p)}</button>`
+    ).join('');
+  }
+  document.getElementById('acc-vote-count').textContent = '';
+  document.getElementById('acc-voted-note').style.display = 'none';
+  showPhase('phase-accusation');
+  clearInterval(accTimerInterval);
+  const accEndTime = Date.now() + ACC_TOTAL_MS;
+  const bar = document.getElementById('acc-timer-bar');
+  bar.style.width = '100%'; bar.classList.remove('urgent');
+  accTimerInterval = setInterval(()=>{
+    const rem = accEndTime - Date.now();
+    bar.style.width = Math.max(0, rem/ACC_TOTAL_MS*100) + '%';
+    if(rem <= 10000) bar.classList.add('urgent');
+    if(rem <= 0) clearInterval(accTimerInterval);
+  }, 100);
+}
+function castVote(target){
+  if(myVote) return;
+  myVote = target;
+  mpSend({type:'insider_vote', target});
+  document.querySelectorAll('.acc-btn').forEach(b=>b.disabled=true);
+  const btn = document.getElementById('acc-' + target.replace(/\W/g,'_'));
+  if(btn) btn.classList.add('voted');
+  document.getElementById('acc-voted-note').style.display = 'block';
+}
+
+// ── Result ─────────────────────────────────────────────────────
+function showResult(msg){
+  clearInterval(qTimerInterval); clearInterval(accTimerInterval);
+  document.getElementById('result-name').textContent = msg.insider;
+  document.getElementById('result-word').textContent = msg.word;
+  const outcome = document.getElementById('result-outcome');
+  if(msg.insiderCaught){
+    outcome.textContent = 'CAUGHT'; outcome.style.cssText = 'display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;background:rgba(34,211,238,0.1);border:1px solid var(--accent);color:var(--accent)';
+    document.getElementById('result-name').style.color = 'var(--accent)';
+  } else {
+    outcome.textContent = msg.timeOut ? 'TIME OUT' : 'ESCAPED';
+    outcome.style.cssText = 'display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;background:rgba(249,115,22,0.1);border:1px solid var(--insider);color:var(--insider)';
+    document.getElementById('result-name').style.color = 'var(--insider)';
+  }
+  const votes = msg.votes || {};
+  document.getElementById('result-votes-section').style.display = Object.keys(votes).length ? 'block' : 'none';
+  document.getElementById('result-votes').innerHTML = Object.entries(votes).map(([voter,target])=>{
+    const correct = target === msg.insider;
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(voter)}</span><span>${esc(target)} <span style="color:${correct?'var(--accent)':'var(--muted)'};">${correct?'✓':'✗'}</span></span></div>`;
+  }).join('');
+  const scores = msg.scores || {};
+  document.getElementById('result-scores').innerHTML = Object.keys(scores).length
+    ? Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
+    : '<div style="color:var(--muted);font-size:13px;">No points this round</div>';
+  const hs = msg.hubScores || {};
+  const hsEntries = Object.entries(hs).sort((a,b)=>b[1]-a[1]);
+  if(hsEntries.some(([,v])=>v>0)){
+    document.getElementById('result-hub-section').style.display = 'block';
+    document.getElementById('result-hub-scores').innerHTML = hsEntries.map(([n,p],i)=>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${i+1}. ${esc(n)}</span><span style="color:var(--accent);font-weight:700;">${p} pts</span></div>`
+    ).join('');
+  }
+  document.getElementById('result-host-btns').style.display = isHost ? 'block' : 'none';
+  document.getElementById('result-guest-btns').style.display = isHost ? 'none' : 'block';
+  if(hubFlow){
+    document.getElementById('result-return-hub').style.display = 'block';
+    document.getElementById('result-guest-return').style.display = 'block';
+  }
+  showPhase('phase-result');
+}
+
+// ── WS / MP ────────────────────────────────────────────────────
+function mpSend(obj){ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
+function mpLeaveRoom(){ mpSend({type:'leave_room'}); if(ws){ws.onclose=null;ws.close();ws=null;} myRoom='';myName=''; location.href='/'; }
+function hubLeave(){
+  if(isHost){ mpSend({type:'return_to_hub'}); }
+  else { if(ws){ws.onclose=null;ws.close();ws=null;} location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName); }
+}
+function returnToHub(){ if(isHost) mpSend({type:'return_to_hub'}); }
+
+function handleMsg(msg){
+  switch(msg.type){
+    case 'joined':
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      showPhase('phase-mp-waiting'); break;
+    case 'rejoin_ack':
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      showPhase('phase-mp-waiting'); break;
+    case 'room_state':
+      mpPlayers=msg.players||[]; renderWaitingScreen(msg); break;
+    case 'hub_state':
+      mpPlayers=msg.players||[]; hubScores=msg.hubScores||{}; renderWaitingScreen(msg); break;
+    case 'hub_scores_updated':
+      hubScores=msg.hubScores||{}; break;
+    case 'config_updated': break;
+    case 'game_launching':
+      if(msg.gameType==='hub'){ location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName); } break;
+    case 'new_host':
+      isHost=true; notify('You are now the host.');
+      document.getElementById('waiting-host-area').style.display='block';
+      document.getElementById('waiting-guest-area').style.display='none';
+      document.getElementById('waiting-back-btn').style.display='inline-flex';
+      break;
+    case 'player_left': notify(msg.name+' left the room.'); break;
+    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_offline': notify(msg.name+' disconnected…'); break;
+    case 'insider_start':
+      showRoleReveal(msg); break;
+    case 'insider_question':
+      addQuestion(msg.id, msg.player, msg.question); break;
+    case 'insider_answered':
+      revealAnswer(msg.id, msg.answer); break;
+    case 'insider_wrong_guess':
+      addWrongGuess(msg.player, msg.word); notify(msg.player+' guessed wrong!'); break;
+    case 'insider_word_guessed':
+      clearInterval(qTimerInterval);
+      startAccusation(msg.guesser, msg.word); break;
+    case 'insider_vote_update': {
+      const voted = Object.keys(msg.votes||{}).length;
+      const el = document.getElementById('acc-vote-count');
+      if(el) el.textContent = voted+' / '+msg.total+' voted'; break;
+    }
+    case 'insider_over':
+      showResult(msg); break;
+    case 'back_to_lobby':
+      clearInterval(qTimerInterval); clearInterval(accTimerInterval);
+      showPhase('phase-mp-waiting'); break;
+    case 'error': notify(msg.msg||'Error.'); break;
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────
+(function init(){
+  const params = new URLSearchParams(location.search);
+  const autoRoom = params.get('room');
+  const autoName = params.get('name');
+  if(!autoRoom || !autoName){
+    document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
+    document.getElementById('no-hub-msg').style.display = 'block';
+    return;
+  }
+  hubFlow = true;
+  myRoom = autoRoom.toUpperCase();
+  myName = autoName;
+  history.replaceState(null,'',location.pathname);
+  const proto = location.protocol==='https:'?'wss':'ws';
+  ws = new WebSocket(`${proto}://${location.host}`);
+  ws.onopen = () => ws.send(JSON.stringify({type:'join_room',code:myRoom,name:myName}));
+  ws.onmessage = e => { try{ handleMsg(JSON.parse(e.data)); }catch(_){} };
+  ws.onerror = () => {};
+  ws.onclose = () => {
+    if(myRoom&&myName&&reconnectAttempts<5){
+      reconnectAttempts++;
+      setTimeout(()=>{
+        const proto=location.protocol==='https:'?'wss':'ws';
+        ws=new WebSocket(`${proto}://${location.host}`);
+        ws.onopen=()=>ws.send(JSON.stringify({type:'rejoin_room',code:myRoom,name:myName}));
+        ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(_){}};
+        ws.onerror=()=>{};
+      },2000*reconnectAttempts);
+    }
+  };
+})();
+</script>
+</body>
+</html>

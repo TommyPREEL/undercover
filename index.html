@@ -72,7 +72,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .scores-table .rank{color:var(--muted);width:24px;}
 
 /* Game selector */
-.game-sel-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.game-sel-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
 .game-sel-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text);font-family:var(--font-body);}
 .game-sel-btn .gs-icon{font-size:24px;display:block;margin-bottom:4px;}
 .game-sel-btn .gs-name{font-family:var(--font-display);font-size:16px;letter-spacing:1px;}
@@ -80,6 +80,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .game-sel-btn[data-game="undercover"].active{border-color:#e8375a;background:rgba(232,55,90,0.08);color:#e8375a;}
 .game-sel-btn[data-game="millionaire"].active{border-color:var(--gold);background:rgba(245,197,66,0.08);color:var(--gold);}
 .game-sel-btn[data-game="hottakes"].active{border-color:#9b59b6;background:rgba(155,89,182,0.08);color:#9b59b6;}
+.game-sel-btn[data-game="insider"].active{border-color:#22d3ee;background:rgba(34,211,238,0.08);color:#22d3ee;}
 
 /* Config selectors */
 
@@ -210,6 +211,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </button>
         <button class="game-sel-btn" data-game="hottakes" onclick="selectGame('hottakes',this)">
           <span class="gs-icon">🔥</span><span class="gs-name">HOT TAKES</span>
+        </button>
+        <button class="game-sel-btn" data-game="insider" onclick="selectGame('insider',this)">
+          <span class="gs-icon">🕵️</span><span class="gs-name">INSIDER</span>
         </button>
       </div>
 
@@ -403,7 +407,7 @@ function navigateToGame(gameType, code, config) {
     showHubView(code);
     return;
   }
-  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/' };
+  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/', insider: '/games/insider/' };
   const base = paths[gameType];
   if (!base) return;
   const params = new URLSearchParams({ room: code, name: myName });

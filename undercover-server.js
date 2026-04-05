@@ -83,6 +83,21 @@ const disconnectTimers = {}; // playerId -> timeout
 const PRIZE_LADDER = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const MILL_SAFE_HAVENS = [4, 9];
 
+// ─── Insider word lists ───────────────────────────────────────────────────────
+const INSIDER_WORDS = {
+  videogames:  ['Minecraft','Fortnite','The Legend of Zelda','Mario','Sonic','Overwatch','League of Legends','GTA','Dark Souls','Elden Ring','Hollow Knight','Hades','Stardew Valley','Among Us','Terraria','Undertale','Cyberpunk 2077','The Witcher','Celeste','Sekiro','Doom','Portal','Tekken','Street Fighter','Diablo'],
+  anime_chars: ['Naruto','Goku','Luffy','Levi','Eren','Zoro','Killua','Gon','Rem','Saitama','Spike Spiegel','Light Yagami','L','Kakashi','Sasuke','Mikasa','Nezuko','Tanjiro','Itachi','All Might','Deku','Guts','Lelouch','Edward Elric'],
+  anime:       ['Naruto','One Piece','Dragon Ball Z','Attack on Titan','Demon Slayer','My Hero Academia','Death Note','Fullmetal Alchemist','Hunter x Hunter',"JoJo's Bizarre Adventure",'Sword Art Online','Code Geass','Bleach','Fairy Tail','Tokyo Ghoul','Re:Zero','Evangelion','Cowboy Bebop','Vinland Saga','Chainsaw Man'],
+  pokemon:     ['Pikachu','Charizard','Mewtwo','Eevee','Snorlax','Gengar','Gyarados','Lucario','Garchomp','Umbreon','Espeon','Dragonite','Alakazam','Mew','Rayquaza','Gardevoir','Blaziken','Scizor','Tyranitar','Absol','Arcanine','Vaporeon'],
+  objects:     ['Pizza','Guitar','Bicycle','Lighthouse','Submarine','Telescope','Umbrella','Trampoline','Aquarium','Helicopter','Cactus','Snowflake','Labyrinth','Escalator','Microwave','Igloo','Hammock','Waterfall','Volcano','Compass','Diamond','Tornado','Robot','Pyramid','Boomerang'],
+};
+function getInsiderWord(category) {
+  const list = category === 'random'
+    ? Object.values(INSIDER_WORDS).flat()
+    : (INSIDER_WORDS[category] || INSIDER_WORDS.objects);
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 // ─── Hot Takes helpers ────────────────────────────────────────────────────────
 function sendHotTakesPrompt(room) {
   const idx = room.htCurrentRound;
@@ -287,6 +302,43 @@ function doElimination(room, targetName) {
   }
 }
 
+// ─── Insider helpers ──────────────────────────────────────────────────────────
+function insiderTimeUp(room) {
+  if (room.phase !== 'playing' || !room.insiderId) return;
+  clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null;
+  room.phase = 'result';
+  const insiderName = room.players[room.insiderId]?.name || '?';
+  const scores = { [insiderName]: 1000 };
+  if (room.hubScores) {
+    room.hubScores[insiderName] = (room.hubScores[insiderName] || 0) + 1000;
+    broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+  }
+  broadcast(room, { type: 'insider_over', insider: insiderName, insiderCaught: false, timeOut: true, scores, word: room.insiderWord, votes: {}, tally: {}, hubScores: { ...(room.hubScores || {}) } });
+}
+
+function resolveInsiderVotes(room) {
+  clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null;
+  room.phase = 'result';
+  const insiderName = room.players[room.insiderId]?.name || '?';
+  const votes = room.insiderVotes || {};
+  const tally = {};
+  for (const target of Object.values(votes)) tally[target] = (tally[target] || 0) + 1;
+  let maxVotes = 0, accused = null;
+  for (const [name, count] of Object.entries(tally)) { if (count > maxVotes) { maxVotes = count; accused = name; } }
+  const insiderCaught = accused === insiderName;
+  const scores = {};
+  if (insiderCaught) {
+    for (const [voter, target] of Object.entries(votes)) if (target === insiderName) scores[voter] = (scores[voter] || 0) + 800;
+  } else {
+    scores[insiderName] = 1000;
+  }
+  if (room.hubScores) {
+    for (const [name, pts] of Object.entries(scores)) room.hubScores[name] = (room.hubScores[name] || 0) + pts;
+    broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+  }
+  broadcast(room, { type: 'insider_over', insider: insiderName, insiderCaught, accused, tally, scores, word: room.insiderWord, votes, hubScores: { ...(room.hubScores || {}) } });
+}
+
 function roomState(room) {
   return {
     type: 'room_state',
@@ -482,6 +534,9 @@ function handleMessage(socket, raw, playerId) {
       if (!room || room.host !== playerId) return;
       if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
       if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
+      if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
+      room.insiderPhase = null;
       room.paused = false;
       room.phase = 'hub';
       room.gameType = 'hub';
@@ -723,6 +778,9 @@ function handleMessage(socket, raw, playerId) {
       if (!room || room.host !== playerId) return;
       if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
       if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
+      if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
+      room.insiderPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -768,6 +826,9 @@ function handleMessage(socket, raw, playerId) {
       if (!room || room.host !== playerId) return;
       if (room.millTimer) { clearTimeout(room.millTimer); room.millTimer = null; }
       if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
+      if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
+      if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
+      room.insiderPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -893,6 +954,90 @@ function handleMessage(socket, raw, playerId) {
       if (onlineIds.every(id => room.htVotes[id])) {
         clearTimeout(room.htTimer);
         revealHotTakesPrompt(room);
+      }
+      break;
+    }
+
+    case 'start_insider': {
+      if (!room || room.host !== playerId || room.gameType !== 'insider') return;
+      const playerIds = Object.keys(room.players);
+      if (playerIds.length < 4) { wsSend(socket, { type: 'error', msg: 'Need at least 4 players.' }); return; }
+      const word = getInsiderWord(msg.category || 'random');
+      const nonHostIds = playerIds.filter(id => id !== room.host);
+      const insiderId = nonHostIds[Math.floor(Math.random() * nonHostIds.length)];
+      room.phase = 'playing';
+      room.insiderWord = word;
+      room.insiderId = insiderId;
+      room.insiderQuestions = [];
+      room.insiderVotes = {};
+      room.insiderQCounter = 0;
+      room.insiderPhase = 'questions';
+      for (const [id, player] of Object.entries(room.players)) {
+        const isInsider = id === insiderId;
+        const isMaster = id === room.host;
+        wsSend(player.socket, {
+          type: 'insider_start',
+          role: isMaster ? 'master' : (isInsider ? 'insider' : 'civilian'),
+          word: (isMaster || isInsider) ? word : null,
+          players: Object.values(room.players).map(p => p.name),
+          host: room.players[room.host]?.name || '',
+          category: msg.category || 'random',
+        });
+      }
+      room.insiderTimer = setTimeout(() => insiderTimeUp(room), 186000); // 3 min + 6s role reveal
+      console.log(`Room ${room.code} insider game started, word: ${word}`);
+      break;
+    }
+
+    case 'insider_ask': {
+      if (!room || room.insiderPhase !== 'questions') return;
+      if (room.host === playerId) return; // master doesn't ask
+      const question = (msg.question || '').trim().slice(0, 150);
+      if (!question) return;
+      const qId = ++room.insiderQCounter;
+      const q = { id: qId, player: playerName, question, answer: null };
+      room.insiderQuestions.push(q);
+      broadcast(room, { type: 'insider_question', id: qId, player: playerName, question });
+      break;
+    }
+
+    case 'insider_answer': {
+      if (!room || room.host !== playerId || room.insiderPhase !== 'questions') return;
+      const q = room.insiderQuestions.find(q => q.id === msg.questionId);
+      if (!q || q.answer) return;
+      const answer = ['yes','no','maybe'].includes(msg.answer) ? msg.answer : null;
+      if (!answer) return;
+      q.answer = answer;
+      broadcast(room, { type: 'insider_answered', id: q.id, answer });
+      break;
+    }
+
+    case 'insider_guess': {
+      if (!room || room.insiderPhase !== 'questions' || room.host === playerId) return;
+      const guess = (msg.word || '').trim().toLowerCase();
+      const target = room.insiderWord.toLowerCase();
+      if (guess === target || target.includes(guess) || guess.includes(target)) {
+        clearTimeout(room.insiderTimer); room.insiderTimer = null;
+        room.insiderPhase = 'accusation';
+        broadcast(room, { type: 'insider_word_guessed', guesser: playerName, word: room.insiderWord });
+        room.insiderAccusationTimer = setTimeout(() => resolveInsiderVotes(room), 45000);
+      } else {
+        broadcast(room, { type: 'insider_wrong_guess', player: playerName, word: msg.word });
+      }
+      break;
+    }
+
+    case 'insider_vote': {
+      if (!room || room.insiderPhase !== 'accusation' || room.host === playerId) return;
+      const targetName = String(msg.target || '').trim();
+      if (!Object.values(room.players).find(p => p.name === targetName)) return;
+      if (targetName === playerName) return; // can't vote self
+      room.insiderVotes[playerName] = targetName;
+      const nonHostCount = Object.values(room.players).filter(p => Object.keys(room.players).find(id => room.players[id] === p && id !== room.host)).length;
+      broadcast(room, { type: 'insider_vote_update', votes: { ...room.insiderVotes }, total: nonHostCount });
+      if (Object.keys(room.insiderVotes).length >= nonHostCount) {
+        clearTimeout(room.insiderAccusationTimer);
+        resolveInsiderVotes(room);
       }
       break;
     }
