@@ -79,6 +79,51 @@ function wsSendPong(socket) {
 const rooms = {}; // roomCode -> room
 const disconnectTimers = {}; // playerId -> timeout
 
+// ─── Millionaire constants ─────────────────────────────────────────────────────
+const PRIZE_LADDER = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+const MILL_SAFE_HAVENS = [4, 9];
+
+function sendMillQuestion(room) {
+  const qi = room.millCurrentQi;
+  const q = room.millQuestions[qi];
+  room.millAnswers = {};
+  broadcast(room, {
+    type: 'millionaire_question',
+    qi, q: q.q, a: q.a, b: q.b, c: q.c, d: q.d,
+    value: PRIZE_LADDER[qi],
+    isSafeHaven: MILL_SAFE_HAVENS.includes(qi),
+    timeLimit: 20,
+  });
+  room.millTimer = setTimeout(() => revealMillQuestion(room), 21000);
+}
+
+function revealMillQuestion(room) {
+  clearTimeout(room.millTimer);
+  const qi = room.millCurrentQi;
+  const q = room.millQuestions[qi];
+  const correct = q.ans;
+  // Award points
+  for (const [id, player] of Object.entries(room.players)) {
+    if (room.millAnswers[id] === correct)
+      room.millScores[player.name] = (room.millScores[player.name] || 0) + PRIZE_LADDER[qi];
+  }
+  // Build name->answer map
+  const playerAnswers = {};
+  for (const [id, ans] of Object.entries(room.millAnswers)) {
+    if (room.players[id]) playerAnswers[room.players[id].name] = ans;
+  }
+  broadcast(room, { type: 'millionaire_reveal', qi, correct, scores: { ...room.millScores }, playerAnswers });
+  room.millCurrentQi++;
+  if (room.millCurrentQi >= 15) {
+    room.millEndTimer = setTimeout(() => {
+      broadcast(room, { type: 'millionaire_over', scores: { ...room.millScores } });
+      room.phase = 'result';
+    }, 3500);
+  } else {
+    room.millNextTimer = setTimeout(() => sendMillQuestion(room), 3500);
+  }
+}
+
 function generateCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
 }
@@ -175,6 +220,7 @@ function handleMessage(socket, raw, playerId) {
         players: { [playerId]: { name, socket, ready: false } },
         phase: 'lobby',
         mode: msg.mode || 'characters',
+        gameType: msg.gameType || 'undercover',
         gameData: null,
         eliminated: [],
         speakOrder: [],
@@ -422,6 +468,39 @@ function handleMessage(socket, raw, playerId) {
       for (const p of Object.values(room.players)) p.ready = false;
       broadcast(room, roomState(room));
       broadcast(room, { type: 'back_to_lobby' });
+      break;
+    }
+
+    case 'start_millionaire': {
+      if (!room || room.host !== playerId || room.gameType !== 'millionaire') return;
+      const qs = msg.questions;
+      if (!Array.isArray(qs) || qs.length < 15) return;
+      room.phase = 'playing';
+      room.millQuestions = qs.slice(0, 15);
+      room.millScores = {};
+      Object.values(room.players).forEach(p => { room.millScores[p.name] = 0; });
+      room.millCurrentQi = 0;
+      room.millAnswers = {};
+      sendMillQuestion(room);
+      console.log(`Room ${room.code} millionaire game started`);
+      break;
+    }
+
+    case 'millionaire_answer': {
+      if (!room || room.gameType !== 'millionaire' || room.phase !== 'playing') return;
+      if (msg.qi !== room.millCurrentQi) return;
+      if (room.millAnswers[playerId]) return; // already answered
+      const ans = msg.ans;
+      if (!['a','b','c','d'].includes(ans)) return;
+      room.millAnswers[playerId] = ans;
+      // If all online players answered, reveal immediately
+      const onlineIds = Object.entries(room.players)
+        .filter(([,p]) => p.socket && !p.socket.destroyed)
+        .map(([id]) => id);
+      if (onlineIds.every(id => room.millAnswers[id])) {
+        clearTimeout(room.millTimer);
+        revealMillQuestion(room);
+      }
       break;
     }
 
