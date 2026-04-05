@@ -178,6 +178,11 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div class="orb orb-2"></div>
 <div id="toast"></div>
 
+<div id="local-pause-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,0.96);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+  <div style="font-family:var(--font-display);font-size:64px;letter-spacing:4px;color:var(--gold);">PAUSED</div>
+  <button class="btn-primary" onclick="resumeLocalGame()" style="width:220px;">▶ RESUME</button>
+</div>
+
 <div class="container">
 
 <!-- ── HOME ─────────────────────────────────────────────────── -->
@@ -238,7 +243,10 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="ladder" id="local-ladder"></div>
     </div>
   </div>
-  <button class="btn-ghost" onclick="cancelLocalGame()" style="margin-top:1.5rem;">✕ Cancel Game</button>
+  <div style="display:flex;gap:8px;margin-top:1.5rem;">
+    <button class="btn-ghost" onclick="pauseLocalGame()" style="flex:1;">⏸ Pause</button>
+    <button class="btn-ghost" onclick="cancelLocalGame()" style="flex:1;">✕ Cancel</button>
+  </div>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
@@ -342,8 +350,12 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="ladder" id="mp-ladder"></div>
     </div>
   </div>
-  <div id="mp-host-cancel" style="display:none;">
-    <button class="btn-ghost" onclick="mpCancelGame()" style="margin-top:1.5rem;">✕ Cancel Game</button>
+  <div id="mp-paused-banner" style="display:none;background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--gold);font-family:var(--font-display);font-size:24px;letter-spacing:2px;margin-top:1rem;">⏸ GAME PAUSED</div>
+  <div id="mp-host-actions" style="display:none;">
+    <div style="display:flex;gap:8px;margin-top:1.5rem;">
+      <button class="btn-ghost" id="mp-pause-btn" onclick="mpTogglePause()" style="flex:1;">⏸ Pause</button>
+      <button class="btn-ghost" onclick="mpCancelGame()" style="flex:1;">✕ Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -541,7 +553,18 @@ function showLocalResult(score, won){
 }
 
 function restartLocal(){showPhase('phase-local-setup');}
-function cancelLocalGame(){showPhase('phase-local-setup');}
+function cancelLocalGame(){
+  const o=document.getElementById('local-pause-overlay');
+  o.style.display='none';
+  showPhase('phase-local-setup');
+}
+function pauseLocalGame(){
+  const o=document.getElementById('local-pause-overlay');
+  o.style.display='flex';
+}
+function resumeLocalGame(){
+  document.getElementById('local-pause-overlay').style.display='none';
+}
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
 function setMpHostTheme(btn){
@@ -601,8 +624,10 @@ function mpJoin(){
   mpSend({type:'join_room',code,name:myName});
 }
 
-function mpCancelGame(){
-  mpSend({type:'cancel_round'});
+let mpPaused = false;
+function mpCancelGame(){ mpSend({type:'cancel_round'}); }
+function mpTogglePause(){
+  mpSend({type: mpPaused ? 'resume_game' : 'pause_game'});
 }
 
 function mpStartGame(){
@@ -648,16 +673,31 @@ function handleMpMsg(msg){
     case 'player_offline': notify(msg.name+' disconnected…'); break;
     case 'player_left': notify(msg.name+' left the room.'); break;
     case 'millionaire_question':
-      mpCurrentQi=msg.qi; mpHasAnswered=false; mpCurrentQ=msg;
+      mpCurrentQi=msg.qi; mpHasAnswered=false; mpPaused=false; mpCurrentQ=msg;
       renderMpQuestion(msg);
       showPhase('phase-mp-play');
-      document.getElementById('mp-host-cancel').style.display=isHost?'block':'none';
+      document.getElementById('mp-host-actions').style.display=isHost?'flex':'none';
+      document.getElementById('mp-paused-banner').style.display='none';
+      document.getElementById('mp-pause-btn').textContent='⏸ Pause';
       if(mpEliminated){
         document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=true);
         document.getElementById('mp-reveal-info').style.display='block';
         document.getElementById('mp-reveal-info').innerHTML='<div class="waiting-msg">You\'ve been eliminated — spectating…</div>';
         clearMpTimer(); document.getElementById('mp-timer-bar').style.width='0%';
       }
+      break;
+    case 'game_paused':
+      mpPaused=true; clearMpTimer();
+      document.getElementById('mp-paused-banner').style.display='block';
+      document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=true);
+      if(isHost) document.getElementById('mp-pause-btn').textContent='▶ Resume';
+      break;
+    case 'game_resumed':
+      mpPaused=false;
+      document.getElementById('mp-paused-banner').style.display='none';
+      if(!mpHasAnswered) document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=false);
+      if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
+      startMpTimer(msg.timeLeft);
       break;
     case 'millionaire_reveal':
       if((msg.newlyEliminated||[]).includes(myName)){

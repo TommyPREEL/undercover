@@ -96,6 +96,8 @@ function sendHotTakesPrompt(room) {
     category: prompt.category,
     timeLimit: 15,
   });
+  room.htTimerDuration = 16000;
+  room.htTimerStartedAt = Date.now();
   room.htTimer = setTimeout(() => revealHotTakesPrompt(room), 16000);
 }
 
@@ -148,6 +150,8 @@ function sendMillQuestion(room) {
     isSafeHaven: MILL_SAFE_HAVENS.includes(qi),
     timeLimit: 20,
   });
+  room.millTimerDuration = 21000;
+  room.millTimerStartedAt = Date.now();
   room.millTimer = setTimeout(() => revealMillQuestion(room), 21000);
 }
 
@@ -543,6 +547,7 @@ function handleMessage(socket, raw, playerId) {
       const qs = msg.questions;
       if (!Array.isArray(qs) || qs.length < 15) return;
       room.phase = 'playing';
+      room.paused = false;
       room.millQuestions = qs.slice(0, 15);
       room.millScores = {};
       room.millEliminated = [];
@@ -556,6 +561,7 @@ function handleMessage(socket, raw, playerId) {
 
     case 'millionaire_answer': {
       if (!room || room.gameType !== 'millionaire' || room.phase !== 'playing') return;
+      if (room.paused) return;
       if (msg.qi !== room.millCurrentQi) return;
       if (room.millAnswers[playerId]) return; // already answered
       const ans = msg.ans;
@@ -573,11 +579,51 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'pause_game': {
+      if (!room || room.host !== playerId) return;
+      if (room.paused) return;
+      room.paused = true;
+      if (room.gameType === 'millionaire' && room.millTimer) {
+        clearTimeout(room.millTimer); room.millTimer = null;
+        const elapsed = Date.now() - (room.millTimerStartedAt || Date.now());
+        room.millPauseTimeLeft = Math.max(1000, (room.millTimerDuration || 21000) - elapsed);
+      }
+      if (room.gameType === 'hottakes' && room.htTimer) {
+        clearTimeout(room.htTimer); room.htTimer = null;
+        const elapsed = Date.now() - (room.htTimerStartedAt || Date.now());
+        room.htPauseTimeLeft = Math.max(1000, (room.htTimerDuration || 16000) - elapsed);
+      }
+      broadcast(room, { type: 'game_paused' });
+      break;
+    }
+
+    case 'resume_game': {
+      if (!room || room.host !== playerId) return;
+      if (!room.paused) return;
+      room.paused = false;
+      if (room.gameType === 'millionaire') {
+        const ms = room.millPauseTimeLeft || 5000;
+        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000) });
+        room.millTimerStartedAt = Date.now();
+        room.millTimerDuration = ms;
+        room.millTimer = setTimeout(() => revealMillQuestion(room), ms);
+      }
+      if (room.gameType === 'hottakes') {
+        const ms = room.htPauseTimeLeft || 5000;
+        broadcast(room, { type: 'game_resumed', timeLeft: Math.ceil(ms / 1000) });
+        room.htTimerStartedAt = Date.now();
+        room.htTimerDuration = ms;
+        room.htTimer = setTimeout(() => revealHotTakesPrompt(room), ms);
+      }
+      break;
+    }
+
     case 'start_hottakes': {
       if (!room || room.host !== playerId || room.gameType !== 'hottakes') return;
       const prompts = msg.prompts;
       if (!Array.isArray(prompts) || prompts.length < 1) return;
       room.phase = 'playing';
+      room.paused = false;
       room.htPrompts = prompts;
       room.htScores = {};
       Object.values(room.players).forEach(p => { room.htScores[p.name] = 0; });
@@ -590,6 +636,7 @@ function handleMessage(socket, raw, playerId) {
 
     case 'hottakes_vote': {
       if (!room || room.gameType !== 'hottakes' || room.phase !== 'playing') return;
+      if (room.paused) return;
       if (msg.round !== room.htCurrentRound + 1) return;
       if (room.htVotes[playerId]) return; // already voted
       const vote = msg.vote;
