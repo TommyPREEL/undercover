@@ -1389,6 +1389,20 @@ function renderLocalStrawPoll(active){
     btn.onclick=()=>openModal(name); elimDiv.appendChild(btn);
   });
   voteGrid.appendChild(elimDiv);
+  const extraBtn=document.createElement('button');
+  extraBtn.textContent='+ EXTRA ROUND';
+  extraBtn.onclick=localExtraRound;
+  extraBtn.style.cssText='width:100%;margin-top:12px;padding:12px;background:transparent;border:1px solid var(--cyan);border-radius:var(--radius-sm);color:var(--cyan);font-family:var(--font-display);font-size:14px;letter-spacing:1px;cursor:pointer;';
+  voteGrid.appendChild(extraBtn);
+}
+function localExtraRound(){
+  localVoteTally={};
+  const active=players.filter(p=>!eliminated.includes(p));
+  speakOrder=[...active].sort(()=>Math.random()-0.5);
+  speakIndex=0;
+  document.getElementById('vote-grid').innerHTML='';
+  document.getElementById('vote-prompt').style.display='none';
+  renderSpeaker(); renderClueLog();
 }
 function castLocalVote(name){
   localVoteTally[name]=(localVoteTally[name]||0)+1;
