@@ -1586,6 +1586,11 @@ function handleServerMsg(msg){
       mpRound=msg.round; mpEliminated=msg.eliminated; mpSoftVotes={}; mpElimVotes={};
       if(msg.eliminatedPlayer) notify(msg.eliminatedPlayer+' was eliminated!');
       renderMpPlay(); showPhase('phase-mp-play'); break;
+    case 'extra_speaking_round':
+      mpSpeakOrder=msg.speakOrder; mpSpeakIndex=0; mpSoftVotes={}; mpElimVotes={};
+      document.getElementById('mp-vote-grid').innerHTML='';
+      document.getElementById('mp-vote-prompt').style.display='none';
+      renderMpSpeaker(); renderMpClueLog(); break;
     case 'speaker_update':
       if(msg.lastPlayer&&msg.lastClue)mpClueLog.push({player:msg.lastPlayer,clue:msg.lastClue});
       mpSpeakIndex=msg.speakIndex; renderMpSpeaker(); renderMpClueLog(); break;
@@ -1699,6 +1704,9 @@ function mpCancelRound(){
   if(!confirm('Cancel this round and return everyone to the lobby?')) return;
   mpSend({type:'cancel_round'});
 }
+function mpExtraRound(){
+  mpSend({type:'extra_round'});
+}
 
 function renderMpSpeaker(){
   const box=document.getElementById('mp-speaker-box');
@@ -1756,6 +1764,13 @@ function renderMpElimVote(){
     const msg=document.createElement('div'); msg.className='waiting-msg'; msg.style.marginTop='8px';
     msg.textContent=`You voted for ${mpElimVotes[myName]}. Waiting for others…`;
     voteGrid.appendChild(msg);
+  }
+  if(isHost){
+    const extraBtn=document.createElement('button');
+    extraBtn.textContent='+ EXTRA ROUND';
+    extraBtn.onclick=mpExtraRound;
+    extraBtn.style.cssText='width:100%;margin-top:12px;padding:12px;background:transparent;border:1px solid var(--cyan);border-radius:var(--radius-sm);color:var(--cyan);font-family:var(--font-display);font-size:14px;letter-spacing:1px;cursor:pointer;';
+    voteGrid.appendChild(extraBtn);
   }
 }
 function mpCastElimVote(target){

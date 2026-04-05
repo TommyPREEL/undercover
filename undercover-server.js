@@ -372,6 +372,25 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'extra_round': {
+      if (!room || room.host !== playerId) return;
+      const activeIds = Object.entries(room.players)
+        .filter(([,p]) => !room.eliminated.includes(p.name))
+        .map(([id]) => id)
+        .sort(() => Math.random() - 0.5);
+      room.speakOrder = activeIds.map(id => room.players[id].name);
+      room.speakIndex = 0;
+      room.softVotes = {};
+      room.elimVotes = {};
+      broadcast(room, {
+        type: 'extra_speaking_round',
+        speakOrder: room.speakOrder,
+        speakIndex: 0,
+      });
+      console.log(`Room ${room.code} extra speaking round started by host`);
+      break;
+    }
+
     case 'cancel_round': {
       if (!room || room.host !== playerId) return;
       room.phase = 'lobby';
