@@ -24,6 +24,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .container{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:2rem 1.25rem 4rem;min-height:100vh;}
 .phase{display:none;}.phase.active{display:block;animation:fadeUp 0.35s ease;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;background:transparent;border:none;cursor:pointer;padding:8px 0;margin-bottom:1.5rem;transition:color 0.15s;text-decoration:none;font-family:var(--font-body);}
+.back-btn:hover{color:var(--text);}
 .logo{font-family:var(--font-display);font-size:64px;line-height:0.9;letter-spacing:2px;margin-bottom:4px;}
 .logo span{color:var(--accent);}
 .tagline{font-size:13px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem;}
