@@ -156,19 +156,32 @@ function revealMillQuestion(room) {
   const qi = room.millCurrentQi;
   const q = room.millQuestions[qi];
   const correct = q.ans;
-  // Award points
+  if (!room.millEliminated) room.millEliminated = [];
+  const newlyEliminated = [];
+  // Award points to correct answers, eliminate wrong/no-answer players
   for (const [id, player] of Object.entries(room.players)) {
-    if (room.millAnswers[id] === correct)
+    if (room.millEliminated.includes(player.name)) continue;
+    if (room.millAnswers[id] === correct) {
       room.millScores[player.name] = (room.millScores[player.name] || 0) + PRIZE_LADDER[qi];
+    } else {
+      newlyEliminated.push(player.name);
+      room.millEliminated.push(player.name);
+    }
   }
   // Build name->answer map
   const playerAnswers = {};
   for (const [id, ans] of Object.entries(room.millAnswers)) {
     if (room.players[id]) playerAnswers[room.players[id].name] = ans;
   }
-  broadcast(room, { type: 'millionaire_reveal', qi, correct, scores: { ...room.millScores }, playerAnswers });
+  broadcast(room, {
+    type: 'millionaire_reveal', qi, correct,
+    scores: { ...room.millScores }, playerAnswers,
+    newlyEliminated, allEliminated: [...room.millEliminated],
+  });
   room.millCurrentQi++;
-  if (room.millCurrentQi >= 15) {
+  const activePlayers = Object.values(room.players)
+    .filter(p => !room.millEliminated.includes(p.name));
+  if (room.millCurrentQi >= 15 || activePlayers.length === 0) {
     room.millEndTimer = setTimeout(() => {
       broadcast(room, { type: 'millionaire_over', scores: { ...room.millScores } });
       room.phase = 'result';
@@ -532,6 +545,7 @@ function handleMessage(socket, raw, playerId) {
       room.phase = 'playing';
       room.millQuestions = qs.slice(0, 15);
       room.millScores = {};
+      room.millEliminated = [];
       Object.values(room.players).forEach(p => { room.millScores[p.name] = 0; });
       room.millCurrentQi = 0;
       room.millAnswers = {};
@@ -546,10 +560,11 @@ function handleMessage(socket, raw, playerId) {
       if (room.millAnswers[playerId]) return; // already answered
       const ans = msg.ans;
       if (!['a','b','c','d'].includes(ans)) return;
+      if (room.millEliminated && room.millEliminated.includes(room.players[playerId]?.name)) return;
       room.millAnswers[playerId] = ans;
-      // If all online players answered, reveal immediately
+      // If all active (non-eliminated) online players answered, reveal immediately
       const onlineIds = Object.entries(room.players)
-        .filter(([,p]) => p.socket && !p.socket.destroyed)
+        .filter(([,p]) => p.socket && !p.socket.destroyed && !(room.millEliminated||[]).includes(p.name))
         .map(([id]) => id);
       if (onlineIds.every(id => room.millAnswers[id])) {
         clearTimeout(room.millTimer);

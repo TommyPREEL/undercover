@@ -80,6 +80,21 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 .waiting-msg{text-align:center;color:var(--muted);font-size:14px;padding:12px;animation:pulse 1.5s ease infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
+/* ── MP lobby (undercover-style) ── */
+.section-title{font-family:var(--font-display);font-size:42px;letter-spacing:2px;margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;}
+.code-display{font-family:var(--font-display);font-size:72px;letter-spacing:8px;text-align:center;color:var(--accent);padding:1rem 0 0.5rem;line-height:1;}
+.player-lobby-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;}
+.lobby-player{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;font-weight:500;}
+.lobby-player .crown{font-size:16px;}
+.lobby-player .you-tag{font-size:10px;background:rgba(155,89,182,0.12);color:var(--accent);border:1px solid rgba(155,89,182,0.25);border-radius:20px;padding:2px 8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;}
+.mp-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.mp-mode-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 14px;cursor:pointer;text-align:center;transition:all 0.15s;}
+.mp-mode-btn:hover{border-color:var(--border2);background:var(--surface2);}
+.mp-mode-btn .mp-icon{font-size:28px;display:block;margin-bottom:8px;}
+.mp-mode-btn .mp-label{font-family:var(--font-display);font-size:22px;letter-spacing:1px;color:var(--text);display:block;}
+.mp-mode-btn .mp-sub{font-size:11px;color:var(--muted);display:block;margin-top:4px;}
+
 /* ── GAME SCREEN ──────────────────────────────────────────── */
 
 /* Round indicator */
@@ -275,49 +290,72 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <button class="btn-primary" onclick="showPhase('phase-local-setup')">PLAY AGAIN</button>
 </div>
 
-<!-- ── MP LOBBY ──────────────────────────────────────────────── -->
-<div class="phase" id="phase-mp-lobby">
-  <a class="back-btn" href="/" onclick="mpDisconnect();return true;">← HOME</a>
+<!-- ── MP ENTRY ───────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-entry">
+  <a class="back-btn" href="#" onclick="showPhase('phase-home');return false;">← BACK</a>
   <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
   <div class="tagline">Online Multiplayer</div>
+  <div class="label">Your name</div>
+  <div class="player-row" style="margin-bottom:1.5rem;">
+    <input type="text" id="mp-name" placeholder="Enter your name" maxlength="20" autocomplete="off" onkeydown="if(event.key==='Enter')mpConnectAndEnter()"/>
+  </div>
+  <button class="btn-primary" onclick="mpConnectAndEnter()">PLAY ONLINE</button>
+  <div class="error-msg" id="mp-entry-err"></div>
+</div>
 
-  <div id="mp-pre">
-    <div class="label">Your name</div>
-    <input class="mp-input" id="mp-name" placeholder="Enter your name…" maxlength="20"/>
-    <div class="label" style="margin-top:12px;">Rounds</div>
+<!-- ── MP CHOOSE ─────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-choose">
+  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
+  <div class="tagline" id="mp-choose-tagline">Online Multiplayer</div>
+  <div class="mp-mode-row" style="margin-top:1rem;">
+    <button class="mp-mode-btn" onclick="mpCreate()">
+      <span class="mp-icon">✨</span>
+      <span class="mp-label">CREATE</span>
+      <span class="mp-sub">New room</span>
+    </button>
+    <button class="mp-mode-btn" onclick="showPhase('phase-mp-join')">
+      <span class="mp-icon">🔑</span>
+      <span class="mp-label">JOIN</span>
+      <span class="mp-sub">Enter code</span>
+    </button>
+  </div>
+  <button class="btn-ghost" onclick="mpDisconnectFull()">← Disconnect</button>
+</div>
+
+<!-- ── MP JOIN ────────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-join">
+  <div class="section-title">JOIN ROOM</div>
+  <div class="section-sub">Enter the 4-letter room code</div>
+  <div class="player-row" style="margin-bottom:1.5rem;">
+    <input type="text" id="mp-code" placeholder="ABCD" maxlength="4"
+      style="font-family:var(--font-display);font-size:36px;letter-spacing:6px;text-transform:uppercase;text-align:center;"
+      oninput="this.value=this.value.toUpperCase()" autocomplete="off"
+      onkeydown="if(event.key==='Enter')mpJoin()"/>
+  </div>
+  <button class="btn-primary" onclick="mpJoin()">JOIN ROOM</button>
+  <button class="btn-ghost" onclick="showPhase('phase-mp-choose')">← Back</button>
+  <div class="error-msg" id="mp-join-err"></div>
+</div>
+
+<!-- ── MP LOBBY ──────────────────────────────────────────────── -->
+<div class="phase" id="phase-mp-lobby">
+  <div class="section-title">ROOM <span id="mp-lobby-code" style="color:var(--accent)"></span></div>
+  <div class="section-sub">Share the code with your friends</div>
+  <div class="code-display" id="mp-code-display"></div>
+  <div class="label">Players (<span id="mp-count">0</span>)</div>
+  <div id="mp-player-list" class="player-lobby-list"></div>
+  <div id="mp-host-area" style="display:none;">
+    <div class="label">Rounds</div>
     <div class="rounds-row">
       <button class="round-btn active" data-r="5" onclick="setMpRounds(this)">5</button>
       <button class="round-btn" data-r="8" onclick="setMpRounds(this)">8</button>
       <button class="round-btn" data-r="10" onclick="setMpRounds(this)">10</button>
       <button class="round-btn" data-r="15" onclick="setMpRounds(this)">15</button>
     </div>
-    <button class="btn-primary" onclick="mpCreate()">CREATE ROOM</button>
-    <hr/>
-    <div class="label">Or join a room</div>
-    <input class="mp-input" id="mp-code" placeholder="Room code (4 letters)…" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:var(--font-display);font-size:20px;"/>
-    <button class="btn-secondary" onclick="mpJoin()">JOIN ROOM</button>
-    <div class="error-msg" id="mp-err"></div>
+    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
   </div>
-
-  <div id="mp-inroom" style="display:none;">
-    <div class="label">Room code</div>
-    <div class="room-code-display" id="mp-room-disp"></div>
-    <div class="label">Players (<span id="mp-count">0</span>)</div>
-    <div class="player-list" id="mp-player-list"></div>
-    <div id="mp-host-area" style="display:none;">
-      <div class="label" style="margin-top:8px;">Rounds</div>
-      <div class="rounds-row">
-        <button class="round-btn active" data-r="5" onclick="setMpRounds(this)">5</button>
-        <button class="round-btn" data-r="8" onclick="setMpRounds(this)">8</button>
-        <button class="round-btn" data-r="10" onclick="setMpRounds(this)">10</button>
-        <button class="round-btn" data-r="15" onclick="setMpRounds(this)">15</button>
-      </div>
-      <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
-    </div>
-    <div id="mp-guest-area" style="display:none;">
-      <div class="waiting-msg">Waiting for the host to start…</div>
-    </div>
-  </div>
+  <div id="mp-guest-area" style="display:none;" class="waiting-msg">Waiting for the host to start…</div>
+  <button class="btn-ghost" onclick="mpLeaveRoom()" style="margin-top:10px;">← Leave room</button>
 </div>
 
 <!-- ── MP VOTE ────────────────────────────────────────────────── -->
@@ -362,7 +400,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 
 <!-- ── MP RESULT ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-result">
-  <a class="back-btn" href="/" onclick="mpDisconnect();return true;">← HOME</a>
+  <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;">← HOME</a>
   <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
   <div class="tagline">The majority has spoken</div>
   <div class="leaderboard" id="mp-leaderboard"></div>
@@ -411,7 +449,7 @@ function selectMode(m){
 }
 function goFromHome(){
   if(selectedMode==='local') showPhase('phase-local-setup');
-  else showPhase('phase-mp-lobby');
+  else showPhase('phase-mp-entry');
 }
 
 // ── LOCAL SETUP ───────────────────────────────────────────────
@@ -543,36 +581,54 @@ function showLocalResult(){
 }
 
 // ── MULTIPLAYER ───────────────────────────────────────────────
-function mpDisconnect(){if(ws){ws.close();ws=null;}}
-
 function setMpRounds(btn){
-  document.querySelectorAll('.rounds-row .round-btn').forEach(b=>b.classList.remove('active'));
-  // Only update the set in the visible lobby section
+  document.querySelectorAll('#phase-mp-lobby .round-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   mpRounds=parseInt(btn.dataset.r);
 }
 
-function mpConnect(cb){
+function mpDisconnect(){if(ws){ws.onclose=null;ws.close();ws=null;}}
+function mpDisconnectFull(){mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';showPhase('phase-home');}
+function mpLeaveRoom(){mpDisconnect();localStorage.removeItem('ht_session');myRoom='';myName='';showPhase('phase-home');}
+
+function mpWsConnect(cb){
   if(ws&&ws.readyState===WebSocket.OPEN){cb&&cb();return;}
   const proto=location.protocol==='https:'?'wss':'ws';
   ws=new WebSocket(`${proto}://${location.host}`);
   ws.onopen=()=>{reconnectAttempts=0;cb&&cb();};
   ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(_){}};
-  ws.onclose=()=>{if(reconnectAttempts<5){reconnectAttempts++;setTimeout(()=>mpConnect(),2000);}};
+  ws.onclose=()=>{
+    if(myRoom&&myName&&reconnectAttempts<5){
+      reconnectAttempts++;
+      notify('Connection lost, reconnecting…');
+      setTimeout(()=>mpWsConnect(()=>mpSend({type:'rejoin_room',code:myRoom,name:myName})),2000*reconnectAttempts);
+    }
+  };
   ws.onerror=()=>{};
 }
 function mpSend(obj){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify(obj));}
 
+function mpConnectAndEnter(){
+  const name=(document.getElementById('mp-name').value||'').trim();
+  const err=document.getElementById('mp-entry-err');
+  if(!name){err.textContent='Enter your name.';return;}
+  myName=name.slice(0,20);
+  err.textContent='Connecting…';
+  mpWsConnect(()=>{
+    err.textContent='';
+    document.getElementById('mp-choose-tagline').textContent='Hi '+myName+' — create or join a room';
+    showPhase('phase-mp-choose');
+  });
+}
 function mpCreate(){
-  myName=(document.getElementById('mp-name').value.trim()||'Player').slice(0,20);
-  document.getElementById('mp-err').textContent='';
-  mpConnect(()=>mpSend({type:'create_room',gameType:'hottakes',name:myName,mode:'hottakes'}));
+  mpSend({type:'create_room',gameType:'hottakes',name:myName,mode:'hottakes'});
 }
 function mpJoin(){
-  myName=(document.getElementById('mp-name').value.trim()||'Player').slice(0,20);
-  const code=document.getElementById('mp-code').value.trim().toUpperCase();
-  if(!code){document.getElementById('mp-err').textContent='Enter a room code.';return;}
-  mpConnect(()=>mpSend({type:'join_room',code,name:myName}));
+  const code=(document.getElementById('mp-code').value||'').trim().toUpperCase();
+  const err=document.getElementById('mp-join-err');
+  if(code.length!==4){err.textContent='Enter a 4-letter code.';return;}
+  err.textContent='';
+  mpSend({type:'join_room',code,name:myName});
 }
 function mpStartGame(){
   const prompts=shuffle(PROMPTS).slice(0,mpRounds);
@@ -582,25 +638,26 @@ function mpStartGame(){
 function handleMsg(msg){
   switch(msg.type){
     case 'joined':
-      myRoom=msg.code; isHost=msg.isHost;
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
-      document.getElementById('mp-pre').style.display='none';
-      document.getElementById('mp-inroom').style.display='block';
-      document.getElementById('mp-room-disp').textContent=myRoom;
+      showPhase('phase-mp-lobby'); break;
+    case 'rejoin_ack':
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      localStorage.setItem('ht_session',JSON.stringify({name:myName,room:myRoom}));
       showPhase('phase-mp-lobby'); break;
     case 'room_state':
       mpPlayers=msg.players||[];
-      document.getElementById('mp-count').textContent=mpPlayers.length;
-      renderMpLobbyPlayers(msg);
-      break;
+      renderMpLobby(msg); break;
     case 'error':
-      document.getElementById('mp-err').textContent=msg.msg||'Error.'; break;
+      document.getElementById('mp-entry-err').textContent=msg.msg||'Error.';
+      document.getElementById('mp-join-err').textContent=msg.msg||'Error.'; break;
     case 'new_host':
       isHost=true; notify('You are now the host.');
       document.getElementById('mp-host-area').style.display='block';
       document.getElementById('mp-guest-area').style.display='none'; break;
     case 'player_online': notify(msg.name+' reconnected ↩'); break;
     case 'player_offline': notify(msg.name+' disconnected…'); break;
+    case 'player_left': notify(msg.name+' left the room.'); break;
     case 'hottakes_prompt':
       mpCurrentPrompt=msg; mpCurrentRound=msg.round; mpTotalRounds=msg.total;
       mpHasVoted=false; renderMpVote(msg); showPhase('phase-mp-vote'); break;
@@ -609,16 +666,19 @@ function handleMsg(msg){
     case 'hottakes_over':
       clearMpTimer(); renderMpResult(msg); break;
     case 'back_to_lobby':
-      localStorage.removeItem('ht_session');
-      document.getElementById('mp-pre').style.display='block';
-      document.getElementById('mp-inroom').style.display='none';
-      showPhase('phase-mp-lobby'); break;
+      mpScores={}; showPhase('phase-mp-lobby'); break;
   }
 }
 
-function renderMpLobbyPlayers(msg){
+function renderMpLobby(msg){
+  document.getElementById('mp-lobby-code').textContent=myRoom;
+  document.getElementById('mp-code-display').textContent=myRoom;
+  document.getElementById('mp-count').textContent=(msg.players||[]).length;
   const list=document.getElementById('mp-player-list');
-  list.innerHTML=(msg.players||[]).map(p=>`<div class="player-chip${p===msg.host?' host':''}">${p}${p===msg.host?' ★':''}</div>`).join('');
+  list.innerHTML=(msg.players||[]).map(p=>{
+    const isH=p===msg.host, isMe=p===myName;
+    return `<div class="lobby-player">${isH?'<span class="crown">👑</span>':''}<span style="flex:1">${p}</span>${isMe?'<span class="you-tag">YOU</span>':''}</div>`;
+  }).join('');
   document.getElementById('mp-host-area').style.display=isHost?'block':'none';
   document.getElementById('mp-guest-area').style.display=isHost?'none':'block';
 }
@@ -727,7 +787,7 @@ function renderMpResult(msg){
     if(s&&s.name&&s.room){
       myName=s.name;
       document.getElementById('mp-name').value=myName;
-      mpConnect(()=>mpSend({type:'rejoin_room',code:s.room,name:s.name}));
+      mpWsConnect(()=>mpSend({type:'rejoin_room',code:s.room,name:s.name}));
     }
   }catch(_){}
 })();
