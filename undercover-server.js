@@ -83,6 +83,47 @@ const disconnectTimers = {}; // playerId -> timeout
 const PRIZE_LADDER = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const MILL_SAFE_HAVENS = [4, 9];
 
+// ─── Profiler criteria list ───────────────────────────────────────────────────
+const PROFILER_CRITERIA = [
+  'Can transform', 'Is a villain', 'Is the main protagonist', 'Is perverted',
+  'Has a tragic backstory', 'Is overpowered', 'Wears glasses', 'Is tsundere',
+  'Has dead parents', 'Can fly', 'Uses a sword', 'Has magical powers',
+  'Has a secret identity', 'Is not human', 'Has animal ears', 'Has white/silver hair',
+  'Has a rivalry', 'Sacrificed themselves', 'Has a sibling',
+  'Falls in love with the protagonist', 'Is the comic relief',
+  'Is extremely smart/genius', 'Has powers that hurt themselves',
+  'Is a teacher', 'Is a robot/android', 'Has healing powers', 'Uses a gun',
+  'Is from another world', 'Is immortal', 'Has a dark past',
+  'Has multiple personalities', 'Wears a mask', 'Is incredibly physically strong',
+  'Has fire powers', 'Has ice powers', 'Has electric powers', 'Has psychic powers',
+  'Is a ninja', 'Is a samurai', 'Is royalty or nobility', 'Is a demon', 'Is an angel',
+  'Is half-human', 'Made a pact or contract', 'Is a loner',
+  'Has died and come back to life', 'Fights with bare hands', 'Can control time',
+  'Has a special eye power', 'Is a pirate', 'Competed in a tournament',
+  'Betrayed their allies', 'Was a villain, became a hero',
+  'Wears a school uniform', 'Has tattoos or body markings', 'Is obsessed with food',
+  'Is a scientist', 'Is a chosen one', 'Has a named weapon',
+  'Is the last of their kind', 'Can see the future', 'Is a spirit or ghost',
+  'Has super speed', 'Fights in a mech or robot', 'Has long hair',
+  'Has heterochromia', 'Is the childhood friend', 'Has amnesia',
+  'Is the final boss', 'Was brainwashed', 'Controls darkness or shadows',
+  'Is incredibly lazy', 'Has incredible willpower', 'Can summon creatures',
+  'Is a pacifist', 'Killed someone they loved', 'Is from a famous clan',
+  'Has a harem', 'Is extremely charismatic', 'Fights using sound or music',
+  'Uses strategy over strength', 'Is always underestimated', 'Has a God complex',
+  'Is always emotionless', 'Cries easily', 'Wears all black', 'Is a monster hunter',
+  'Has a forbidden power', 'Came from poverty', 'Is a delinquent',
+  'Lost their power or status', 'Loves to fight', 'Has sniper or long-range abilities',
+  'Uses poison', 'Is surprisingly short', 'Hides their true power',
+  'Bears a curse or seal', 'Is the mentor figure', 'Can turn into an animal',
+  'Has wings', 'Lost someone they loved', 'Is a prince or princess',
+  'Has unusual speech patterns', 'Is a genius hacker', 'Has a split personality',
+  'Commands an army', 'Is obsessed with getting stronger',
+  'Has a rival who became a friend', "Is the villain's right hand",
+  'Was an experiment or created being', 'Seeks revenge', 'Protects someone weaker',
+  'Has power tied to emotions',
+];
+
 // ─── Insider word lists ───────────────────────────────────────────────────────
 const INSIDER_WORDS = {
   videogames:  ['Minecraft','Fortnite','The Legend of Zelda','Mario','Sonic','Overwatch','League of Legends','GTA','Dark Souls','Elden Ring','Hollow Knight','Hades','Stardew Valley','Among Us','Terraria','Undertale','Cyberpunk 2077','The Witcher','Celeste','Sekiro','Doom','Portal','Tekken','Street Fighter','Diablo'],
@@ -537,6 +578,7 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
+      room.profilerPhase = null;
       room.paused = false;
       room.phase = 'hub';
       room.gameType = 'hub';
@@ -781,6 +823,7 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
+      room.profilerPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -829,6 +872,7 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
+      room.profilerPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -1038,6 +1082,111 @@ function handleMessage(socket, raw, playerId) {
       if (Object.keys(room.insiderVotes).length >= nonHostCount) {
         clearTimeout(room.insiderAccusationTimer);
         resolveInsiderVotes(room);
+      }
+      break;
+    }
+
+    // ─── PROFILER ─────────────────────────────────────────────────────────────────
+
+    case 'start_profiler': {
+      if (!room || room.host !== playerId || room.gameType !== 'profiler') return;
+      const pIds = Object.keys(room.players);
+      if (pIds.length < 2) { wsSend(socket, { type: 'error', msg: 'Need at least 2 players.' }); return; }
+      const shuffledIds = shuffle([...pIds]);
+      const half = Math.ceil(shuffledIds.length / 2);
+      room.profilerTeamA = shuffledIds.slice(0, half);
+      room.profilerTeamB = shuffledIds.slice(half);
+      const criteriaPool = shuffle([...PROFILER_CRITERIA]);
+      room.profilerCriteriaA = criteriaPool[0];
+      room.profilerCriteriaB = criteriaPool[1];
+      room.profilerActiveTurn = 'A';
+      room.profilerPhase = 'proposing';
+      room.profilerLog = [];
+      room.profilerPendingChar = null;
+      room.profilerVotes = {};
+      room.phase = 'playing';
+      for (const [id, player] of Object.entries(room.players)) {
+        const isA = room.profilerTeamA.includes(id);
+        wsSend(player.socket, {
+          type: 'profiler_start',
+          myTeam: isA ? 'A' : 'B',
+          myCriteria: isA ? room.profilerCriteriaA : room.profilerCriteriaB,
+          teamA: room.profilerTeamA.map(i => room.players[i]?.name).filter(Boolean),
+          teamB: room.profilerTeamB.map(i => room.players[i]?.name).filter(Boolean),
+          activeTurn: 'A',
+        });
+      }
+      console.log(`Room ${room.code} profiler started — A:"${room.profilerCriteriaA}" B:"${room.profilerCriteriaB}"`);
+      break;
+    }
+
+    case 'profiler_propose': {
+      if (!room || room.phase !== 'playing' || room.profilerPhase !== 'proposing') return;
+      const isActive = room.profilerActiveTurn === 'A'
+        ? room.profilerTeamA.includes(playerId)
+        : room.profilerTeamB.includes(playerId);
+      if (!isActive) return;
+      const char = (msg.character || '').trim().slice(0, 80);
+      if (!char) return;
+      room.profilerPendingChar = { char, proposer: playerName };
+      room.profilerVotes = {};
+      room.profilerPhase = 'voting';
+      broadcast(room, { type: 'profiler_proposed', character: char, proposer: playerName, activeTurn: room.profilerActiveTurn });
+      break;
+    }
+
+    case 'profiler_vote': {
+      if (!room || room.phase !== 'playing' || room.profilerPhase !== 'voting') return;
+      const isOpposing = room.profilerActiveTurn === 'A'
+        ? room.profilerTeamB.includes(playerId)
+        : room.profilerTeamA.includes(playerId);
+      if (!isOpposing) return;
+      if (Object.keys(room.profilerVotes).length > 0) return; // first click wins
+      const answer = (msg.answer === 'yes' || msg.answer === true) ? 'yes' : 'no';
+      room.profilerVotes[playerName] = answer;
+      const entry = { char: room.profilerPendingChar.char, proposer: room.profilerPendingChar.proposer, answer, answerer: playerName };
+      room.profilerLog.push(entry);
+      room.profilerPendingChar = null;
+      room.profilerActiveTurn = room.profilerActiveTurn === 'A' ? 'B' : 'A';
+      room.profilerPhase = 'proposing';
+      broadcast(room, { type: 'profiler_answered', ...entry, activeTurn: room.profilerActiveTurn, log: room.profilerLog });
+      break;
+    }
+
+    case 'profiler_guess_criteria': {
+      if (!room || room.phase !== 'playing' || room.profilerPhase !== 'proposing') return;
+      const isActive = room.profilerActiveTurn === 'A'
+        ? room.profilerTeamA.includes(playerId)
+        : room.profilerTeamB.includes(playerId);
+      if (!isActive) return;
+      const guess = (msg.guess || '').trim().toLowerCase();
+      const target = (room.profilerActiveTurn === 'A' ? room.profilerCriteriaB : room.profilerCriteriaA).toLowerCase();
+      const correct = guess.length >= 3 && (guess === target || target.includes(guess) || guess.includes(target));
+      if (correct) {
+        room.phase = 'result';
+        const winTeam = room.profilerActiveTurn;
+        const winnerIds = winTeam === 'A' ? room.profilerTeamA : room.profilerTeamB;
+        const scores = {};
+        winnerIds.forEach(id => {
+          const n = room.players[id]?.name;
+          if (n) {
+            scores[n] = 500;
+            if (room.hubScores) room.hubScores[n] = (room.hubScores[n] || 0) + 500;
+          }
+        });
+        if (room.hubScores) broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+        broadcast(room, {
+          type: 'profiler_over',
+          winner: winTeam,
+          guesser: playerName,
+          criteriaA: room.profilerCriteriaA,
+          criteriaB: room.profilerCriteriaB,
+          scores,
+          hubScores: { ...(room.hubScores || {}) },
+        });
+      } else {
+        room.profilerActiveTurn = room.profilerActiveTurn === 'A' ? 'B' : 'A';
+        broadcast(room, { type: 'profiler_wrong_guess', guesser: playerName, guess: msg.guess, activeTurn: room.profilerActiveTurn });
       }
       break;
     }
