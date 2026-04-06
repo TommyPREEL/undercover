@@ -240,6 +240,12 @@ let pollInterval = null;
 let toastTimer = null;
 
 // ── Init ──────────────────────────────────────────────────────
+const savedName = localStorage.getItem('profiler_hub_name');
+if (savedName) {
+  document.getElementById('hub-name').value = savedName;
+  document.getElementById('hub-join-name').value = savedName;
+}
+
 const urlParams = new URLSearchParams(location.search);
 const autoRoom = urlParams.get('room');
 const autoName = urlParams.get('name');
@@ -319,6 +325,7 @@ function hubCreate() {
   const name = document.getElementById('hub-name').value.trim();
   if (!name) { document.getElementById('entry-error').textContent = 'Enter your name.'; return; }
   myName = name;
+  localStorage.setItem('profiler_hub_name', name);
   document.getElementById('entry-error').textContent = '';
   connectHub(() => wsSend({ type: 'create_hub_room', name }));
 }
@@ -328,6 +335,7 @@ function hubJoin() {
   if (!name) { document.getElementById('join-error').textContent = 'Enter your name.'; return; }
   if (!code) { document.getElementById('join-error').textContent = 'Enter a room code.'; return; }
   myName = name;
+  localStorage.setItem('profiler_hub_name', name);
   document.getElementById('join-error').textContent = '';
   connectHub(() => wsSend({ type: 'join_hub_room', code, name }));
 }
