@@ -142,9 +142,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <span class="spectrum-label" id="label-left"></span>
       <span class="spectrum-label" id="label-right"></span>
     </div>
-    <div class="spectrum-track" id="spectrum-track">
-      <div class="target-marker" id="target-marker"></div>
-      <div class="spectrum-handle" id="spectrum-handle"><span id="slider-pct" style="position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;pointer-events:none;">50%</span></div>
+    <div style="position:relative;">
+      <span id="slider-pct" style="position:absolute;top:-22px;transform:translateX(-50%);left:50%;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;pointer-events:none;transition:left 0.05s;">50%</span>
+      <div class="spectrum-track" id="spectrum-track">
+        <div class="target-marker" id="target-marker"></div>
+        <div class="spectrum-handle" id="spectrum-handle"></div>
+      </div>
     </div>
   </div>
 
@@ -293,7 +296,7 @@ function setupSlider(){
     sliderPos=pos;
     handle.style.left=pos+'%';
     const pct=document.getElementById('slider-pct');
-    if(pct) pct.textContent=Math.round(pos)+'%';
+    if(pct){pct.textContent=Math.round(pos)+'%';pct.style.left=pos+'%';}
     mpSend({type:'wl_slider',pos});
   }
   let dragging=false;
@@ -307,7 +310,7 @@ function updateHandle(pos){
   const handle=document.getElementById('spectrum-handle');
   if(handle) handle.style.left=pos+'%';
   const pct=document.getElementById('slider-pct');
-  if(pct) pct.textContent=Math.round(pos)+'%';
+  if(pct){pct.textContent=Math.round(pos)+'%';pct.style.left=pos+'%';}
 }
 
 // ── Game ───────────────────────────────────────────────────────
