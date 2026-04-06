@@ -1,0 +1,7 @@
+{
+  "animals": ["Cat","Dragon","Wolf","Fox","Bear","Eagle","Shark","Octopus","Penguin","Dinosaur","Unicorn","Tiger","Panda","Jellyfish","Bat"],
+  "food":    ["Pizza","Sushi","Ramen","Burger","Taco","Donut","Ice cream","Boba tea","Takoyaki","Onigiri","Croissant","Dumpling"],
+  "objects": ["Sword","Shield","Spaceship","Robot","Guitar","Crown","Diamond","Bomb","Magic wand","Treasure chest","Lantern","Clock"],
+  "places":  ["Castle","Volcano","Jungle","Beach","Space station","Dungeon","Mountain","Underwater city","Haunted house","Desert island"],
+  "anime":   ["Titan","Sharingan","Death Note","Zanpakuto","Pirate ship","Hokage","Soul Society","Training ground","Alchemy circle","Shinobi village"]
+}

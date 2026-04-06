@@ -403,6 +403,27 @@ function handleMsg(msg){
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       showPhase('phase-mp-waiting'); break;
+    case 'profiler_rejoin': {
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      startGame(msg);
+      // replay own team's log entries
+      (msg.log||[]).filter(e=>teamA.includes(e.proposer)?'A'===myTeam:'B'===myTeam).forEach(addLogEntry);
+      // restore vote panel if we rejoined mid-vote
+      if(msg.profilerPhase==='voting' && msg.pendingChar){
+        const isOpposing=myTeam!==msg.activeTurn;
+        if(isOpposing){
+          document.getElementById('propose-panel').style.display='none';
+          document.getElementById('vote-panel').style.display='block';
+          document.getElementById('vote-char').textContent=msg.pendingChar.char;
+          document.getElementById('vote-proposer').textContent=msg.pendingChar.proposer;
+          document.querySelectorAll('.vote-row button').forEach(b=>b.disabled=false);
+        } else {
+          document.getElementById('propose-panel').style.display='none';
+          document.getElementById('waiting-vote-panel').style.display='block';
+        }
+      }
+      break;
+    }
     case 'room_state':
       mpPlayers=msg.players||[]; hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_state':

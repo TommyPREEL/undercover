@@ -83,84 +83,12 @@ const disconnectTimers = {}; // playerId -> timeout
 const PRIZE_LADDER = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const MILL_SAFE_HAVENS = [4, 9];
 
-// ─── Profiler criteria list ───────────────────────────────────────────────────
-const PROFILER_CRITERIA = [
-  'Can transform', 'Is a villain', 'Is the main protagonist', 'Is perverted',
-  'Has a tragic backstory', 'Is overpowered', 'Wears glasses', 'Is tsundere',
-  'Has dead parents', 'Can fly', 'Uses a sword', 'Has magical powers',
-  'Has a secret identity', 'Is not human', 'Has animal ears', 'Has white/silver hair',
-  'Has a rivalry', 'Sacrificed themselves', 'Has a sibling',
-  'Falls in love with the protagonist', 'Is the comic relief',
-  'Is extremely smart/genius', 'Has powers that hurt themselves',
-  'Is a teacher', 'Is a robot/android', 'Has healing powers', 'Uses a gun',
-  'Is from another world', 'Is immortal', 'Has a dark past',
-  'Has multiple personalities', 'Wears a mask', 'Is incredibly physically strong',
-  'Has fire powers', 'Has ice powers', 'Has electric powers', 'Has psychic powers',
-  'Is a ninja', 'Is a samurai', 'Is royalty or nobility', 'Is a demon', 'Is an angel',
-  'Is half-human', 'Made a pact or contract', 'Is a loner',
-  'Has died and come back to life', 'Fights with bare hands', 'Can control time',
-  'Has a special eye power', 'Is a pirate', 'Competed in a tournament',
-  'Betrayed their allies', 'Was a villain, became a hero',
-  'Wears a school uniform', 'Has tattoos or body markings', 'Is obsessed with food',
-  'Is a scientist', 'Is a chosen one', 'Has a named weapon',
-  'Is the last of their kind', 'Can see the future', 'Is a spirit or ghost',
-  'Has super speed', 'Fights in a mech or robot', 'Has long hair',
-  'Has heterochromia', 'Is the childhood friend', 'Has amnesia',
-  'Is the final boss', 'Was brainwashed', 'Controls darkness or shadows',
-  'Is incredibly lazy', 'Has incredible willpower', 'Can summon creatures',
-  'Is a pacifist', 'Killed someone they loved', 'Is from a famous clan',
-  'Has a harem', 'Is extremely charismatic', 'Fights using sound or music',
-  'Uses strategy over strength', 'Is always underestimated', 'Has a God complex',
-  'Is always emotionless', 'Cries easily', 'Wears all black', 'Is a monster hunter',
-  'Has a forbidden power', 'Came from poverty', 'Is a delinquent',
-  'Lost their power or status', 'Loves to fight', 'Has sniper or long-range abilities',
-  'Uses poison', 'Is surprisingly short', 'Hides their true power',
-  'Bears a curse or seal', 'Is the mentor figure', 'Can turn into an animal',
-  'Has wings', 'Lost someone they loved', 'Is a prince or princess',
-  'Has unusual speech patterns', 'Is a genius hacker', 'Has a split personality',
-  'Commands an army', 'Is obsessed with getting stronger',
-  'Has a rival who became a friend', "Is the villain's right hand",
-  'Was an experiment or created being', 'Seeks revenge', 'Protects someone weaker',
-  'Has power tied to emotions',
-];
-
-// ─── Fake Artist ─────────────────────────────────────────────────────────────
+// ─── Game data (loaded from data/ folder) ────────────────────────────────────
+const PROFILER_CRITERIA  = require('./games/profiler/data/criteria.json');
+const FAKE_ARTIST_WORDS  = require('./games/fake-artist/data/words.json');
+const WAVELENGTH_PAIRS   = require('./games/wavelength/data/pairs.json');
+const INSIDER_WORDS      = require('./games/insider/data/words.json');
 const FA_COLORS = ['#f472b6','#38bdf8','#4ade80','#facc15','#fb923c','#a78bfa','#f87171','#34d399','#e879f9','#22d3ee'];
-const FAKE_ARTIST_WORDS = {
-  animals: ['Cat','Dragon','Wolf','Fox','Bear','Eagle','Shark','Octopus','Penguin','Dinosaur','Unicorn','Tiger','Panda','Jellyfish','Bat'],
-  food:    ['Pizza','Sushi','Ramen','Burger','Taco','Donut','Ice cream','Boba tea','Takoyaki','Onigiri','Croissant','Dumpling'],
-  objects: ['Sword','Shield','Spaceship','Robot','Guitar','Crown','Diamond','Bomb','Magic wand','Treasure chest','Lantern','Clock'],
-  places:  ['Castle','Volcano','Jungle','Beach','Space station','Dungeon','Mountain','Underwater city','Haunted house','Desert island'],
-  anime:   ['Titan','Sharingan','Death Note','Zanpakuto','Pirate ship','Hokage','Soul Society','Training ground','Alchemy circle','Shinobi village'],
-};
-
-// ─── Wavelength ───────────────────────────────────────────────────────────────
-const WAVELENGTH_PAIRS = [
-  ['Cold','Hot'],['Slow','Fast'],['Peaceful','Chaotic'],['Cute','Terrifying'],
-  ['Weak','Overpowered'],['Sad','Happy'],['Boring','Exciting'],['Realistic','Fantasy'],
-  ['Silent','Loud'],['Dark','Light'],['Simple','Complex'],['Rare','Common'],
-  ['Ugly','Beautiful'],['Small','Huge'],['Safe','Dangerous'],['Dumb','Genius'],
-  ['Cowardly','Brave'],['Lazy','Hardworking'],['Funny','Serious'],['Natural','Artificial'],
-  ['Cheap','Expensive'],['Soft','Hard'],['Young','Old'],['Love','Hate'],
-  ['Real','Fake'],['Day','Night'],['Hero','Villain'],['Innocent','Guilty'],
-  ['Humble','Arrogant'],['Generous','Selfish'],['Loyal','Traitor'],['Calm','Aggressive'],
-  ['Lucky','Unlucky'],['Healthy','Sick'],['Clean','Dirty'],['Introvert','Extrovert'],
-  ['Overrated','Underrated'],['Mainstream','Niche'],['Edgy','Wholesome'],['Ancient','Modern'],
-  ['Trustworthy','Suspicious'],['Alone','Popular'],['Normal','Weird'],['Friendly','Hostile'],
-  ['Beginner','Expert'],['Chill','Intense'],['Side character','Main character'],
-  ['Common power','Legendary power'],['Anime filler','Canon arc'],['Weak villain','Final boss'],
-  ['Forgettable','Iconic'],['Background character','Protagonist'],
-  ['Peaceful ending','Tragic ending'],['Cute design','Intimidating design'],
-];
-
-// ─── Insider word lists ───────────────────────────────────────────────────────
-const INSIDER_WORDS = {
-  videogames:  ['Minecraft','Fortnite','The Legend of Zelda','Mario','Sonic','Overwatch','League of Legends','GTA','Dark Souls','Elden Ring','Hollow Knight','Hades','Stardew Valley','Among Us','Terraria','Undertale','Cyberpunk 2077','The Witcher','Celeste','Sekiro','Doom','Portal','Tekken','Street Fighter','Diablo'],
-  anime_chars: ['Naruto','Goku','Luffy','Levi','Eren','Zoro','Killua','Gon','Rem','Saitama','Spike Spiegel','Light Yagami','L','Kakashi','Sasuke','Mikasa','Nezuko','Tanjiro','Itachi','All Might','Deku','Guts','Lelouch','Edward Elric'],
-  anime:       ['Naruto','One Piece','Dragon Ball Z','Attack on Titan','Demon Slayer','My Hero Academia','Death Note','Fullmetal Alchemist','Hunter x Hunter',"JoJo's Bizarre Adventure",'Sword Art Online','Code Geass','Bleach','Fairy Tail','Tokyo Ghoul','Re:Zero','Evangelion','Cowboy Bebop','Vinland Saga','Chainsaw Man'],
-  pokemon:     ['Pikachu','Charizard','Mewtwo','Eevee','Snorlax','Gengar','Gyarados','Lucario','Garchomp','Umbreon','Espeon','Dragonite','Alakazam','Mew','Rayquaza','Gardevoir','Blaziken','Scizor','Tyranitar','Absol','Arcanine','Vaporeon'],
-  objects:     ['Pizza','Guitar','Bicycle','Lighthouse','Submarine','Telescope','Umbrella','Trampoline','Aquarium','Helicopter','Cactus','Snowflake','Labyrinth','Escalator','Microwave','Igloo','Hammock','Waterfall','Volcano','Compass','Diamond','Tornado','Robot','Pyramid','Boomerang'],
-};
 function getInsiderWord(category) {
   const list = category === 'random'
     ? Object.values(INSIDER_WORDS).flat()
@@ -378,11 +306,8 @@ function insiderTimeUp(room) {
   clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null;
   room.phase = 'result';
   const insiderName = room.players[room.insiderId]?.name || '?';
-  const scores = { [insiderName]: 1000 };
-  if (room.hubScores) {
-    room.hubScores[insiderName] = (room.hubScores[insiderName] || 0) + 1000;
-    broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
-  }
+  // Civilians failed to find the word — nobody wins
+  const scores = {};
   broadcast(room, { type: 'insider_over', insider: insiderName, insiderCaught: false, timeOut: true, scores, word: room.insiderWord, votes: {}, tally: {}, hubScores: { ...(room.hubScores || {}) } });
 }
 
@@ -1072,6 +997,7 @@ function handleMessage(socket, raw, playerId) {
           category: msg.category || 'random',
         });
       }
+      room.insiderTimerEnd = Date.now() + 186000;
       room.insiderTimer = setTimeout(() => insiderTimeUp(room), 186000); // 3 min + 6s role reveal
       console.log(`Room ${room.code} insider game started, word: ${word}`);
       break;
@@ -1101,12 +1027,14 @@ function handleMessage(socket, raw, playerId) {
     }
 
     case 'insider_guess': {
-      if (!room || room.insiderPhase !== 'questions' || room.host === playerId) return;
+      if (!room || room.insiderPhase !== 'questions' || room.host === playerId || room.insiderId === playerId) return;
       const guess = (msg.word || '').trim().toLowerCase();
       const target = room.insiderWord.toLowerCase();
       if (guess === target || target.includes(guess) || guess.includes(target)) {
         clearTimeout(room.insiderTimer); room.insiderTimer = null;
         room.insiderPhase = 'accusation';
+        room.insiderWordGuessedBy = playerName;
+        room.insiderAccTimerEnd = Date.now() + 45000;
         broadcast(room, { type: 'insider_word_guessed', guesser: playerName, word: room.insiderWord });
         room.insiderAccusationTimer = setTimeout(() => resolveInsiderVotes(room), 45000);
       } else {
@@ -1494,17 +1422,115 @@ function handleMessage(socket, raw, playerId) {
         delete rj.departed[existingId];
         if (dep.wasHost && Object.keys(rj.players).length === 1) rj.host = playerId;
         if (rj.spyIds && dep.wasSpy) rj.spyIds.push(playerId);
+        // Game-specific ID re-keying for departed player
+        if (rj.fakeArtistId === existingId) rj.fakeArtistId = playerId;
+        if (rj.faTurnOrder) rj.faTurnOrder = rj.faTurnOrder.map(id => id === existingId ? playerId : id);
+        if (rj.faColorMap && rj.faColorMap[existingId] !== undefined) { rj.faColorMap[playerId] = rj.faColorMap[existingId]; delete rj.faColorMap[existingId]; }
+        if (rj.insiderId === existingId) rj.insiderId = playerId;
+        if (rj.profilerTeamA) rj.profilerTeamA = rj.profilerTeamA.map(id => id === existingId ? playerId : id);
+        if (rj.profilerTeamB) rj.profilerTeamB = rj.profilerTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlTeamA) rj.wlTeamA = rj.wlTeamA.map(id => id === existingId ? playerId : id);
+        if (rj.wlTeamB) rj.wlTeamB = rj.wlTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
       } else {
         // Re-key player under the new connection's playerId
         rj.players[playerId] = { ...rj.players[existingId], socket, online: true };
         delete rj.players[existingId];
         if (rj.host === existingId) rj.host = playerId;
         if (rj.spyIds) rj.spyIds = rj.spyIds.map(id => id === existingId ? playerId : id);
+        // Game-specific ID re-keying
+        if (rj.fakeArtistId === existingId) rj.fakeArtistId = playerId;
+        if (rj.faTurnOrder) rj.faTurnOrder = rj.faTurnOrder.map(id => id === existingId ? playerId : id);
+        if (rj.faColorMap && rj.faColorMap[existingId] !== undefined) { rj.faColorMap[playerId] = rj.faColorMap[existingId]; delete rj.faColorMap[existingId]; }
+        if (rj.insiderId === existingId) rj.insiderId = playerId;
+        if (rj.profilerTeamA) rj.profilerTeamA = rj.profilerTeamA.map(id => id === existingId ? playerId : id);
+        if (rj.profilerTeamB) rj.profilerTeamB = rj.profilerTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlTeamA) rj.wlTeamA = rj.wlTeamA.map(id => id === existingId ? playerId : id);
+        if (rj.wlTeamB) rj.wlTeamB = rj.wlTeamB.map(id => id === existingId ? playerId : id);
+        if (rj.wlPsychicId === existingId) rj.wlPsychicId = playerId;
       }
       const rjIsHost = rj.host === playerId;
       wsSend(socket, { type: 'joined', code: rjCode, name: rjName, isHost: rjIsHost });
       if (rj.phase === 'lobby') {
         broadcast(rj, roomState(rj));
+      } else if (rj.gameType === 'fake_artist' && rj.faPhase) {
+        const nameMap = Object.fromEntries(Object.entries(rj.players).map(([id, p]) => [id, p.name]));
+        const isFakeArtist = rj.fakeArtistId === playerId;
+        const colorMapByName = Object.fromEntries(Object.entries(rj.faColorMap || {}).map(([id, c]) => [nameMap[id], c]));
+        wsSend(socket, {
+          type: 'fa_rejoin',
+          faPhase: rj.faPhase,
+          strokes: rj.faStrokes || [],
+          isFake: isFakeArtist,
+          word: isFakeArtist ? null : rj.faWord,
+          category: rj.faCategory,
+          myColor: rj.faColorMap?.[playerId],
+          colorMap: colorMapByName,
+          turnOrder: (rj.faTurnOrder || []).map(id => nameMap[id]).filter(Boolean),
+          currentDrawer: nameMap[rj.faTurnOrder?.[rj.faTurnIdx]],
+          round: rj.faRound,
+          players: Object.values(rj.players).map(p => p.name),
+          code: rjCode,
+          isHost: rjIsHost,
+          name: rjName,
+        });
+        broadcast(rj, { type: 'player_online', name: rjName }, socket);
+      } else if (rj.gameType === 'insider' && rj.insiderPhase) {
+        const isInsider = rj.insiderId === playerId;
+        const isMaster = rj.host === playerId;
+        wsSend(socket, {
+          type: 'insider_rejoin',
+          code: rjCode, name: rjName, isHost: rjIsHost,
+          insiderPhase: rj.insiderPhase,
+          role: isMaster ? 'master' : (isInsider ? 'insider' : 'civilian'),
+          word: (isMaster || isInsider) ? rj.insiderWord : null,
+          players: Object.values(rj.players).map(p => p.name),
+          host: rj.players[rj.host]?.name || '',
+          questions: rj.insiderQuestions || [],
+          votes: rj.insiderVotes || {},
+          remainingMs: rj.insiderPhase === 'questions' ? Math.max(0, (rj.insiderTimerEnd || 0) - Date.now()) : Math.max(0, (rj.insiderAccTimerEnd || 0) - Date.now()),
+          wordGuessedBy: rj.insiderWordGuessedBy || null,
+        });
+        broadcast(rj, { type: 'player_online', name: rjName }, socket);
+      } else if (rj.gameType === 'profiler' && rj.profilerPhase) {
+        const isA = rj.profilerTeamA.includes(playerId);
+        const nameMap = Object.fromEntries(Object.entries(rj.players).map(([id, p]) => [id, p.name]));
+        wsSend(socket, {
+          type: 'profiler_rejoin',
+          code: rjCode, name: rjName, isHost: rjIsHost,
+          myTeam: isA ? 'A' : 'B',
+          myCriteria: isA ? rj.profilerCriteriaA : rj.profilerCriteriaB,
+          teamA: rj.profilerTeamA.map(id => nameMap[id]).filter(Boolean),
+          teamB: rj.profilerTeamB.map(id => nameMap[id]).filter(Boolean),
+          activeTurn: rj.profilerActiveTurn,
+          profilerPhase: rj.profilerPhase,
+          log: rj.profilerLog || [],
+          pendingChar: rj.profilerPendingChar || null,
+          players: Object.values(rj.players).map(p => p.name),
+        });
+        broadcast(rj, { type: 'player_online', name: rjName }, socket);
+      } else if (rj.gameType === 'wavelength' && rj.wlPhase) {
+        const nameMap = Object.fromEntries(Object.entries(rj.players).map(([id, p]) => [id, p.name]));
+        const isPsychic = rj.wlPsychicId === playerId;
+        wsSend(socket, {
+          type: 'wl_rejoin',
+          code: rjCode, name: rjName, isHost: rjIsHost,
+          myTeam: rj.wlTeamA.includes(playerId) ? 'A' : 'B',
+          isPsychic,
+          activeTeam: rj.wlActiveTeam,
+          psychic: nameMap[rj.wlPsychicId],
+          pair: rj.wlPair,
+          target: isPsychic ? rj.wlTarget : null,
+          slider: rj.wlSlider,
+          clue: rj.wlClue,
+          wlPhase: rj.wlPhase,
+          scoreA: rj.wlScoreA || 0,
+          scoreB: rj.wlScoreB || 0,
+          teamA: rj.wlTeamA.map(id => nameMap[id]).filter(Boolean),
+          teamB: rj.wlTeamB.map(id => nameMap[id]).filter(Boolean),
+          players: Object.values(rj.players).map(p => p.name),
+        });
+        broadcast(rj, { type: 'player_online', name: rjName }, socket);
       } else {
         const isSpy = rj.spyIds && rj.spyIds.includes(playerId);
         wsSend(socket, {

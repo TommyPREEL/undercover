@@ -131,7 +131,7 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
     <div class="section-sub">Vote for the Fake Artist</div>
   </div>
   <div class="canvas-wrap spectator" style="margin-bottom:1.5rem;">
-    <canvas id="vote-canvas" width="560" height="280"></canvas>
+    <canvas id="vote-canvas" width="560" height="380"></canvas>
   </div>
   <div class="vote-grid" id="vote-grid"></div>
   <div id="vote-waiting" class="waiting-msg" style="display:none;">Vote cast — waiting for others… (<span id="vote-count">0</span>/<span id="vote-total">0</span>)</div>
@@ -144,7 +144,7 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
     <div class="section-sub">Guess the word to steal the win</div>
   </div>
   <div class="canvas-wrap spectator" style="margin-bottom:1.5rem;">
-    <canvas id="guess-canvas" width="560" height="280"></canvas>
+    <canvas id="guess-canvas" width="560" height="380"></canvas>
   </div>
   <div id="guess-area-wrap">
     <div class="guess-wrap">
@@ -315,6 +315,8 @@ function startGame(msg){
   document.getElementById('drawing-cancel-btn').style.display=isHost?'inline-flex':'none';
   showPhase('phase-drawing');
   drawCtx=setupCanvas('draw-canvas', true);
+  drawCtx.clearRect(0,0,560,380);
+  document.getElementById('round-indicator').textContent='Round 1 of 2';
   updateTurnUI();
 }
 function updateTurnUI(round){
@@ -438,6 +440,34 @@ function handleMsg(msg){
   switch(msg.type){
     case 'joined': myRoom=msg.code;myName=msg.name;isHost=msg.isHost; showPhase('phase-mp-waiting'); break;
     case 'rejoin_ack': myRoom=msg.code;myName=msg.name;isHost=msg.isHost; showPhase('phase-mp-waiting'); break;
+    case 'fa_rejoin': {
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      mpPlayers=msg.players||[]; isFake=msg.isFake; myWord=msg.word; myColor=msg.myColor||'#f472b6';
+      turnOrder=msg.turnOrder||[]; currentDrawer=msg.currentDrawer;
+      allStrokes=msg.strokes||[]; colorMapGlobal=msg.colorMap||{};
+      const wordBox=document.getElementById('word-display');
+      if(isFake){
+        wordBox.innerHTML='<div class="word-fake">❓ FAKE ARTIST</div>';
+        document.getElementById('category-display').textContent='Category: '+msg.category+' — you don\'t know the word!';
+      } else {
+        wordBox.innerHTML='<div class="word-text">'+esc(msg.word)+'</div>';
+        document.getElementById('category-display').textContent='Category: '+msg.category;
+      }
+      document.getElementById('drawing-cancel-btn').style.display=isHost?'inline-flex':'none';
+      if(msg.faPhase==='drawing'){
+        showPhase('phase-drawing');
+        drawCtx=setupCanvas('draw-canvas',true);
+        drawCtx.clearRect(0,0,560,380);
+        redrawAll(drawCtx,allStrokes);
+        document.getElementById('round-indicator').textContent='Round '+msg.round+' of 2';
+        updateTurnUI(); updatePlayerList(colorMapGlobal);
+      } else if(msg.faPhase==='voting'){
+        startVoting(msg.players);
+      } else if(msg.faPhase==='guessing'){
+        startGuessing(isFake);
+      }
+      break;
+    }
     case 'room_state': mpPlayers=msg.players||[];hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_state': mpPlayers=msg.players||[];hubScores=msg.hubScores||{};hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_scores_updated': hubScores=msg.hubScores||{}; break;

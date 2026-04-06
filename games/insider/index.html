@@ -175,6 +175,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="label" style="margin-bottom:0;">FIND THE WORD</div>
     <div class="q-timer-text" id="q-timer-text">3:00</div>
   </div>
+  <div id="q-category-tag" style="text-align:center;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;"></div>
   <div id="q-master-word" class="q-master-word" style="display:none;"></div>
   <div id="q-insider-word" class="q-insider-word" style="display:none;">THE WORD: <span id="q-insider-word-val"></span></div>
   <div id="q-feed" class="q-feed">
@@ -196,6 +197,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="q-host-note" style="display:none;">
     <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);">👁️ Answer questions above — tap YES / NO / MAYBE</div>
   </div>
+  <button id="q-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;">✕ Cancel game</button>
 </div>
 
 <!-- ── ACCUSATION ─────────────────────────────────────────────── -->
@@ -207,6 +209,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="acc-grid" class="acc-grid"></div>
   <div id="acc-master-note" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--muted);font-size:13px;">👁️ You are the Master — observe the vote.</div>
   <div id="acc-voted-note" style="display:none;" class="waiting-msg">Vote cast — waiting for others…</div>
+  <button id="acc-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;">✕ Cancel game</button>
 </div>
 
 <!-- ── RESULT ─────────────────────────────────────────────────── -->
@@ -244,7 +247,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // ── State ──────────────────────────────────────────────────────
 let ws = null, myRoom = '', myName = '', isHost = false;
 let hubFlow = false, hubScores = {};
-let myRole = '', myWord = null, hostName = '';
+let myRole = '', myWord = null, myCategory = '', hostName = '';
 let mpPlayers = [];
 let selectedCat = 'random';
 let myVote = null;
@@ -307,6 +310,7 @@ function mpStartGame(){
 function showRoleReveal(msg){
   myRole = msg.role; myWord = msg.word; hostName = msg.host || '';
   mpPlayers = msg.players || [];
+  myCategory = msg.category || '';
   const card = document.getElementById('role-card');
   const badge = document.getElementById('role-badge');
   const title = document.getElementById('role-title');
@@ -343,6 +347,8 @@ function showRoleReveal(msg){
 function readyToPlay(){ clearInterval(roleCountdown); startQuestionsPhase(); }
 
 // ── Questions phase ────────────────────────────────────────────
+function cancelGame(){ mpSend({type:'cancel_round'}); }
+
 function startQuestionsPhase(){
   document.getElementById('q-feed').innerHTML = '<div class="q-empty" id="q-empty-msg">No questions yet — be the first to ask!</div>';
   document.getElementById('q-master-word').style.display = myRole==='master' ? 'block' : 'none';
@@ -350,8 +356,11 @@ function startQuestionsPhase(){
   document.getElementById('q-insider-word').style.display = myRole==='insider' ? 'block' : 'none';
   if(myRole==='insider') document.getElementById('q-insider-word-val').textContent = myWord;
   document.getElementById('q-input-area').style.display = myRole==='master' ? 'none' : 'block';
+  document.getElementById('q-guess-toggle').style.display = (myRole==='master'||myRole==='insider') ? 'none' : 'block';
   document.getElementById('q-host-note').style.display = myRole==='master' ? 'block' : 'none';
   document.getElementById('q-guess-area').style.display = 'none';
+  document.getElementById('q-cancel-btn').style.display = isHost ? 'block' : 'none';
+  document.getElementById('q-category-tag').textContent = myCategory ? 'Category: ' + myCategory : '';
   qEndTime = Date.now() + Q_TOTAL_MS;
   startQTimer();
   showPhase('phase-questions');
@@ -440,6 +449,7 @@ function startAccusation(guesser, word){
   }
   document.getElementById('acc-vote-count').textContent = '';
   document.getElementById('acc-voted-note').style.display = 'none';
+  document.getElementById('acc-cancel-btn').style.display = isHost ? 'block' : 'none';
   showPhase('phase-accusation');
   clearInterval(accTimerInterval);
   const accEndTime = Date.now() + ACC_TOTAL_MS;
@@ -520,6 +530,23 @@ function handleMsg(msg){
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       showPhase('phase-mp-waiting'); break;
+    case 'insider_rejoin': {
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      myRole=msg.role; myWord=msg.word; myCategory=msg.category||''; mpPlayers=msg.players||[]; hostName=msg.host||'';
+      if(msg.insiderPhase==='questions'){
+        startQuestionsPhase();
+        qEndTime=Date.now()+(msg.remainingMs||0);
+        (msg.questions||[]).forEach(q=>{
+          addQuestion(q.id,q.player,q.question);
+          if(q.answer) revealAnswer(q.id,q.answer);
+        });
+      } else if(msg.insiderPhase==='accusation'){
+        startAccusation(msg.wordGuessedBy||'?',msg.word||'?');
+        const voteCount=Object.keys(msg.votes||{}).length;
+        if(voteCount) document.getElementById('acc-vote-count').textContent=voteCount+' voted';
+      }
+      break;
+    }
     case 'room_state':
       mpPlayers=msg.players||[]; hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_state':

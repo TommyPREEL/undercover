@@ -1,0 +1,7 @@
+{
+  "videogames":  ["Minecraft","Fortnite","The Legend of Zelda","Mario","Sonic","Overwatch","League of Legends","GTA","Dark Souls","Elden Ring","Hollow Knight","Hades","Stardew Valley","Among Us","Terraria","Undertale","Cyberpunk 2077","The Witcher","Celeste","Sekiro","Doom","Portal","Tekken","Street Fighter","Diablo"],
+  "anime_chars": ["Naruto","Goku","Luffy","Levi","Eren","Zoro","Killua","Gon","Rem","Saitama","Spike Spiegel","Light Yagami","L","Kakashi","Sasuke","Mikasa","Nezuko","Tanjiro","Itachi","All Might","Deku","Guts","Lelouch","Edward Elric"],
+  "anime":       ["Naruto","One Piece","Dragon Ball Z","Attack on Titan","Demon Slayer","My Hero Academia","Death Note","Fullmetal Alchemist","Hunter x Hunter","JoJo's Bizarre Adventure","Sword Art Online","Code Geass","Bleach","Fairy Tail","Tokyo Ghoul","Re:Zero","Evangelion","Cowboy Bebop","Vinland Saga","Chainsaw Man"],
+  "pokemon":     ["Pikachu","Charizard","Mewtwo","Eevee","Snorlax","Gengar","Gyarados","Lucario","Garchomp","Umbreon","Espeon","Dragonite","Alakazam","Mew","Rayquaza","Gardevoir","Blaziken","Scizor","Tyranitar","Absol","Arcanine","Vaporeon"],
+  "objects":     ["Pizza","Guitar","Bicycle","Lighthouse","Submarine","Telescope","Umbrella","Trampoline","Aquarium","Helicopter","Cactus","Snowflake","Labyrinth","Escalator","Microwave","Igloo","Hammock","Waterfall","Volcano","Compass","Diamond","Tornado","Robot","Pyramid","Boomerang"]
+}

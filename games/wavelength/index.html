@@ -250,7 +250,7 @@ let ws=null, myRoom='', myName='', isHost=false, hubFlow=false, hubScores={}, ho
 let mpPlayers=[], reconnectAttempts=0;
 let myTeam='', isPsychic=false, isActiveTeam=false;
 let activeTeam='A', sliderPos=50, currentPair=['',''], currentTarget=null;
-let toastTimer=null;
+let toastTimer=null, sliderSetup=false;
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function showPhase(id){document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -284,6 +284,7 @@ function mpStartGame(){mpSend({type:'start_wavelength'});}
 
 // ── Spectrum drag ──────────────────────────────────────────────
 function setupSlider(){
+  if(sliderSetup) return; sliderSetup=true;
   const track=document.getElementById('spectrum-track');
   const handle=document.getElementById('spectrum-handle');
   function setPos(clientX){
@@ -437,6 +438,18 @@ function handleMsg(msg){
   switch(msg.type){
     case 'joined': myRoom=msg.code;myName=msg.name;isHost=msg.isHost; showPhase('phase-mp-waiting'); break;
     case 'rejoin_ack': myRoom=msg.code;myName=msg.name;isHost=msg.isHost; showPhase('phase-mp-waiting'); break;
+    case 'wl_rejoin': {
+      myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      setupSlider();
+      renderGameState(msg);
+      if(msg.wlPhase==='guessing'||msg.wlPhase==='reveal'){
+        onClueGiven({clue:msg.clue,pair:msg.pair,slider:msg.slider});
+      }
+      if(msg.wlPhase==='reveal'){
+        showReveal({pos:msg.slider,target:msg.target,scoreA:msg.scoreA,scoreB:msg.scoreB,won:false});
+      }
+      break;
+    }
     case 'room_state': mpPlayers=msg.players||[];hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_state': mpPlayers=msg.players||[];hubScores=msg.hubScores||{};hostName=msg.host||''; renderWaitingScreen(msg); break;
     case 'hub_scores_updated': hubScores=msg.hubScores||{}; break;
