@@ -144,6 +144,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <!-- ── GAME SCREEN ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-game">
+  <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;">✕ CANCEL GAME</button>
   <!-- criteria reveal at top for own team -->
   <div id="game-criteria-box" class="criteria-box"></div>
 
@@ -283,6 +284,7 @@ function startGame(msg){
     <div style="font-size:11px;color:var(--muted);margin-top:8px;">Keep it secret — the other team must guess this.</div>
   `;
   document.getElementById('game-log').innerHTML='';
+  document.getElementById('game-cancel-btn').style.display=isHost?'inline-flex':'none';
   showPhase('phase-game');
   renderTurnState();
 }
@@ -348,6 +350,7 @@ function submitGuess(){
   input.value='';
   document.getElementById('guess-area').style.display='none';
 }
+function cancelGame(){ mpSend({type:'cancel_round'}); }
 function castVote(answer){
   document.querySelectorAll('.vote-row button').forEach(b=>b.disabled=true);
   mpSend({type:'profiler_vote',answer});
@@ -436,6 +439,7 @@ function handleMsg(msg){
         document.getElementById('vote-panel').style.display='block';
         document.getElementById('vote-char-name').textContent=msg.character;
         document.getElementById('vote-proposer-info').textContent=`Proposed by ${msg.proposer}`;
+        document.querySelectorAll('.vote-row button').forEach(b=>b.disabled=false);
         badge.className='turn-badge '+(proposingTeam.toLowerCase());
         badge.textContent=`Team ${proposingTeam} proposed — your vote!`;
       } else {
