@@ -1143,9 +1143,9 @@ function handleMessage(socket, raw, playerId) {
       if (!isOpposing) return;
       if (Object.keys(room.profilerVotes).length > 0) return; // first click wins
       const answer = (msg.answer === 'yes' || msg.answer === true) ? 'yes' : 'no';
-      room.profilerVotes[playerName] = answer;
       const entry = { char: room.profilerPendingChar.char, proposer: room.profilerPendingChar.proposer, answer, answerer: playerName };
       room.profilerLog.push(entry);
+      room.profilerVotes = {};
       room.profilerPendingChar = null;
       room.profilerActiveTurn = room.profilerActiveTurn === 'A' ? 'B' : 'A';
       room.profilerPhase = 'proposing';
