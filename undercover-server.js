@@ -1280,11 +1280,14 @@ function handleMessage(socket, raw, playerId) {
         wsSend(player.socket, {
           type: 'wl_new_round',
           activeTeam: room.wlActiveTeam,
+          myTeam: room.wlTeamA.includes(id) ? 'A' : 'B',
           psychic: room.players[room.wlPsychicId]?.name,
           isPsychic,
           pair: wlPair2,
           target: isPsychic ? wlTarget2 : null,
           scoreA: room.wlScoreA, scoreB: room.wlScoreB,
+          teamA: room.wlTeamA.map(i => room.players[i]?.name),
+          teamB: room.wlTeamB.map(i => room.players[i]?.name),
           round: room.wlRound, slider: 50,
         });
       }
