@@ -117,12 +117,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="teams-grid">
     <div class="team-box a">
       <div class="team-label a">TEAM A</div>
-      <div class="team-score a" id="score-a">0</div>
+      <div class="team-score a"><span id="score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
       <div id="members-a" style="font-size:11px;color:var(--muted);"></div>
     </div>
     <div class="team-box b">
       <div class="team-label b">TEAM B</div>
-      <div class="team-score b" id="score-b">0</div>
+      <div class="team-score b"><span id="score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
       <div id="members-b" style="font-size:11px;color:var(--muted);"></div>
     </div>
   </div>
@@ -144,7 +144,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="spectrum-track" id="spectrum-track">
       <div class="target-marker" id="target-marker"></div>
-      <div class="spectrum-handle" id="spectrum-handle"></div>
+      <div class="spectrum-handle" id="spectrum-handle"><span id="slider-pct" style="position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;pointer-events:none;">50%</span></div>
     </div>
   </div>
 
@@ -185,11 +185,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="teams-grid">
     <div class="team-box a">
       <div class="team-label a">TEAM A</div>
-      <div class="team-score a" id="reveal-score-a">0</div>
+      <div class="team-score a"><span id="reveal-score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
     </div>
     <div class="team-box b">
       <div class="team-label b">TEAM B</div>
-      <div class="team-score b" id="reveal-score-b">0</div>
+      <div class="team-score b"><span id="reveal-score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
     </div>
   </div>
   <div id="reveal-spectrum-wrap" class="spectrum-wrap">
@@ -292,6 +292,8 @@ function setupSlider(){
     const pos=Math.max(0,Math.min(100,(clientX-r.left)/r.width*100));
     sliderPos=pos;
     handle.style.left=pos+'%';
+    const pct=document.getElementById('slider-pct');
+    if(pct) pct.textContent=Math.round(pos)+'%';
     mpSend({type:'wl_slider',pos});
   }
   let dragging=false;
@@ -304,6 +306,8 @@ function updateHandle(pos){
   sliderPos=pos;
   const handle=document.getElementById('spectrum-handle');
   if(handle) handle.style.left=pos+'%';
+  const pct=document.getElementById('slider-pct');
+  if(pct) pct.textContent=Math.round(pos)+'%';
 }
 
 // ── Game ───────────────────────────────────────────────────────
@@ -334,6 +338,7 @@ function renderGameState(msg){
     document.getElementById('target-value').textContent=currentTarget+'%';
     document.getElementById('target-marker').style.left=currentTarget+'%';
     document.getElementById('psychic-input-area').style.display='block';
+    const ci=document.getElementById('clue-input'); ci.disabled=false; ci.value='';
   } else {
     document.getElementById('target-reveal-box').style.display='none';
     document.getElementById('psychic-input-area').style.display='none';
