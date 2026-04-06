@@ -124,6 +124,35 @@ const PROFILER_CRITERIA = [
   'Has power tied to emotions',
 ];
 
+// ─── Fake Artist ─────────────────────────────────────────────────────────────
+const FA_COLORS = ['#f472b6','#38bdf8','#4ade80','#facc15','#fb923c','#a78bfa','#f87171','#34d399','#e879f9','#22d3ee'];
+const FAKE_ARTIST_WORDS = {
+  animals: ['Cat','Dragon','Wolf','Fox','Bear','Eagle','Shark','Octopus','Penguin','Dinosaur','Unicorn','Tiger','Panda','Jellyfish','Bat'],
+  food:    ['Pizza','Sushi','Ramen','Burger','Taco','Donut','Ice cream','Boba tea','Takoyaki','Onigiri','Croissant','Dumpling'],
+  objects: ['Sword','Shield','Spaceship','Robot','Guitar','Crown','Diamond','Bomb','Magic wand','Treasure chest','Lantern','Clock'],
+  places:  ['Castle','Volcano','Jungle','Beach','Space station','Dungeon','Mountain','Underwater city','Haunted house','Desert island'],
+  anime:   ['Titan','Sharingan','Death Note','Zanpakuto','Pirate ship','Hokage','Soul Society','Training ground','Alchemy circle','Shinobi village'],
+};
+
+// ─── Wavelength ───────────────────────────────────────────────────────────────
+const WAVELENGTH_PAIRS = [
+  ['Cold','Hot'],['Slow','Fast'],['Peaceful','Chaotic'],['Cute','Terrifying'],
+  ['Weak','Overpowered'],['Sad','Happy'],['Boring','Exciting'],['Realistic','Fantasy'],
+  ['Silent','Loud'],['Dark','Light'],['Simple','Complex'],['Rare','Common'],
+  ['Ugly','Beautiful'],['Small','Huge'],['Safe','Dangerous'],['Dumb','Genius'],
+  ['Cowardly','Brave'],['Lazy','Hardworking'],['Funny','Serious'],['Natural','Artificial'],
+  ['Cheap','Expensive'],['Soft','Hard'],['Young','Old'],['Love','Hate'],
+  ['Real','Fake'],['Day','Night'],['Hero','Villain'],['Innocent','Guilty'],
+  ['Humble','Arrogant'],['Generous','Selfish'],['Loyal','Traitor'],['Calm','Aggressive'],
+  ['Lucky','Unlucky'],['Healthy','Sick'],['Clean','Dirty'],['Introvert','Extrovert'],
+  ['Overrated','Underrated'],['Mainstream','Niche'],['Edgy','Wholesome'],['Ancient','Modern'],
+  ['Trustworthy','Suspicious'],['Alone','Popular'],['Normal','Weird'],['Friendly','Hostile'],
+  ['Beginner','Expert'],['Chill','Intense'],['Side character','Main character'],
+  ['Common power','Legendary power'],['Anime filler','Canon arc'],['Weak villain','Final boss'],
+  ['Forgettable','Iconic'],['Background character','Protagonist'],
+  ['Peaceful ending','Tragic ending'],['Cute design','Intimidating design'],
+];
+
 // ─── Insider word lists ───────────────────────────────────────────────────────
 const INSIDER_WORDS = {
   videogames:  ['Minecraft','Fortnite','The Legend of Zelda','Mario','Sonic','Overwatch','League of Legends','GTA','Dark Souls','Elden Ring','Hollow Knight','Hades','Stardew Valley','Among Us','Terraria','Undertale','Cyberpunk 2077','The Witcher','Celeste','Sekiro','Doom','Portal','Tekken','Street Fighter','Diablo'],
@@ -588,6 +617,8 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
       room.profilerPhase = null;
+      room.faPhase = null;
+      room.wlPhase = null;
       room.paused = false;
       room.phase = 'hub';
       room.gameType = 'hub';
@@ -833,6 +864,8 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
       room.profilerPhase = null;
+      room.faPhase = null;
+      room.wlPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -882,6 +915,8 @@ function handleMessage(socket, raw, playerId) {
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
       room.insiderPhase = null;
       room.profilerPhase = null;
+      room.faPhase = null;
+      room.wlPhase = null;
       room.paused = false;
       room.phase = 'lobby';
       room.eliminated = [];
@@ -1091,6 +1126,239 @@ function handleMessage(socket, raw, playerId) {
       if (Object.keys(room.insiderVotes).length >= nonHostCount) {
         clearTimeout(room.insiderAccusationTimer);
         resolveInsiderVotes(room);
+      }
+      break;
+    }
+
+    // ─── FAKE ARTIST ─────────────────────────────────────────────────────────────
+
+    case 'start_fake_artist': {
+      if (!room || room.host !== playerId || room.gameType !== 'fake_artist') return;
+      const pIds = Object.keys(room.players);
+      if (pIds.length < 3) { wsSend(socket, { type: 'error', msg: 'Need at least 3 players.' }); return; }
+      const category = msg.category || 'objects';
+      const wordList = FAKE_ARTIST_WORDS[category] || FAKE_ARTIST_WORDS.objects;
+      const word = wordList[Math.floor(Math.random() * wordList.length)];
+      const shuffledIds = shuffle([...pIds]);
+      const fakeArtistId = shuffledIds[0];
+      const turnOrder = shuffle([...pIds]);
+      const colorMap = {};
+      shuffledIds.forEach((id, i) => { colorMap[id] = FA_COLORS[i % FA_COLORS.length]; });
+      room.faWord = word;
+      room.faCategory = category;
+      room.fakeArtistId = fakeArtistId;
+      room.faTurnOrder = turnOrder;
+      room.faTurnIdx = 0;
+      room.faRound = 1;
+      room.faPhase = 'drawing';
+      room.faStrokes = [];
+      room.faVotes = {};
+      room.faColorMap = colorMap;
+      room.phase = 'playing';
+      for (const [id, player] of Object.entries(room.players)) {
+        wsSend(player.socket, {
+          type: 'fa_start',
+          word: id === fakeArtistId ? null : word,
+          category,
+          isFake: id === fakeArtistId,
+          turnOrder: turnOrder.map(i => room.players[i]?.name),
+          myColor: colorMap[id],
+          colorMap: Object.fromEntries(Object.entries(colorMap).map(([i, c]) => [room.players[i]?.name, c])),
+          currentDrawer: room.players[turnOrder[0]]?.name,
+          round: 1,
+        });
+      }
+      console.log(`Room ${room.code} fake artist started, word: "${word}" category: ${category}`);
+      break;
+    }
+
+    case 'fa_draw': {
+      if (!room || room.faPhase !== 'drawing') return;
+      if (room.faTurnOrder[room.faTurnIdx] !== playerId) return;
+      broadcast(room, { type: 'fa_draw', points: msg.points, color: room.faColorMap[playerId] }, socket);
+      break;
+    }
+
+    case 'fa_end_stroke': {
+      if (!room || room.faPhase !== 'drawing') return;
+      if (room.faTurnOrder[room.faTurnIdx] !== playerId) return;
+      if (msg.points && msg.points.length > 1) {
+        room.faStrokes.push({ points: msg.points, color: room.faColorMap[playerId], drawer: playerName });
+      }
+      room.faTurnIdx++;
+      if (room.faTurnIdx >= room.faTurnOrder.length) {
+        room.faTurnIdx = 0;
+        room.faRound++;
+        if (room.faRound > 2) {
+          room.faPhase = 'voting';
+          broadcast(room, { type: 'fa_vote_start', players: Object.values(room.players).map(p => p.name) });
+          break;
+        }
+      }
+      const nextDrawer = room.players[room.faTurnOrder[room.faTurnIdx]]?.name;
+      broadcast(room, { type: 'fa_stroke_done', stroke: room.faStrokes[room.faStrokes.length - 1] || null, currentDrawer: nextDrawer, round: room.faRound });
+      break;
+    }
+
+    case 'fa_vote': {
+      if (!room || room.faPhase !== 'voting') return;
+      if (room.fakeArtistId === playerId) return;
+      const faTarget = String(msg.target || '').trim();
+      if (!Object.values(room.players).find(p => p.name === faTarget)) return;
+      room.faVotes[playerName] = faTarget;
+      const nonFakeCount = Object.keys(room.players).filter(id => id !== room.fakeArtistId).length;
+      broadcast(room, { type: 'fa_vote_update', votes: { ...room.faVotes }, total: nonFakeCount });
+      if (Object.keys(room.faVotes).length >= nonFakeCount) {
+        const tally = {};
+        for (const t of Object.values(room.faVotes)) tally[t] = (tally[t] || 0) + 1;
+        const fakeArtistName = room.players[room.fakeArtistId]?.name;
+        const maxVotes = Math.max(...Object.values(tally));
+        const topVoted = Object.keys(tally).filter(n => tally[n] === maxVotes);
+        const caught = topVoted.length === 1 && topVoted[0] === fakeArtistName;
+        if (caught) {
+          room.faPhase = 'guessing';
+          broadcast(room, { type: 'fa_caught', fakeArtist: fakeArtistName, tally, votes: room.faVotes });
+        } else {
+          room.phase = 'result'; room.faPhase = 'result';
+          const fakeScores = { [fakeArtistName]: 1000 };
+          if (room.hubScores) { room.hubScores[fakeArtistName] = (room.hubScores[fakeArtistName] || 0) + 1000; broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } }); }
+          broadcast(room, { type: 'fa_result', fakeArtist: fakeArtistName, word: room.faWord, fakeWins: true, reason: 'escaped', tally, votes: room.faVotes, scores: fakeScores, hubScores: { ...(room.hubScores || {}) } });
+        }
+      }
+      break;
+    }
+
+    case 'fa_fake_guess': {
+      if (!room || room.faPhase !== 'guessing' || room.fakeArtistId !== playerId) return;
+      const faGuess = (msg.word || '').trim().toLowerCase();
+      const faTarget2 = room.faWord.toLowerCase();
+      const correct = faGuess === faTarget2 || faTarget2.includes(faGuess) || faGuess.includes(faTarget2);
+      room.phase = 'result'; room.faPhase = 'result';
+      const fakeArtistName = room.players[room.fakeArtistId]?.name;
+      const scores = {};
+      if (correct) {
+        scores[fakeArtistName] = 800;
+        if (room.hubScores) room.hubScores[fakeArtistName] = (room.hubScores[fakeArtistName] || 0) + 800;
+      } else {
+        for (const [id, p] of Object.entries(room.players)) {
+          if (id !== room.fakeArtistId) { scores[p.name] = 600; if (room.hubScores) room.hubScores[p.name] = (room.hubScores[p.name] || 0) + 600; }
+        }
+      }
+      if (room.hubScores) broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+      broadcast(room, { type: 'fa_result', fakeArtist: fakeArtistName, word: room.faWord, fakeWins: correct, reason: correct ? 'guessed_word' : 'artists_win', tally: {}, votes: room.faVotes, scores, hubScores: { ...(room.hubScores || {}) } });
+      break;
+    }
+
+    // ─── WAVELENGTH ───────────────────────────────────────────────────────────────
+
+    case 'start_wavelength': {
+      if (!room || room.host !== playerId || room.gameType !== 'wavelength') return;
+      const wlIds = Object.keys(room.players);
+      if (wlIds.length < 2) { wsSend(socket, { type: 'error', msg: 'Need at least 2 players.' }); return; }
+      const wlShuffled = shuffle([...wlIds]);
+      const wlHalf = Math.ceil(wlShuffled.length / 2);
+      room.wlTeamA = wlShuffled.slice(0, wlHalf);
+      room.wlTeamB = wlShuffled.slice(wlHalf);
+      room.wlScoreA = 0; room.wlScoreB = 0;
+      room.wlRound = 1;
+      room.wlPsychicIdxA = 0; room.wlPsychicIdxB = 0;
+      room.wlActiveTeam = 'A';
+      room.wlPsychicId = room.wlTeamA[0];
+      room.wlPhase = 'clue';
+      room.wlSlider = 50;
+      room.phase = 'playing';
+      const wlPair = WAVELENGTH_PAIRS[Math.floor(Math.random() * WAVELENGTH_PAIRS.length)];
+      const wlTarget = Math.floor(Math.random() * 71) + 15;
+      room.wlPair = wlPair; room.wlTarget = wlTarget; room.wlClue = null;
+      for (const [id, player] of Object.entries(room.players)) {
+        const isPsychic = id === room.wlPsychicId;
+        wsSend(player.socket, {
+          type: 'wl_start',
+          teamA: room.wlTeamA.map(i => room.players[i]?.name),
+          teamB: room.wlTeamB.map(i => room.players[i]?.name),
+          myTeam: room.wlTeamA.includes(id) ? 'A' : 'B',
+          activeTeam: 'A',
+          psychic: room.players[room.wlPsychicId]?.name,
+          isPsychic,
+          pair: wlPair,
+          target: isPsychic ? wlTarget : null,
+          scoreA: 0, scoreB: 0, round: 1, slider: 50,
+        });
+      }
+      console.log(`Room ${room.code} wavelength started`);
+      break;
+    }
+
+    case 'wl_give_clue': {
+      if (!room || room.wlPhase !== 'clue' || room.wlPsychicId !== playerId) return;
+      const wlClue = (msg.clue || '').trim().slice(0, 60);
+      if (!wlClue) return;
+      room.wlClue = wlClue; room.wlPhase = 'guessing'; room.wlSlider = 50;
+      broadcast(room, { type: 'wl_clue_given', clue: wlClue, pair: room.wlPair, slider: 50 });
+      break;
+    }
+
+    case 'wl_slider': {
+      if (!room || room.wlPhase !== 'guessing') return;
+      const isActiveTeam = room.wlActiveTeam === 'A' ? room.wlTeamA.includes(playerId) : room.wlTeamB.includes(playerId);
+      if (!isActiveTeam || room.wlPsychicId === playerId) return;
+      const wlPos = Math.max(0, Math.min(100, Number(msg.pos) || 50));
+      room.wlSlider = wlPos;
+      broadcast(room, { type: 'wl_slider_update', pos: wlPos }, socket);
+      break;
+    }
+
+    case 'wl_lock': {
+      if (!room || room.wlPhase !== 'guessing') return;
+      const isActiveTeamLock = room.wlActiveTeam === 'A' ? room.wlTeamA.includes(playerId) : room.wlTeamB.includes(playerId);
+      if (!isActiveTeamLock || room.wlPsychicId === playerId) return;
+      const wlPos2 = room.wlSlider;
+      const diff = Math.abs(wlPos2 - room.wlTarget);
+      let pts = 0;
+      if (diff <= 4) pts = 4; else if (diff <= 10) pts = 3; else if (diff <= 18) pts = 2; else if (diff <= 25) pts = 1;
+      if (room.wlActiveTeam === 'A') room.wlScoreA += pts; else room.wlScoreB += pts;
+      room.wlPhase = 'reveal';
+      const won = room.wlScoreA >= 10 || room.wlScoreB >= 10;
+      if (won) {
+        room.phase = 'result';
+        const winTeam = room.wlScoreA >= 10 ? 'A' : 'B';
+        const winnerIds = winTeam === 'A' ? room.wlTeamA : room.wlTeamB;
+        const wlScores = {};
+        winnerIds.forEach(id => { const n = room.players[id]?.name; if (n) { wlScores[n] = 500; if (room.hubScores) room.hubScores[n] = (room.hubScores[n] || 0) + 500; } });
+        if (room.hubScores) broadcast(room, { type: 'hub_scores_updated', hubScores: { ...room.hubScores } });
+        broadcast(room, { type: 'wl_reveal', pos: wlPos2, target: room.wlTarget, pts, scoreA: room.wlScoreA, scoreB: room.wlScoreB, won: true, winner: winTeam, wlScores, hubScores: { ...(room.hubScores || {}) } });
+      } else {
+        broadcast(room, { type: 'wl_reveal', pos: wlPos2, target: room.wlTarget, pts, scoreA: room.wlScoreA, scoreB: room.wlScoreB, won: false });
+      }
+      break;
+    }
+
+    case 'wl_next_round': {
+      if (!room || room.host !== playerId || room.wlPhase !== 'reveal') return;
+      room.wlActiveTeam = room.wlActiveTeam === 'A' ? 'B' : 'A';
+      room.wlRound++;
+      if (room.wlActiveTeam === 'A') {
+        room.wlPsychicIdxA = (room.wlPsychicIdxA + 1) % room.wlTeamA.length;
+        room.wlPsychicId = room.wlTeamA[room.wlPsychicIdxA];
+      } else {
+        room.wlPsychicIdxB = (room.wlPsychicIdxB + 1) % room.wlTeamB.length;
+        room.wlPsychicId = room.wlTeamB[room.wlPsychicIdxB];
+      }
+      const wlPair2 = WAVELENGTH_PAIRS[Math.floor(Math.random() * WAVELENGTH_PAIRS.length)];
+      const wlTarget2 = Math.floor(Math.random() * 71) + 15;
+      room.wlPair = wlPair2; room.wlTarget = wlTarget2; room.wlClue = null; room.wlSlider = 50; room.wlPhase = 'clue';
+      for (const [id, player] of Object.entries(room.players)) {
+        const isPsychic = id === room.wlPsychicId;
+        wsSend(player.socket, {
+          type: 'wl_new_round',
+          activeTeam: room.wlActiveTeam,
+          psychic: room.players[room.wlPsychicId]?.name,
+          isPsychic,
+          pair: wlPair2,
+          target: isPsychic ? wlTarget2 : null,
+          scoreA: room.wlScoreA, scoreB: room.wlScoreB,
+          round: room.wlRound, slider: 50,
+        });
       }
       break;
     }

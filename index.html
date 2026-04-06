@@ -82,6 +82,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .game-sel-btn[data-game="hottakes"].active{border-color:#9b59b6;background:rgba(155,89,182,0.08);color:#9b59b6;}
 .game-sel-btn[data-game="insider"].active{border-color:#22d3ee;background:rgba(34,211,238,0.08);color:#22d3ee;}
 .game-sel-btn[data-game="profiler"].active{border-color:#a78bfa;background:rgba(167,139,250,0.08);color:#a78bfa;}
+.game-sel-btn[data-game="fake_artist"].active{border-color:#f472b6;background:rgba(244,114,182,0.08);color:#f472b6;}
+.game-sel-btn[data-game="wavelength"].active{border-color:#34d399;background:rgba(52,211,153,0.08);color:#34d399;}
 
 /* Config selectors */
 
@@ -218,6 +220,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </button>
         <button class="game-sel-btn" data-game="profiler" onclick="selectGame('profiler',this)">
           <span class="gs-icon">🔍</span><span class="gs-name">PROFILER</span>
+        </button>
+        <button class="game-sel-btn" data-game="fake_artist" onclick="selectGame('fake_artist',this)">
+          <span class="gs-icon">🎨</span><span class="gs-name">FAKE ARTIST</span>
+        </button>
+        <button class="game-sel-btn" data-game="wavelength" onclick="selectGame('wavelength',this)">
+          <span class="gs-icon">📡</span><span class="gs-name">WAVELENGTH</span>
         </button>
       </div>
 
@@ -442,7 +450,7 @@ function navigateToGame(gameType, code, config) {
     showHubView(code);
     return;
   }
-  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/', insider: '/games/insider/', profiler: '/games/profiler/' };
+  const paths = { undercover: '/games/undercover/', millionaire: '/games/millionaire/', hottakes: '/games/hottakes/', insider: '/games/insider/', profiler: '/games/profiler/', fake_artist: '/games/fake-artist/', wavelength: '/games/wavelength/' };
   const base = paths[gameType];
   if (!base) return;
   const params = new URLSearchParams({ room: code, name: myName });
