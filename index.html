@@ -301,6 +301,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 // ── State ─────────────────────────────────────────────────────
 let ws = null;
 let myName = '', myRoom = '', isHost = false;
@@ -379,7 +380,7 @@ function renderLobbies(lobbies) {
     <div class="lobby-item">
       <div class="lobby-item-info">
         <div class="lobby-item-code">${l.code}</div>
-        <div class="lobby-item-meta">Host: ${l.host} · ${l.playerCount} player${l.playerCount !== 1 ? 's' : ''}</div>
+        <div class="lobby-item-meta">Host: ${esc(l.host)} · ${l.playerCount} player${l.playerCount !== 1 ? 's' : ''}</div>
       </div>
       <button class="lobby-join-btn" onclick="quickJoin('${l.code}')">Join</button>
     </div>
@@ -443,7 +444,7 @@ function renderHubState(msg) {
   document.getElementById('hub-player-list').innerHTML = hubPlayers.map(p => {
     const crown = p === hostName ? '<span class="crown">👑</span>' : '';
     const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
-    return `<div class="player-row">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+    return `<div class="player-row">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
 
   // Scores
@@ -451,7 +452,7 @@ function renderHubState(msg) {
   if (entries.some(([, v]) => v > 0)) {
     document.getElementById('hub-scores-section').style.display = 'block';
     document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
-      `<tr><td class="rank">${i + 1}</td><td>${name}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+      `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
     ).join('');
   }
 
@@ -545,7 +546,7 @@ function handleMsg(msg) {
       if (entries.some(([, v]) => v > 0)) {
         document.getElementById('hub-scores-section').style.display = 'block';
         document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
-          `<tr><td class="rank">${i + 1}</td><td>${name}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+          `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
         ).join('');
       }
       break;
@@ -571,7 +572,7 @@ function handleMsg(msg) {
       document.getElementById('hub-player-list').innerHTML = hubPlayers.map(p => {
         const crown = p === hubHostName ? '<span class="crown">👑</span>' : '';
         const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
-        return `<div class="player-row">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+        return `<div class="player-row">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
       }).join('');
       notify(`${msg.name} disconnected…`);
       break;

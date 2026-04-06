@@ -415,6 +415,7 @@ let clueLog=[], localVoteTally={};
 let gameMode='characters';
 let gameContext='local';
 
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 let ws=null, myName='', myRoom='', isHost=false, mpMode='characters';
 let mpPlayers=[], mpSpeakOrder=[], mpSpeakIndex=0, mpRound=1, mpEliminated=[];
 let hubFlow=false, hubScores={};
@@ -480,7 +481,7 @@ function renderPlayerInputs(){
   const c=document.getElementById('player-inputs'); c.innerHTML='';
   players.forEach((name,i)=>{
     const row=document.createElement('div'); row.className='player-row';
-    row.innerHTML=`<span class="player-num">${i+1}</span><input type="text" value="${name}" placeholder="Player ${i+1}" oninput="players[${i}]=this.value" autocomplete="off"/>`;
+    row.innerHTML=`<span class="player-num">${i+1}</span><input type="text" value="${esc(name)}" placeholder="Player ${i+1}" oninput="players[${i}]=this.value" autocomplete="off"/>`;
     c.appendChild(row);
   });
 }
@@ -569,7 +570,7 @@ function buildRevealCards(){
     const isSpy=roles[name]==='spy';
     const word=isSpy?undercoverWord:civilianWord;
     const card=document.createElement('div'); card.className='reveal-card';
-    card.innerHTML=`<div class="rc-header"><span class="rc-name">${name}</span><button class="rc-reveal-btn" data-reveal="${name}" onclick="toggleReveal('${name}',this)">TAP TO REVEAL</button></div><div class="rc-body" id="rcbody-${name}"><div class="rc-word">${word}</div><div class="rc-role civ"><span class="dot civ"></span>Memorize your word, then hide</div></div><div class="rc-placeholder" id="rcph-${name}"><div class="rc-placeholder-bar"></div></div>`;
+    card.innerHTML=`<div class="rc-header"><span class="rc-name">${esc(name)}</span><button class="rc-reveal-btn" data-reveal="${esc(name)}" onclick="toggleReveal(this.dataset.reveal,this)">TAP TO REVEAL</button></div><div class="rc-body" id="rcbody-${esc(name)}"><div class="rc-word">${esc(word)}</div><div class="rc-role civ"><span class="dot civ"></span>Memorize your word, then hide</div></div><div class="rc-placeholder" id="rcph-${esc(name)}"><div class="rc-placeholder-bar"></div></div>`;
     container.appendChild(card);
   });
 }
@@ -655,7 +656,7 @@ function renderLocalStrawPoll(active){
     const count=localVoteTally[name]||0;
     const pct=active.length>0?Math.round(count/active.length*100):0;
     const row=document.createElement('div'); row.className='straw-row';
-    row.innerHTML=`<span class="straw-name">${name}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span><button class="straw-vote-btn" onclick="castLocalVote('${name}');event.stopPropagation()">+1</button>`;
+    row.innerHTML=`<span class="straw-name">${esc(name)}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span><button class="straw-vote-btn" data-name="${esc(name)}" onclick="castLocalVote(this.dataset.name);event.stopPropagation()">+1</button>`;
     el.appendChild(row);
   });
   voteGrid.appendChild(el);
@@ -689,7 +690,7 @@ function castLocalVote(name){
 function openModal(name){
   pendingElim=name;
   document.getElementById('modal-title').textContent='Eliminate?';
-  document.getElementById('modal-body').innerHTML=`Vote to eliminate <b>${name}</b>? This cannot be undone.`;
+  document.getElementById('modal-body').innerHTML=`Vote to eliminate <b>${esc(name)}</b>? This cannot be undone.`;
   document.getElementById('modal-confirm').onclick=()=>{closeModal();doEliminate(name);};
   document.getElementById('modal').classList.add('open');
 }
@@ -713,7 +714,7 @@ function showResult(civWin){
   players.forEach(p=>{
     const isSpy=roles[p]==='spy';
     const row=document.createElement('div'); row.className='reveal-row';
-    row.innerHTML=`<div class="reveal-row-left"><span class="badge ${isSpy?'spy':'civ'}">${isSpy?'SPY':'CIV'}</span><span class="reveal-row-name">${p}</span></div><span class="reveal-word">${isSpy?undercoverWord:civilianWord}</span>`;
+    row.innerHTML=`<div class="reveal-row-left"><span class="badge ${isSpy?'spy':'civ'}">${isSpy?'SPY':'CIV'}</span><span class="reveal-row-name">${esc(p)}</span></div><span class="reveal-word">${esc(isSpy?undercoverWord:civilianWord)}</span>`;
     grid.appendChild(row);
   });
   document.getElementById('result-play-again').onclick=resetGame;
@@ -744,7 +745,7 @@ function showFloatingEmoji(name,emoji){
   const x=15+Math.random()*70;
   el.style.left=x+'%';
   el.style.bottom='70px';
-  el.innerHTML=`<div class="ef-emoji">${emoji}</div><div class="ef-name">${name}</div>`;
+  el.innerHTML=`<div class="ef-emoji">${emoji}</div><div class="ef-name">${esc(name)}</div>`;
   document.body.appendChild(el);
   el.addEventListener('animationend',()=>el.remove());
 }
@@ -811,7 +812,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hostName?'<span class="crown" style="color:var(--gold,#f5c842);">👑</span>':'';
     const you=p===myName?'<span class="you-tag">you</span>':'';
-    return `<div class="lobby-player">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+    return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
   document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
@@ -829,7 +830,7 @@ function renderWaitingScreen(msg){
   if(hsEntries.some(([,v])=>v>0)){
     document.getElementById('waiting-hub-scores-section').style.display='block';
     document.getElementById('waiting-hub-scores-body').innerHTML=hsEntries.map(([name,pts],i)=>
-      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${name}</td><td style="font-size:13px;color:var(--cyan);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
+      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${esc(name)}</td><td style="font-size:13px;color:var(--cyan);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
     ).join('');
   }
 }
@@ -922,7 +923,7 @@ function handleServerMsg(msg){
         const tied=msg.tied||[];
         const tally=msg.tally||{};
         const box=document.getElementById('mp-vote-grid');
-        box.innerHTML='<div class="straw-poll"><div class="straw-title">⚠️ Tie! Host decides</div><div style="font-size:13px;color:var(--muted);margin-bottom:12px;">'+tied.map(n=>`<b>${n}</b> (${tally[n]} votes)`).join(' vs ')+'</div>'+tied.map(n=>`<button class="vote-btn" onclick="mpResolveTie('${n}')" style="margin-bottom:6px;">${n}</button>`).join('')+'</div>';
+        box.innerHTML='<div class="straw-poll"><div class="straw-title">⚠️ Tie! Host decides</div><div style="font-size:13px;color:var(--muted);margin-bottom:12px;">'+tied.map(n=>`<b>${esc(n)}</b> (${tally[n]} votes)`).join(' vs ')+'</div>'+tied.map(n=>`<button class="vote-btn" data-name="${esc(n)}" onclick="mpResolveTie(this.dataset.name)" style="margin-bottom:6px;">${esc(n)}</button>`).join('')+'</div>';
       }else{
         document.getElementById('mp-vote-grid').innerHTML='<div class="waiting-msg">Tie vote — host is deciding…</div>';
       }
@@ -1042,7 +1043,7 @@ function renderMpElimVote(){
     const pct=active.length>0?Math.round(count/active.length*100):0;
     const isMyVote=mpElimVotes[myName]===name;
     const row=document.createElement('div'); row.className='straw-row'+(isMyVote?' my-vote':'');
-    row.innerHTML=`<span class="straw-name">${name}${name===myName?' (you)':''}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span>`;
+    row.innerHTML=`<span class="straw-name">${esc(name)}${name===myName?' (you)':''}</span><div class="straw-bar-wrap"><div class="straw-bar" style="width:${pct}%"></div></div><span class="straw-num">${count}</span>`;
     if(voters.length>0){const sp=document.createElement('div');sp.className='straw-voters';sp.textContent=voters.join(', ');row.appendChild(sp);}
     row.onclick=()=>{if(name!==myName)mpCastElimVote(name);};
     if(name===myName)row.style.opacity='0.5';
@@ -1091,7 +1092,7 @@ function showMpResult(msg){
   mpPlayers.forEach(p=>{
     const isSpy=msg.roles[p]==='spy';
     const row=document.createElement('div'); row.className='reveal-row';
-    row.innerHTML=`<div class="reveal-row-left"><span class="badge ${isSpy?'spy':'civ'}">${isSpy?'SPY':'CIV'}</span><span class="reveal-row-name">${p}</span></div><span class="reveal-word">${isSpy?msg.undercoverWord:msg.civilianWord}</span>`;
+    row.innerHTML=`<div class="reveal-row-left"><span class="badge ${isSpy?'spy':'civ'}">${isSpy?'SPY':'CIV'}</span><span class="reveal-row-name">${esc(p)}</span></div><span class="reveal-word">${esc(isSpy?msg.undercoverWord:msg.civilianWord)}</span>`;
     grid.appendChild(row);
   });
   const hubBtn=document.getElementById('result-return-hub');

@@ -372,6 +372,7 @@ let mpCurrentQ=null;
 let reconnectAttempts=0;
 let hubFlow=false;
 let hubScores={};
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
 // ── PHASE ─────────────────────────────────────────────────────
 function showPhase(id){
@@ -793,7 +794,7 @@ function renderMpReveal(msg){
 
 function renderMpScoreStrip(){
   const strip=document.getElementById('mp-scores-strip');
-  strip.innerHTML=mpPlayers.map(p=>`<div class="mp-score-chip${p===myName?' me':''}">${p}: ${fmtMoney(mpScores[p]||0)}</div>`).join('');
+  strip.innerHTML=mpPlayers.map(p=>`<div class="mp-score-chip${p===myName?' me':''}">${esc(p)}: ${fmtMoney(mpScores[p]||0)}</div>`).join('');
 }
 
 function renderMpResult(msg){
@@ -803,7 +804,7 @@ function renderMpResult(msg){
   lb.innerHTML='';
   sorted.forEach(([name,score],i)=>{
     const row=document.createElement('div'); row.className='lb-row';
-    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${fmtMoney(score)}</div>`;
+    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${esc(name)}</div><div class="lb-score">${fmtMoney(score)}</div>`;
     lb.appendChild(row);
   });
   const btn=document.getElementById('mp-play-again-btn');
@@ -858,7 +859,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hostName?'<span class="crown" style="color:var(--gold);">👑</span>':'';
     const you=p===myName?'<span class="you-tag">YOU</span>':'';
-    return `<div class="lobby-player">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+    return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
   document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
@@ -874,7 +875,7 @@ function renderWaitingScreen(msg){
   if(hsEntries.some(([,v])=>v>0)){
     document.getElementById('waiting-hub-scores-section').style.display='block';
     document.getElementById('waiting-hub-scores-body').innerHTML=hsEntries.map(([name,pts],i)=>
-      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${name}</td><td style="font-size:13px;color:var(--gold);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
+      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${esc(name)}</td><td style="font-size:13px;color:var(--gold);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
     ).join('');
   }
 }

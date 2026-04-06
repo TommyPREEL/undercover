@@ -271,7 +271,7 @@ function notify(msg){
   if(toastTimer) clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
-function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
 // ── Waiting screen ─────────────────────────────────────────────
 function selectCat(cat, btn){

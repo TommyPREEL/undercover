@@ -351,6 +351,7 @@ function showPhase(id){
 }
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 let toastTimer=null;
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function notify(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
@@ -437,7 +438,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hostName?'<span style="color:var(--accent);">👑</span>':'';
     const you=p===myName?'<span class="you-tag">YOU</span>':'';
-    return `<div class="lobby-player">${crown}<span style="flex:1">${p}</span>${you}</div>`;
+    return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
   document.getElementById('waiting-guest-area').style.display=isHost?'none':'block';
@@ -451,7 +452,7 @@ function renderWaitingScreen(msg){
   if(hsEntries.some(([,v])=>v>0)){
     document.getElementById('waiting-hub-scores-section').style.display='block';
     document.getElementById('waiting-hub-scores-body').innerHTML=hsEntries.map(([name,pts],i)=>
-      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${name}</td><td style="font-size:13px;color:var(--accent);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
+      `<tr><td style="font-size:12px;color:var(--muted);padding:6px 8px;">${i+1}</td><td style="font-size:13px;padding:6px 8px;">${esc(name)}</td><td style="font-size:13px;color:var(--accent);font-weight:700;text-align:right;padding:6px 8px;">${pts}</td></tr>`
     ).join('');
   }
 }
@@ -637,12 +638,12 @@ function renderMpReveal(msg){
     <div class="split-side agree-side">
       <div class="split-label agree-side">🔥 Agree</div>
       <div class="split-pct">${agreePct}%</div>
-      <div class="split-names">${agreeNames.join(', ')||'—'}</div>
+      <div class="split-names">${agreeNames.map(esc).join(', ')||'—'}</div>
     </div>
     <div class="split-side disagree-side">
       <div class="split-label disagree-side">💧 Disagree</div>
       <div class="split-pct">${100-agreePct}%</div>
-      <div class="split-names">${disagreeNames.join(', ')||'—'}</div>
+      <div class="split-names">${disagreeNames.map(esc).join(', ')||'—'}</div>
     </div>`;
 
   let majorityClass='tied', majorityText='TIE — no points this round';
@@ -651,14 +652,14 @@ function renderMpReveal(msg){
   else if(disagreeNames.length>agreeNames.length){majorityClass='disagree';majorityText='💧 DISAGREE wins the majority!';}
 
   document.getElementById('mp-rev-majority').innerHTML=`<div class="majority-badge ${majorityClass}">${majorityText}</div>`;
-  document.getElementById('mp-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.join(', ')}`:'No points awarded.';
+  document.getElementById('mp-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.map(esc).join(', ')}`:'No points awarded.';
   renderMpScoreStrip('mp-rev-score-strip');
 }
 
 function renderMpScoreStrip(id){
   const strip=document.getElementById(id||'mp-score-strip');
   if(!strip)return;
-  strip.innerHTML=mpPlayers.map(p=>`<div class="score-chip${p===myName?' me':''}">${p}: ${mpScores[p]||0}pt</div>`).join('');
+  strip.innerHTML=mpPlayers.map(p=>`<div class="score-chip${p===myName?' me':''}">${esc(p)}: ${mpScores[p]||0}pt</div>`).join('');
 }
 
 // ── MP RESULT ─────────────────────────────────────────────────
@@ -668,7 +669,7 @@ function renderMpResult(msg){
   const lb=document.getElementById('mp-leaderboard'); lb.innerHTML='';
   sorted.forEach(([name,score],i)=>{
     const row=document.createElement('div'); row.className='lb-row';
-    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${name}</div><div class="lb-score">${score}<span class="lb-pts"> pts</span></div>`;
+    row.innerHTML=`<div class="lb-rank">${i+1}</div><div class="lb-name">${esc(name)}</div><div class="lb-score">${score}<span class="lb-pts"> pts</span></div>`;
     lb.appendChild(row);
   });
   const btn=document.getElementById('mp-again-btn');
