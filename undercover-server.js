@@ -402,6 +402,7 @@ function hubState(room) {
     hubScores: { ...(room.hubScores || {}) },
     gameType: room.gameType,
     gameConfig: { ...(room.gameConfig || {}) },
+    isPrivate: !!room.isPrivate,
   };
 }
 
@@ -470,6 +471,7 @@ function handleMessage(socket, raw, playerId) {
         departed: {},
         hubScores: { [name]: 0 },
         gameConfig: { mode: 'characters', theme: 'videogames', rounds: 10 },
+        isPrivate: true,
       };
       wsSend(socket, { type: 'hub_joined', code, name, isHost: true });
       wsSend(socket, hubState(rooms[code]));
@@ -531,7 +533,7 @@ function handleMessage(socket, raw, playerId) {
 
     case 'list_lobbies': {
       const lobbies = Object.values(rooms)
-        .filter(r => r.phase === 'hub')
+        .filter(r => r.phase === 'hub' && !r.isPrivate)
         .map(r => ({
           code: r.code,
           host: r.players[r.host]?.name || '?',
@@ -539,6 +541,13 @@ function handleMessage(socket, raw, playerId) {
           gameType: r.gameType,
         }));
       wsSend(socket, { type: 'lobby_list', lobbies });
+      break;
+    }
+
+    case 'set_lobby_privacy': {
+      if (!room || room.host !== playerId) return;
+      room.isPrivate = !!msg.isPrivate;
+      broadcast(room, { type: 'lobby_privacy_updated', isPrivate: room.isPrivate });
       break;
     }
 
@@ -1143,13 +1152,14 @@ function handleMessage(socket, raw, playerId) {
       if (!isOpposing) return;
       if (Object.keys(room.profilerVotes).length > 0) return; // first click wins
       const answer = (msg.answer === 'yes' || msg.answer === true) ? 'yes' : 'no';
+      const proposingTeam = room.profilerActiveTurn;
       const entry = { char: room.profilerPendingChar.char, proposer: room.profilerPendingChar.proposer, answer, answerer: playerName };
       room.profilerLog.push(entry);
       room.profilerVotes = {};
       room.profilerPendingChar = null;
       room.profilerActiveTurn = room.profilerActiveTurn === 'A' ? 'B' : 'A';
       room.profilerPhase = 'proposing';
-      broadcast(room, { type: 'profiler_answered', ...entry, activeTurn: room.profilerActiveTurn, log: room.profilerLog });
+      broadcast(room, { type: 'profiler_answered', ...entry, proposingTeam, activeTurn: room.profilerActiveTurn, log: room.profilerLog });
       break;
     }
 

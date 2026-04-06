@@ -451,7 +451,7 @@ function handleMsg(msg){
     }
     case 'profiler_answered': {
       activeTurn=msg.activeTurn;
-      addLogEntry(msg);
+      if(msg.proposingTeam===myTeam) addLogEntry(msg);
       document.getElementById('vote-panel').style.display='none';
       document.getElementById('waiting-vote-panel').style.display='none';
       renderTurnState();

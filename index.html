@@ -222,6 +222,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
 
       <button class="btn-launch" id="btn-launch" onclick="launchGame()">LAUNCH →</button>
+      <button id="btn-privacy" onclick="togglePrivacy()" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;">🔒 Lobby is private</button>
     </div>
 
     <div id="hub-guest-area" style="display:none;" class="guest-waiting">Waiting for host to launch a game…</div>
@@ -235,6 +236,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 let ws = null;
 let myName = '', myRoom = '', isHost = false;
 let hubPlayers = [], hubScores = {}, hubHostName = '';
+let lobbyIsPrivate = true;
 let selectedGame = 'undercover';
 let pollInterval = null;
 let toastTimer = null;
@@ -391,6 +393,8 @@ function renderHubState(msg) {
   if (msg.gameType && msg.gameType !== 'hub') {
     selectGameUI(msg.gameType);
   }
+  lobbyIsPrivate = msg.isPrivate !== false;
+  updatePrivacyBtn();
 }
 
 // ── Game selection ────────────────────────────────────────────
@@ -406,6 +410,24 @@ function selectGameUI(game) {
 
 function launchGame() {
   wsSend({ type: 'launch_game', gameType: selectedGame });
+}
+function togglePrivacy() {
+  lobbyIsPrivate = !lobbyIsPrivate;
+  wsSend({ type: 'set_lobby_privacy', isPrivate: lobbyIsPrivate });
+  updatePrivacyBtn();
+}
+function updatePrivacyBtn() {
+  const btn = document.getElementById('btn-privacy');
+  if (!btn) return;
+  if (lobbyIsPrivate) {
+    btn.textContent = '🔒 Lobby is private';
+    btn.style.color = 'var(--muted)';
+    btn.style.borderColor = 'var(--border2)';
+  } else {
+    btn.textContent = '🌐 Lobby is public';
+    btn.style.color = 'var(--accent)';
+    btn.style.borderColor = 'var(--accent)';
+  }
 }
 function copyCode() {
   const url = `${location.origin}/?room=${myRoom}&name=`;
@@ -486,6 +508,10 @@ function handleMsg(msg) {
       break;
     case 'player_online':
       notify(`${msg.name} reconnected ↩`);
+      break;
+    case 'lobby_privacy_updated':
+      lobbyIsPrivate = msg.isPrivate;
+      updatePrivacyBtn();
       break;
     case 'hub_error':
       document.getElementById('entry-error').textContent = msg.msg || 'Error.';
