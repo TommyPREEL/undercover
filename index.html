@@ -102,10 +102,70 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;color:var(--text);z-index:100;opacity:0;transition:opacity 0.2s;pointer-events:none;}
 #toast.show{opacity:1;}
+
+/* Rules sidebar */
+#rules-toggle{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:200;background:var(--surface2);border:1px solid var(--border2);border-right:none;border-radius:var(--radius) 0 0 var(--radius);padding:10px 8px;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--font-display);font-size:15px;letter-spacing:2px;color:var(--muted);transition:color 0.15s,background 0.15s;}
+#rules-toggle:hover{color:var(--text);background:var(--surface3);}
+#rules-sidebar{position:fixed;right:0;top:0;height:100vh;width:300px;background:var(--surface);border-left:1px solid var(--border2);z-index:199;overflow-y:auto;transform:translateX(100%);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);padding:1.5rem 1.25rem 2rem;}
+#rules-sidebar.open{transform:translateX(0);}
+#rules-overlay{position:fixed;inset:0;z-index:198;display:none;}
+#rules-overlay.open{display:block;}
+.rules-header{font-family:var(--font-display);font-size:28px;letter-spacing:2px;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+.rules-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;}
+.rules-close:hover{color:var(--text);}
+.rule-block{margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+.rule-block:last-child{border-bottom:none;margin-bottom:0;}
+.rule-title{font-family:var(--font-display);font-size:20px;letter-spacing:1px;margin-bottom:2px;display:flex;align-items:center;gap:8px;}
+.rule-tag{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:20px;font-family:var(--font-body);}
+.rule-body{font-size:12px;color:var(--muted);line-height:1.7;margin-top:6px;}
+.rule-body b{color:var(--text);font-weight:600;}
 </style>
 </head>
 <body>
 <div id="toast"></div>
+
+<!-- Rules sidebar -->
+<button id="rules-toggle" onclick="openRules()">RULES</button>
+<div id="rules-overlay" onclick="closeRules()"></div>
+<div id="rules-sidebar">
+  <div class="rules-header">RULES <button class="rules-close" onclick="closeRules()">✕</button></div>
+
+  <div class="rule-block">
+    <div class="rule-title">🕵️ UNDERCOVER <span class="rule-tag" style="background:rgba(232,55,90,0.15);color:#e8375a;">Local</span></div>
+    <div class="rule-body">Each player gets a secret word — most players share the same word, but <b>one or two are undercover</b> and get a related-but-different word. Take turns giving one-word clues, then vote to eliminate someone. Undercovers win if they survive to the end or correctly guess the majority word.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">💰 MILLIONAIRE <span class="rule-tag" style="background:rgba(245,197,66,0.15);color:#f5c542;">Solo</span></div>
+    <div class="rule-body">Classic 15-question quiz in geek culture — anime, games, TV, movies. Pick the right answer from 4 choices and climb to <b>$1,000,000</b>. Use lifelines wisely: 50/50, phone a friend, ask the audience.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">🔥 HOT TAKES <span class="rule-tag" style="background:rgba(155,89,182,0.15);color:#9b59b6;">Local</span></div>
+    <div class="rule-body">Spicy geek opinions flash on screen — <b>Agree or Disagree</b>. Everyone votes secretly, then the reveal shows how split the group is. More points for being in the minority on spicy topics.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">🎭 INSIDER <span class="rule-tag" style="background:rgba(34,211,238,0.15);color:#22d3ee;">Online</span></div>
+    <div class="rule-body">Everyone tries to guess a secret word by asking the host yes/no questions — but <b>one player (the Insider) already knows</b> the word and subtly steers the group. After the word is found, players vote to identify the Insider. Get caught and you lose.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">🔍 PROFILER <span class="rule-tag" style="background:rgba(167,139,250,0.15);color:#a78bfa;">Online</span></div>
+    <div class="rule-body">Two teams. Each team is secretly assigned an <b>anime character trait</b> (e.g. "can transform", "pervert", "antagonist"). Teams take turns naming anime characters — the opposing team votes YES or NO whether the character matches their hidden trait. First team to <b>correctly guess the enemy's trait</b> wins 500 pts.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">🎨 FAKE ARTIST <span class="rule-tag" style="background:rgba(244,114,182,0.15);color:#f472b6;">Online</span></div>
+    <div class="rule-body">Everyone knows the secret word and draws it one stroke at a time on a shared canvas — <b>except the Fake Artist</b>, who has no idea. After 2 rounds, players vote for who they think is fake. If caught, the Fake Artist still wins by guessing the word correctly.</div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-title">📡 WAVELENGTH <span class="rule-tag" style="background:rgba(52,211,153,0.15);color:#34d399;">Online</span></div>
+    <div class="rule-body">Two teams alternate. Each round, a <b>spectrum</b> appears (e.g. Cold ↔ Hot) and the Psychic secretly sees a target position on it. The Psychic gives a one-word clue — teammates drag the dial to where they think the target is. Closer = more points. <b>First to 10 points wins.</b></div>
+  </div>
+</div>
+
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="container">
@@ -181,6 +241,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div class="game-arrow">→</div>
       </a>
     </div>
+
   </div>
 
   <!-- ── HUB LOBBY VIEW ── -->
@@ -526,6 +587,16 @@ function handleMsg(msg) {
       document.getElementById('join-error').textContent = msg.msg || 'Error.';
       break;
   }
+}
+
+// ── Rules sidebar ─────────────────────────────────────────────
+function openRules() {
+  document.getElementById('rules-sidebar').classList.add('open');
+  document.getElementById('rules-overlay').classList.add('open');
+}
+function closeRules() {
+  document.getElementById('rules-sidebar').classList.remove('open');
+  document.getElementById('rules-overlay').classList.remove('open');
 }
 
 // ── Toast ─────────────────────────────────────────────────────
