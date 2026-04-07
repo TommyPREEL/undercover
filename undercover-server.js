@@ -493,6 +493,26 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'kick_player': {
+      if (!room || room.phase !== 'hub') return;
+      if (room.host !== playerId) return; // only host can kick
+      const kickName = (msg.name || '').trim();
+      if (!kickName || kickName === playerName) return; // can't kick yourself
+      const kickEntry = Object.entries(room.players).find(([, p]) => p.name === kickName);
+      if (!kickEntry) return;
+      const [kickId, kickPlayer] = kickEntry;
+      // Notify the kicked player first
+      if (kickPlayer.socket) wsSend(kickPlayer.socket, { type: 'kicked' });
+      // Clear any pending disconnect timer
+      if (disconnectTimers[kickId]) { clearTimeout(disconnectTimers[kickId]); delete disconnectTimers[kickId]; }
+      delete room.players[kickId];
+      delete room.hubScores[kickName];
+      broadcast(room, hubState(room));
+      broadcast(room, { type: 'player_left', name: kickName });
+      console.log(`${kickName} was kicked from hub room ${room.code} by ${playerName}`);
+      break;
+    }
+
     case 'list_lobbies': {
       const lobbies = Object.values(rooms)
         .filter(r => r.phase === 'hub' && !r.isPrivate)
