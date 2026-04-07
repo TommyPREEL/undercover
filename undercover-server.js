@@ -358,6 +358,7 @@ function hubState(room) {
     gameType: room.gameType,
     gameConfig: { ...(room.gameConfig || {}) },
     isPrivate: !!room.isPrivate,
+    lastRecap: room.lastRecap || null,
   };
 }
 
@@ -560,6 +561,9 @@ function handleMessage(socket, raw, playerId) {
       if (msg.rounds !== undefined) { room.gameConfig = room.gameConfig || {}; room.gameConfig.rounds = msg.rounds; }
       room.gameType = msg.gameType;
       room.phase = 'hub_waiting';
+      // Snapshot scores before the game so we can compute deltas later
+      room.preGameScores = { ...room.hubScores };
+      room.lastRecap = null;
       broadcast(room, {
         type: 'game_launching',
         gameType: msg.gameType,
@@ -578,6 +582,14 @@ function handleMessage(socket, raw, playerId) {
       if (room.htTimer) { clearTimeout(room.htTimer); room.htTimer = null; }
       if (room.insiderTimer) { clearTimeout(room.insiderTimer); room.insiderTimer = null; }
       if (room.insiderAccusationTimer) { clearTimeout(room.insiderAccusationTimer); room.insiderAccusationTimer = null; }
+      // Build recap: delta scores per player for this game
+      const pre = room.preGameScores || {};
+      const recapEntries = Object.entries(room.hubScores || {})
+        .map(([name, total]) => ({ name, pts: total - (pre[name] || 0) }))
+        .filter(e => e.pts !== 0)
+        .sort((a, b) => b.pts - a.pts);
+      room.lastRecap = recapEntries.length ? { game: room.gameType, scores: recapEntries } : null;
+      room.preGameScores = null;
       room.insiderPhase = null;
       room.profilerPhase = null;
       room.faPhase = null;
