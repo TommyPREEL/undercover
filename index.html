@@ -116,7 +116,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .chat-send:hover{color:var(--accent);}
 .chat-emoji-btn{background:var(--surface2);border:1px solid var(--border);border-top:none;border-left:none;padding:10px 12px;color:var(--muted);cursor:pointer;font-size:16px;transition:color 0.15s;}
 .chat-emoji-btn:hover{color:var(--accent);}
-.emoji-picker{display:none;position:absolute;bottom:calc(100% + 6px);right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;z-index:50;width:220px;display:none;}
+.emoji-picker{display:none;position:fixed;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;z-index:999;width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
 .emoji-picker.open{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;}
 .emoji-picker button{background:none;border:none;font-size:18px;cursor:pointer;padding:4px;border-radius:6px;transition:background 0.1s;line-height:1;}
 .emoji-picker button:hover{background:var(--surface3);}
@@ -289,7 +289,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="chat-wrap">
       <div class="section-label">Chat</div>
       <div class="chat-feed" id="chat-feed"></div>
-      <div class="chat-input-row" style="position:relative;">
+      <div class="chat-input-row">
         <input class="chat-input" id="chat-input" placeholder="Say something…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
         <button class="chat-emoji-btn" onclick="toggleEmojiPicker(event)">😊</button>
         <button class="chat-send" onclick="sendChat()">↑</button>
@@ -642,7 +642,22 @@ function toggleEmojiPicker(e) {
   e.stopPropagation();
   const picker = document.getElementById('emoji-picker');
   if (!picker.innerHTML) buildEmojiPicker();
-  picker.classList.toggle('open');
+  if (picker.classList.contains('open')) {
+    picker.classList.remove('open');
+    return;
+  }
+  // Position picker above the button using fixed coords
+  picker.classList.add('open');
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const ph = picker.offsetHeight;
+  const pw = picker.offsetWidth;
+  let top = rect.top - ph - 6;
+  let left = rect.right - pw;
+  if (top < 8) top = rect.bottom + 6;
+  if (left < 8) left = 8;
+  picker.style.top = top + 'px';
+  picker.style.left = left + 'px';
 }
 function insertEmoji(emoji) {
   const input = document.getElementById('chat-input');
