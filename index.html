@@ -114,6 +114,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .chat-input::placeholder{color:var(--muted);}
 .chat-send{background:var(--surface2);border:1px solid var(--border);border-top:none;border-left:none;border-radius:0 0 var(--radius) 0;padding:10px 14px;color:var(--muted);cursor:pointer;font-size:16px;transition:color 0.15s;}
 .chat-send:hover{color:var(--accent);}
+.chat-emoji-btn{background:var(--surface2);border:1px solid var(--border);border-top:none;border-left:none;padding:10px 12px;color:var(--muted);cursor:pointer;font-size:16px;transition:color 0.15s;}
+.chat-emoji-btn:hover{color:var(--accent);}
+.emoji-picker{display:none;position:absolute;bottom:calc(100% + 6px);right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;z-index:50;width:220px;display:none;}
+.emoji-picker.open{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;}
+.emoji-picker button{background:none;border:none;font-size:18px;cursor:pointer;padding:4px;border-radius:6px;transition:background 0.1s;line-height:1;}
+.emoji-picker button:hover{background:var(--surface3);}
 
 /* Toast */
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;color:var(--text);z-index:100;opacity:0;transition:opacity 0.2s;pointer-events:none;}
@@ -283,9 +289,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="chat-wrap">
       <div class="section-label">Chat</div>
       <div class="chat-feed" id="chat-feed"></div>
-      <div class="chat-input-row">
+      <div class="chat-input-row" style="position:relative;">
         <input class="chat-input" id="chat-input" placeholder="Say something…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="chat-emoji-btn" onclick="toggleEmojiPicker(event)">😊</button>
         <button class="chat-send" onclick="sendChat()">↑</button>
+        <div class="emoji-picker" id="emoji-picker"></div>
       </div>
     </div>
 
@@ -620,6 +628,33 @@ function handleMsg(msg) {
       break;
   }
 }
+
+// ── Emoji picker ──────────────────────────────────────────────
+const EMOJIS = ['😂','😭','💀','🔥','❤️','😍','🤣','😊','🥶','😎','🤔','😤','🥹','😈','👀','💯','🫡','🤯','😴','🤮','👑','💪','🫠','🙏','✨','💥','⚡','🎉','🎯','🏆','💀','🗿','😭','🤡','👻','🐐','📡','🎨','🔍','🎭','🕵️','💰'];
+
+function buildEmojiPicker() {
+  const picker = document.getElementById('emoji-picker');
+  picker.innerHTML = EMOJIS.map(e =>
+    `<button onclick="insertEmoji('${e}')" title="${e}">${e}</button>`
+  ).join('');
+}
+function toggleEmojiPicker(e) {
+  e.stopPropagation();
+  const picker = document.getElementById('emoji-picker');
+  if (!picker.innerHTML) buildEmojiPicker();
+  picker.classList.toggle('open');
+}
+function insertEmoji(emoji) {
+  const input = document.getElementById('chat-input');
+  const pos = input.selectionStart;
+  input.value = input.value.slice(0, pos) + emoji + input.value.slice(input.selectionEnd);
+  input.focus();
+  input.selectionStart = input.selectionEnd = pos + emoji.length;
+  document.getElementById('emoji-picker').classList.remove('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('emoji-picker')?.classList.remove('open');
+});
 
 // ── Chat ──────────────────────────────────────────────────────
 function sendChat() {
