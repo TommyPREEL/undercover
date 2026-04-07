@@ -402,7 +402,7 @@ function showJoinPanel() {
 }
 
 // ── WebSocket ─────────────────────────────────────────────────
-function connectHub(onOpen) {
+function connectHub(onOpen, attempt = 1) {
   if (ws && ws.readyState === WebSocket.OPEN) { onOpen && onOpen(); return; }
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${proto}//${location.host}`);
@@ -410,11 +410,20 @@ function connectHub(onOpen) {
   ws.onmessage = e => handleMsg(JSON.parse(e.data));
   ws.onclose = () => {
     ws = null;
-    if (myRoom) setTimeout(() => connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName })), 2000);
+    if (myRoom) scheduleRejoin(attempt + 1);
   };
   ws.onerror = () => {};
 }
 function wsSend(msg) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg)); }
+let _rejoinTimer = null;
+function scheduleRejoin(attempt) {
+  if (_rejoinTimer) clearTimeout(_rejoinTimer);
+  const delay = Math.min(1000 * attempt, 15000); // 1s, 2s, 3s … capped at 15s
+  _rejoinTimer = setTimeout(() => {
+    if (!myRoom) return; // user left voluntarily
+    connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName }), attempt);
+  }, delay);
+}
 
 // ── Lobbies list ──────────────────────────────────────────────
 function fetchLobbies() {
@@ -469,6 +478,7 @@ function hubJoin() {
   connectHub(() => wsSend({ type: 'join_hub_room', code, name }));
 }
 function hubLeave() {
+  if (_rejoinTimer) { clearTimeout(_rejoinTimer); _rejoinTimer = null; }
   wsSend({ type: 'leave_room' });
   if (ws) { ws.onclose = null; ws.close(); ws = null; }
   myRoom = ''; myName = ''; isHost = false; hubReadySet = new Set();
@@ -641,6 +651,7 @@ function handleMsg(msg) {
       break;
     case 'kicked':
       playSound('kicked');
+      if (_rejoinTimer) { clearTimeout(_rejoinTimer); _rejoinTimer = null; }
       if (ws) { ws.onclose = null; ws.close(); ws = null; }
       myRoom = ''; myName = ''; isHost = false;
       clearChat();
