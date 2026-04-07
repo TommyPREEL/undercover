@@ -485,6 +485,14 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'chat_message': {
+      if (!room || room.phase !== 'hub') return;
+      const chatText = (msg.text || '').trim().slice(0, 200);
+      if (!chatText) return;
+      broadcast(room, { type: 'chat_message', name: playerName, text: chatText });
+      break;
+    }
+
     case 'list_lobbies': {
       const lobbies = Object.values(rooms)
         .filter(r => r.phase === 'hub' && !r.isPrivate)
