@@ -353,6 +353,7 @@ function hubState(room) {
     code: room.code,
     host: room.players[room.host]?.name || '',
     players: Object.values(room.players).map(p => p.name),
+    readySet: Object.values(room.players).filter(p => p.ready).map(p => p.name),
     hubScores: { ...(room.hubScores || {}) },
     gameType: room.gameType,
     gameConfig: { ...(room.gameConfig || {}) },
@@ -510,6 +511,14 @@ function handleMessage(socket, raw, playerId) {
       broadcast(room, hubState(room));
       broadcast(room, { type: 'player_left', name: kickName });
       console.log(`${kickName} was kicked from hub room ${room.code} by ${playerName}`);
+      break;
+    }
+
+    case 'set_ready': {
+      if (!room || room.phase !== 'hub') return;
+      const readyVal = !!msg.ready;
+      room.players[playerId].ready = readyVal;
+      broadcast(room, hubState(room));
       break;
     }
 

@@ -64,6 +64,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .player-row .you-tag{font-size:10px;background:rgba(245,197,66,0.12);color:var(--gold);border:1px solid rgba(245,197,66,0.25);border-radius:20px;padding:2px 8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-left:auto;}
 .kick-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:color 0.15s,background 0.15s;line-height:1;}
 .kick-btn:hover{color:#e8375a;background:rgba(232,55,90,0.12);}
+.ready-check{font-size:14px;color:#4caf7d;margin-left:auto;transition:opacity 0.15s;}
+.ready-check.hidden{opacity:0;}
+#btn-ready{width:100%;padding:12px;margin-bottom:8px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;}
+#btn-ready.ready{background:rgba(76,175,125,0.12);border-color:#4caf7d;color:#4caf7d;}
+#btn-ready:hover{border-color:var(--accent);color:var(--accent);}
+#btn-ready.ready:hover{border-color:#e8375a;color:#e8375a;background:rgba(232,55,90,0.08);}
+.launch-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px;}
 
 /* Hub scores */
 .scores-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;}
@@ -327,10 +334,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
 
       <button class="btn-launch" id="btn-launch" onclick="launchGame()">LAUNCH →</button>
+      <div class="launch-hint" id="launch-hint"></div>
       <button id="btn-privacy" onclick="togglePrivacy()" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;">🔒 Lobby is private</button>
     </div>
 
-    <div id="hub-guest-area" style="display:none;" class="guest-waiting">Waiting for host to launch a game…</div>
+    <div id="hub-guest-area" style="display:none;">
+      <button id="btn-ready" onclick="toggleReady()">✓ Ready</button>
+      <div class="guest-waiting">Waiting for host to launch a game…</div>
+    </div>
 
     <button class="btn-leave" onclick="hubLeave()">← Leave lobby</button>
   </div>
@@ -341,7 +352,7 @@ function esc(s){const d=document.createElement('div');d.textContent=s;return d.i
 // ── State ─────────────────────────────────────────────────────
 let ws = null;
 let myName = '', myRoom = '', isHost = false;
-let hubPlayers = [], hubScores = {}, hubHostName = '';
+let hubPlayers = [], hubScores = {}, hubHostName = '', hubReadySet = new Set();
 let lobbyIsPrivate = true;
 let selectedGame = 'undercover';
 let pollInterval = null;
@@ -450,7 +461,7 @@ function hubJoin() {
 function hubLeave() {
   wsSend({ type: 'leave_room' });
   if (ws) { ws.onclose = null; ws.close(); ws = null; }
-  myRoom = ''; myName = ''; isHost = false;
+  myRoom = ''; myName = ''; isHost = false; hubReadySet = new Set();
   clearChat();
   showLanding();
   fetchLobbies();
@@ -473,11 +484,13 @@ function showHubView(code) {
 function renderHubState(msg) {
   hubPlayers = msg.players || [];
   hubScores = msg.hubScores || {};
+  hubReadySet = new Set(msg.readySet || []);
   const hostName = msg.host || '';
   hubHostName = hostName;
 
   // Player list
   renderPlayerList(hubPlayers, hostName);
+  updateReadyUI();
 
   // Scores
   const entries = Object.entries(hubScores).sort((a, b) => b[1] - a[1]);
@@ -679,11 +692,15 @@ function renderPlayerList(players, hostName) {
   players.forEach(p => {
     const row = document.createElement('div');
     row.className = 'player-row';
+    const isReady = hubReadySet.has(p);
     const crown = p === hostName ? '<span class="crown">👑</span>' : '';
     const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
+    const readyMark = p !== hostName
+      ? `<span class="ready-check${isReady ? '' : ' hidden'}">✓</span>`
+      : '';
     const canKick = isHost && p !== myName;
     const kickBtn = canKick ? '<button class="kick-btn" title="Kick">✕</button>' : '';
-    row.innerHTML = `${crown}<span style="flex:1">${esc(p)}</span>${you}${kickBtn}`;
+    row.innerHTML = `${crown}<span style="flex:1">${esc(p)}</span>${you}${readyMark}${kickBtn}`;
     if (canKick) {
       row.querySelector('.kick-btn').addEventListener('click', () => kickPlayer(p));
     }
@@ -692,6 +709,36 @@ function renderPlayerList(players, hostName) {
 }
 function kickPlayer(name) {
   wsSend({ type: 'kick_player', name });
+}
+function toggleReady() {
+  const amReady = hubReadySet.has(myName);
+  wsSend({ type: 'set_ready', ready: !amReady });
+}
+function updateReadyUI() {
+  // Guest ready button
+  const btn = document.getElementById('btn-ready');
+  if (btn) {
+    const amReady = hubReadySet.has(myName);
+    btn.classList.toggle('ready', amReady);
+    btn.textContent = amReady ? '✓ Ready — click to unready' : '✓ Ready';
+  }
+  // Host launch button — locked until all non-host players are ready
+  const launchBtn = document.getElementById('btn-launch');
+  const hint = document.getElementById('launch-hint');
+  if (launchBtn && isHost) {
+    const guests = hubPlayers.filter(p => p !== hubHostName);
+    const allReady = guests.length > 0 && guests.every(p => hubReadySet.has(p));
+    const notReady = guests.filter(p => !hubReadySet.has(p));
+    launchBtn.disabled = !allReady;
+    launchBtn.style.opacity = allReady ? '1' : '0.45';
+    if (guests.length === 0) {
+      hint.textContent = 'No other players yet.';
+    } else if (!allReady) {
+      hint.textContent = `Waiting for: ${notReady.map(n => esc(n)).join(', ')}`;
+    } else {
+      hint.textContent = 'All players ready!';
+    }
+  }
 }
 
 // ── Chat ──────────────────────────────────────────────────────
