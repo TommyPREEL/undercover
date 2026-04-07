@@ -446,6 +446,7 @@ function handleMessage(socket, raw, playerId) {
       if (!hjRoom.hubScores[hjName]) hjRoom.hubScores[hjName] = 0;
       wsSend(socket, { type: 'hub_joined', code: hjCode, name: hjName, isHost: false });
       broadcast(hjRoom, hubState(hjRoom));
+      broadcast(hjRoom, { type: 'player_joined', name: hjName }, socket);
       console.log(`${hjName} joined hub room ${hjCode}`);
       break;
     }
