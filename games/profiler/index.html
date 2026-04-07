@@ -148,6 +148,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- criteria reveal at top for own team -->
   <div id="game-criteria-box" class="criteria-box"></div>
 
+  <!-- Teams -->
+  <div id="game-teams" class="teams-row" style="display:none;">
+    <div class="team-box team-a">
+      <div class="team-label a">TEAM A</div>
+      <div id="game-team-a-members"></div>
+    </div>
+    <div class="team-box team-b">
+      <div class="team-label b">TEAM B</div>
+      <div id="game-team-b-members"></div>
+    </div>
+  </div>
+
   <div id="game-turn-badge" class="turn-badge a" style="display:none;"></div>
 
   <!-- log -->
@@ -285,6 +297,14 @@ function startGame(msg){
   `;
   document.getElementById('game-log').innerHTML='';
   document.getElementById('game-cancel-btn').style.display=isHost?'inline-flex':'none';
+  // Render teams
+  document.getElementById('game-teams').style.display='grid';
+  document.getElementById('game-team-a-members').innerHTML=teamA.map(p=>
+    `<div class="team-member${p===myName?' you':''}">${p===myName?'★ ':''} ${esc(p)}</div>`
+  ).join('');
+  document.getElementById('game-team-b-members').innerHTML=teamB.map(p=>
+    `<div class="team-member${p===myName?' you':''}">${p===myName?'★ ':''} ${esc(p)}</div>`
+  ).join('');
   showPhase('phase-game');
   renderTurnState();
 }
