@@ -1,4 +1,4 @@
-const CACHE = 'undercover-v1';
+const CACHE = 'minigames-v1';
 const ASSETS = [
   '/',
   '/anime-undercover.html',

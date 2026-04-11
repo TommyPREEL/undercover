@@ -2,7 +2,7 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY undercover-server.js .
+COPY minigames-server.js .
 COPY index.html .
 COPY manifest.json .
 COPY sw.js .
@@ -12,5 +12,5 @@ COPY games/ games/
 
 EXPOSE 80
 
-CMD ["node", "undercover-server.js"]
+CMD ["node", "minigames-server.js"]
 

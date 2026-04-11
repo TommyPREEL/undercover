@@ -1,6 +1,6 @@
-# Undercover — Anime Edition �
+# Minigames 🎮
 
-A multiplayer party game where one (or more) players are undercover spies.
+A collection of multiplayer party minigames.
 
 ## Quick Start
 
@@ -11,7 +11,7 @@ Open `anime-undercover.html` in any browser — no server needed.
 Requires Node.js (v14+). No npm packages needed.
 
 ```bash
-node undercover-server.js
+node minigames-server.js
 ```
 
 Server runs at **http://localhost:3000**
@@ -43,7 +43,7 @@ See [deployment guide in README]:
 
 ## Files
 - `anime-undercover.html` — game client (works standalone for local play)
-- `undercover-server.js` — zero-dependency WebSocket + HTTP server
+- `minigames-server.js` — zero-dependency WebSocket + HTTP server
 - `manifest.json` — PWA manifest
 - `sw.js` — service worker (offline cache)
 - `Dockerfile` / `docker-compose.yml` — container deployment

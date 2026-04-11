@@ -1,7 +1,7 @@
 {
-  "name": "Undercover — Anime Edition",
-  "short_name": "Undercover",
-  "description": "Anime party spy game — find the undercover player",
+  "name": "Minigames",
+  "short_name": "Minigames",
+  "description": "A collection of party minigames",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
