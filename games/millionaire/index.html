@@ -177,29 +177,30 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div id="toast"></div>
+<script src="/i18n.js"></script>
 
 <div id="local-pause-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,0.96);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
-  <div style="font-family:var(--font-display);font-size:64px;letter-spacing:4px;color:var(--gold);">PAUSED</div>
-  <button class="btn-primary" onclick="resumeLocalGame()" style="width:220px;">▶ RESUME</button>
+  <div style="font-family:var(--font-display);font-size:64px;letter-spacing:4px;color:var(--gold);" data-i18n="gamePaused">PAUSED</div>
+  <button class="btn-primary" onclick="resumeLocalGame()" style="width:220px;" data-i18n="resume">▶ RESUME</button>
 </div>
 
 <div class="container">
 
 <!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
 <div class="phase active" id="phase-local-setup">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo">LOCAL <span>SETUP</span></div>
-  <div class="tagline">Solo challenge — how far can you go?</div>
+  <a class="back-btn" href="/" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span data-i18n="mil.localSetup">LOCAL</span> <span data-i18n="mil.setupWord">SETUP</span></div>
+  <div class="tagline" data-i18n="mil.soloChallenge">Solo challenge — how far can you go?</div>
 
-  <div class="label">Theme</div>
+  <div class="label" data-i18n="mil.theme">Theme</div>
   <div class="theme-row" id="local-theme-row">
-    <button class="theme-btn active" data-theme="videogames" onclick="setLocalTheme(this)">🎮 Video Games</button>
-    <button class="theme-btn" data-theme="anime" onclick="setLocalTheme(this)">⛩️ Anime</button>
-    <button class="theme-btn" data-theme="tv" onclick="setLocalTheme(this)">🎬 TV & Movies</button>
-    <button class="theme-btn" data-theme="geek" onclick="setLocalTheme(this)">🧠 Geek Trivia</button>
+    <button class="theme-btn active" data-theme="videogames" onclick="setLocalTheme(this)">🎮 <span data-i18n="mil.videoGames">Video Games</span></button>
+    <button class="theme-btn" data-theme="anime" onclick="setLocalTheme(this)">⛩️ <span data-i18n="mil.anime">Anime</span></button>
+    <button class="theme-btn" data-theme="tv" onclick="setLocalTheme(this)">🎬 <span data-i18n="mil.tvMovies">TV & Movies</span></button>
+    <button class="theme-btn" data-theme="geek" onclick="setLocalTheme(this)">🧠 <span data-i18n="mil.geekTrivia">Geek Trivia</span></button>
   </div>
 
-  <button class="btn-primary" onclick="startLocalGame()">START GAME →</button>
+  <button class="btn-primary" onclick="startLocalGame()" data-i18n="startGameArrow">START GAME →</button>
 </div>
 
 <!-- ── LOCAL PLAY ────────────────────────────────────────────── -->
@@ -208,7 +209,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="game-layout">
     <div class="game-main">
       <div class="question-box">
-        <div class="q-label">Question <span id="local-q-num">1</span> of 15</div>
+        <div class="q-label" id="local-q-label">Question <span id="local-q-num">1</span> of 15</div>
         <div class="q-value" id="local-q-value">$100</div>
         <div class="q-text" id="local-q-text"></div>
       </div>
@@ -216,28 +217,28 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="lifelines">
         <button class="lifeline-btn" id="local-fifty-btn" onclick="useLocalFiftyFifty()">50:50</button>
       </div>
-      <button class="walkaway-btn" id="local-walkaway-btn" onclick="localWalkAway()">🚶 Walk Away</button>
+      <button class="walkaway-btn" id="local-walkaway-btn" onclick="localWalkAway()" data-i18n="mil.walkAway">🚶 Walk Away</button>
     </div>
     <div class="ladder-col">
-      <div class="label">Prize Ladder</div>
+      <div class="label" data-i18n="mil.prizeLadder">Prize Ladder</div>
       <div class="ladder" id="local-ladder"></div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:1.5rem;">
-    <button class="btn-ghost" onclick="pauseLocalGame()" style="flex:1;">⏸ Pause</button>
-    <button class="btn-ghost" onclick="cancelLocalGame()" style="flex:1;">✕ Cancel</button>
+    <button class="btn-ghost" onclick="pauseLocalGame()" style="flex:1;" data-i18n="pause">⏸ Pause</button>
+    <button class="btn-ghost" onclick="cancelLocalGame()" style="flex:1;" data-i18n="cancelGame">✕ Cancel</button>
   </div>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo">GAME <span>OVER</span></div>
+  <a class="back-btn" href="/" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span data-i18n="mil.gameOver">GAME</span> <span data-i18n="mil.overWord">OVER</span></div>
   <div class="reveal-box" style="margin-bottom:1.5rem;">
-    <div class="reveal-label" id="local-result-label">You earned</div>
+    <div class="reveal-label" id="local-result-label" data-i18n="mil.youEarned">You earned</div>
     <div class="reveal-score" id="local-result-score">$0</div>
   </div>
-  <button class="btn-primary" onclick="restartLocal()">PLAY AGAIN</button>
+  <button class="btn-primary" onclick="restartLocal()" data-i18n="playAgain">PLAY AGAIN</button>
 </div>
 
 <!-- ── MP PLAY ────────────────────────────────────────────────── -->
@@ -247,7 +248,7 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   <div class="game-layout">
     <div class="game-main">
       <div class="question-box">
-        <div class="q-label">Question <span id="mp-q-num">1</span> of 15</div>
+        <div class="q-label" id="mp-q-label">Question <span id="mp-q-num">1</span> of 15</div>
         <div class="q-value" id="mp-q-value">$100</div>
         <div class="q-text" id="mp-q-text"></div>
       </div>
@@ -258,29 +259,29 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
       <div class="reveal-info" id="mp-reveal-info" style="display:none;"></div>
     </div>
     <div class="ladder-col">
-      <div class="label">Prize Ladder</div>
+      <div class="label" data-i18n="mil.prizeLadder">Prize Ladder</div>
       <div class="ladder" id="mp-ladder"></div>
     </div>
   </div>
-  <div id="mp-paused-banner" style="display:none;background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--gold);font-family:var(--font-display);font-size:24px;letter-spacing:2px;margin-top:1rem;">⏸ GAME PAUSED</div>
+  <div id="mp-paused-banner" style="display:none;background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--gold);font-family:var(--font-display);font-size:24px;letter-spacing:2px;margin-top:1rem;" data-i18n="gamePaused">⏸ GAME PAUSED</div>
   <div id="mp-host-actions" style="display:none;">
     <div style="display:flex;gap:8px;margin-top:1.5rem;">
-      <button class="btn-ghost" id="mp-pause-btn" onclick="mpTogglePause()" style="flex:1;">⏸ Pause</button>
-      <button class="btn-ghost" onclick="mpCancelGame()" style="flex:1;">✕ Cancel</button>
+      <button class="btn-ghost" id="mp-pause-btn" onclick="mpTogglePause()" style="flex:1;" data-i18n="pause">⏸ Pause</button>
+      <button class="btn-ghost" onclick="mpCancelGame()" style="flex:1;" data-i18n="cancelGame">✕ Cancel</button>
     </div>
   </div>
 </div>
 
 <!-- ── MP WAITING (hub flow) ──────────────────────────────────── -->
 <div class="phase" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="logo">MILLION<span>AIRE</span></div>
-  <div class="tagline">Online — waiting for host</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="logo"><span data-i18n="mil.million">MILLION</span><span data-i18n="mil.aireWord">AIRE</span></div>
+  <div class="tagline" data-i18n="mil.onlineWaiting">Online — waiting for host</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
 
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table style="width:100%;border-collapse:collapse;">
       <thead><tr>
         <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
@@ -292,30 +293,30 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
 
   <div id="waiting-host-area" style="display:none;">
-    <div class="label">Theme</div>
+    <div class="label" data-i18n="mil.theme">Theme</div>
     <div class="theme-row" id="waiting-theme-row">
-      <button class="theme-btn active" data-theme="videogames" onclick="setWaitingTheme(this)">🎮 Video Games</button>
-      <button class="theme-btn" data-theme="anime" onclick="setWaitingTheme(this)">⛩️ Anime</button>
-      <button class="theme-btn" data-theme="tv" onclick="setWaitingTheme(this)">🎬 TV &amp; Movies</button>
-      <button class="theme-btn" data-theme="geek" onclick="setWaitingTheme(this)">🧠 Geek Trivia</button>
+      <button class="theme-btn active" data-theme="videogames" onclick="setWaitingTheme(this)">🎮 <span data-i18n="mil.videoGames">Video Games</span></button>
+      <button class="theme-btn" data-theme="anime" onclick="setWaitingTheme(this)">⛩️ <span data-i18n="mil.anime">Anime</span></button>
+      <button class="theme-btn" data-theme="tv" onclick="setWaitingTheme(this)">🎬 <span data-i18n="mil.tvMovies">TV &amp; Movies</span></button>
+      <button class="theme-btn" data-theme="geek" onclick="setWaitingTheme(this)">🧠 <span data-i18n="mil.geekTrivia">Geek Trivia</span></button>
     </div>
-    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
+    <button class="btn-primary" onclick="mpStartGame()" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start the game…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHostGame">Waiting for host to start the game…</div>
 </div>
 
 <!-- ── MP RESULT ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-result">
-  <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;">← HOME</a>
-  <div class="logo">FINAL <span>SCORES</span></div>
-  <div class="tagline">Game over — who is the millionaire?</div>
+  <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span data-i18n="mil.finalScores">FINAL</span> <span data-i18n="mil.scoresWord">SCORES</span></div>
+  <div class="tagline" data-i18n="mil.whoIsMillionaire">Game over — who is the millionaire?</div>
   <div class="leaderboard" id="mp-leaderboard"></div>
   <div id="mp-result-hub-scores" style="display:none;margin-bottom:1rem;">
-    <div class="label" style="margin-top:1rem;">Global scores</div>
+    <div class="label" style="margin-top:1rem;" data-i18n="globalScores">Global scores</div>
     <div id="mp-result-hub-body"></div>
   </div>
-  <button class="btn-primary" id="mp-play-again-btn">BACK TO LOBBY</button>
-  <button class="btn-ghost" id="mp-return-hub-btn" style="display:none;" onclick="returnToHub()">↩ Return to Game Hub</button>
+  <button class="btn-primary" id="mp-play-again-btn" data-i18n="backToLobby">BACK TO LOBBY</button>
+  <button class="btn-ghost" id="mp-return-hub-btn" style="display:none;" onclick="returnToHub()" data-i18n="returnToHub">↩ Return to Game Hub</button>
 </div>
 
 </div><!-- /container -->
@@ -423,7 +424,7 @@ function renderLocalLadder(){
 // ── LOCAL QUESTION ────────────────────────────────────────────
 function renderLocalQuestion(){
   const q=localQuestions[localQIndex];
-  document.getElementById('local-q-num').textContent=localQIndex+1;
+  document.getElementById('local-q-label').textContent=t('mil.questionOf',{n:localQIndex+1});
   document.getElementById('local-q-value').textContent=fmtMoney(PRIZE_LADDER[localQIndex]);
   document.getElementById('local-q-text').textContent=q.q;
   document.getElementById('local-fifty-btn').className='lifeline-btn'+(localFiftyUsed?' used':'');
@@ -494,7 +495,7 @@ function useLocalFiftyFifty(){
 }
 
 function showLocalResult(score, won){
-  const label = won===true ? '🎉 You won the million!' : won===false ? '❌ Wrong answer!' : '🚶 Walked away';
+  const label = won===true ? t('mil.youWonMillion') : won===false ? t('mil.wrongAnswer') : t('mil.walkedAway');
   document.getElementById('local-result-label').textContent=label;
   document.getElementById('local-result-score').textContent=fmtMoney(score);
   showPhase('phase-local-result');
@@ -527,7 +528,7 @@ function mpWsConnect(onOpen){
   ws.onclose=()=>{
     if(myRoom&&myName&&reconnectAttempts<5){
       reconnectAttempts++;
-      notify('Connection lost, reconnecting…');
+      notify(t('connectionLost'));
       setTimeout(()=>mpWsConnect(()=>{
         mpSend({type:'rejoin_room',code:myRoom,name:myName});
       }),2000*reconnectAttempts);
@@ -603,24 +604,24 @@ function handleMpMsg(msg){
       document.getElementById('mp-join-error').textContent=msg.msg||'Error.';
       break;
     case 'new_host':
-      isHost=true; notify('You are now the host.');
+      isHost=true; notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
-    case 'player_offline': notify(msg.name+' disconnected…'); break;
-    case 'player_left': notify(msg.name+' left the room.'); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
+    case 'player_offline': notify(t('playerDisconnected',{name:msg.name})); break;
+    case 'player_left': notify(t('playerLeftRoom',{name:msg.name})); break;
     case 'millionaire_question':
       mpCurrentQi=msg.qi; mpHasAnswered=false; mpPaused=false; mpCurrentQ=msg;
       renderMpQuestion(msg);
       showPhase('phase-mp-play');
       document.getElementById('mp-host-actions').style.display=isHost?'flex':'none';
       document.getElementById('mp-paused-banner').style.display='none';
-      document.getElementById('mp-pause-btn').textContent='⏸ Pause';
+      document.getElementById('mp-pause-btn').textContent=t('pause');
       if(mpEliminated){
         document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=true);
         document.getElementById('mp-reveal-info').style.display='block';
-        document.getElementById('mp-reveal-info').innerHTML='<div class="waiting-msg">You\'ve been eliminated — spectating…</div>';
+        document.getElementById('mp-reveal-info').innerHTML=`<div class="waiting-msg">${t('mil.eliminated')}</div>`;
         clearMpTimer(); document.getElementById('mp-timer-bar').style.width='0%';
       }
       break;
@@ -628,21 +629,27 @@ function handleMpMsg(msg){
       mpPaused=true; clearMpTimer();
       document.getElementById('mp-paused-banner').style.display='block';
       document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=true);
-      if(isHost) document.getElementById('mp-pause-btn').textContent='▶ Resume';
+      if(isHost) document.getElementById('mp-pause-btn').textContent=t('resume');
       break;
     case 'game_resumed':
       mpPaused=false;
       document.getElementById('mp-paused-banner').style.display='none';
       if(!mpHasAnswered) document.querySelectorAll('#mp-answers .ans-btn').forEach(b=>b.disabled=false);
-      if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
+      if(isHost) document.getElementById('mp-pause-btn').textContent=t('pause');
       startMpTimer(msg.timeLeftMs || msg.timeLeft*1000, TIMER_SECONDS*1000);
       break;
     case 'millionaire_reveal':
       if((msg.newlyEliminated||[]).includes(myName)){
         mpEliminated=true;
-        notify('Wrong answer — you\'ve been eliminated!');
+        notify(t('mil.wrongEliminated'));
       }
       renderMpReveal(msg);
+      break;
+    case 'mil_fifty_fifty_result':
+      (msg.hide||[]).forEach(l=>{
+        const btn=document.querySelector(`#mp-answers .ans-btn[data-letter="${l}"]`);
+        if(btn) btn.style.visibility='hidden';
+      });
       break;
     case 'millionaire_over':
       clearMpTimer();
@@ -716,7 +723,7 @@ function clearMpTimer(){
 
 // ── MP QUESTION ───────────────────────────────────────────────
 function renderMpQuestion(msg){
-  document.getElementById('mp-q-num').textContent=msg.qi+1;
+  document.getElementById('mp-q-label').textContent=t('mil.questionOf',{n:msg.qi+1});
   document.getElementById('mp-q-value').textContent=fmtMoney(PRIZE_LADDER[msg.qi]);
   document.getElementById('mp-q-text').textContent=msg.q;
   document.getElementById('mp-reveal-info').style.display='none';
@@ -748,7 +755,7 @@ function submitMpAnswer(choice){
   if(chosen)chosen.style.borderColor='var(--gold)';
   mpSend({type:'millionaire_answer',qi:mpCurrentQi,ans:choice});
   document.getElementById('mp-reveal-info').style.display='block';
-  document.getElementById('mp-reveal-info').innerHTML='<div class="waiting-msg">Answer submitted — waiting for others…</div>';
+  document.getElementById('mp-reveal-info').innerHTML=`<div class="waiting-msg">${t('mil.answerSubmitted')}</div>`;
 }
 
 function useMpFiftyFifty(){
@@ -756,21 +763,7 @@ function useMpFiftyFifty(){
   mpFiftyUsed=true;
   document.getElementById('mp-fifty-btn').disabled=true;
   document.getElementById('mp-fifty-btn').classList.add('used');
-  const q=mpCurrentQ;
-  const wrong=['a','b','c','d'].filter(l=>l!==q.ans);
-  // Server doesn't send ans, so we do client-side elimination randomly (2 of 3 wrong options hidden)
-  // Note: without the answer from server we can't guarantee which is correct, so we just hide 2 random wrong options
-  // Actually we don't have ans in online mode (server strips it) — just hide 2 random non-chosen buttons
-  // The server will handle this fairly: all players get the same 50:50 result via server if implemented
-  // For now do client-side with random (same fairness as TV show's computer)
-  const allLetters=['a','b','c','d'];
-  const toHide=shuffle(allLetters).slice(0,2); // random 2, may include correct — server should handle this
-  // Better: just hide 2 of the 4 options that aren't the one already selected
-  const remaining=allLetters.filter(l=>!mpHasAnswered||true); // hide any 2
-  shuffle(remaining).slice(0,2).forEach(l=>{
-    const btn=document.querySelector(`#mp-answers .ans-btn[data-letter="${l}"]`);
-    if(btn)btn.style.visibility='hidden';
-  });
+  mpSend({type:'mil_fifty_fifty'});
 }
 
 function renderMpReveal(msg){
@@ -813,11 +806,11 @@ function renderMpResult(msg){
     btn.style.display='none';
     hubBtn.style.display='block';
     if(!isHost){
-      hubBtn.textContent='Waiting for host to return to hub…';
+      hubBtn.textContent=t('waitingForHostHub');
       hubBtn.disabled=true;
       hubBtn.style.opacity='0.5';
     } else {
-      hubBtn.textContent='↩ Return to Game Hub';
+      hubBtn.textContent=t('returnToHub');
       hubBtn.disabled=false;
       hubBtn.style.opacity='1';
     }
@@ -835,10 +828,10 @@ function renderMpResult(msg){
     btn.style.display='block';
     hubBtn.style.display='none';
     if(isHost){
-      btn.textContent='PLAY AGAIN';
+      btn.textContent=t('playAgain');
       btn.onclick=()=>mpSend({type:'new_game'});
     } else {
-      btn.textContent='BACK TO LOBBY';
+      btn.textContent=t('backToLobby');
       btn.onclick=()=>showPhase('phase-mp-waiting');
     }
   }
@@ -858,7 +851,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent=players.length;
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hostName?'<span class="crown" style="color:var(--gold);">👑</span>':'';
-    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    const you=p===myName?`<span class="you-tag">${t('you')}</span>`:'';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
@@ -919,6 +912,7 @@ function returnToHub(){
     }
   }catch(_){}
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>

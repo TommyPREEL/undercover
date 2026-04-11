@@ -176,25 +176,25 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
 <div class="orb orb-2"></div>
 
 <div id="local-pause-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,0.96);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
-  <div style="font-family:var(--font-display);font-size:64px;letter-spacing:4px;color:var(--accent);">PAUSED</div>
-  <button class="btn-primary" onclick="resumeLocalGame()" style="width:220px;">▶ RESUME</button>
+  <div style="font-family:var(--font-display);font-size:64px;letter-spacing:4px;color:var(--accent);" data-i18n="gamePaused">PAUSED</div>
+  <button class="btn-primary" onclick="resumeLocalGame()" style="width:220px;">▶ <span data-i18n="resume">RESUME</span></button>
 </div>
 <div id="toast"></div>
 <div class="container">
 
 <!-- ── LOCAL SETUP ───────────────────────────────────────────── -->
 <div class="phase active" id="phase-local-setup">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo"><span class="hot">LOCAL</span> <span class="cold">SETUP</span></div>
-  <div class="tagline">Solo mode — where do you stand?</div>
-  <div class="label">Rounds</div>
+  <a class="back-btn" href="/" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span class="hot" data-i18n="ht.localSetup">LOCAL</span> <span class="cold" data-i18n="ht.setupWord">SETUP</span></div>
+  <div class="tagline" data-i18n="ht.soloMode">Solo mode — where do you stand?</div>
+  <div class="label" data-i18n="rounds">Rounds</div>
   <div class="rounds-row">
     <button class="round-btn active" data-r="5" onclick="setRounds(this)">5</button>
     <button class="round-btn" data-r="8" onclick="setRounds(this)">8</button>
     <button class="round-btn" data-r="10" onclick="setRounds(this)">10</button>
     <button class="round-btn" data-r="15" onclick="setRounds(this)">15</button>
   </div>
-  <button class="btn-primary" onclick="startLocal()">START →</button>
+  <button class="btn-primary" onclick="startLocal()" data-i18n="ht.start">START →</button>
 </div>
 
 <!-- ── LOCAL VOTE ────────────────────────────────────────────── -->
@@ -209,25 +209,25 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
   <div class="vote-row">
     <button class="vote-btn agree-btn" id="local-agree-btn" onclick="castLocalVote('agree')">
-      <span class="vote-emoji">🔥</span>AGREE
+      <span class="vote-emoji">🔥</span><span data-i18n="ht.agree">AGREE</span>
     </button>
     <button class="vote-btn disagree-btn" id="local-disagree-btn" onclick="castLocalVote('disagree')">
-      <span class="vote-emoji">💧</span>DISAGREE
+      <span class="vote-emoji">💧</span><span data-i18n="ht.disagree">DISAGREE</span>
     </button>
   </div>
   <div style="display:flex;gap:8px;margin-top:1.5rem;">
-    <button class="btn-ghost" onclick="pauseLocalGame()" style="flex:1;">⏸ Pause</button>
-    <button class="btn-ghost" onclick="showPhase('phase-local-setup')" style="flex:1;">✕ Cancel</button>
+    <button class="btn-ghost" onclick="pauseLocalGame()" style="flex:1;"><span data-i18n="pause">⏸ Pause</span></button>
+    <button class="btn-ghost" onclick="showPhase('phase-local-setup')" style="flex:1;"><span data-i18n="cancelGame">✕ Cancel</span></button>
   </div>
 </div>
 
 <!-- ── LOCAL RESULT ──────────────────────────────────────────── -->
 <div class="phase" id="phase-local-result">
-  <a class="back-btn" href="/">← HOME</a>
-  <div class="logo"><span class="hot">YOUR</span> <span class="cold">TAKES</span></div>
-  <div class="tagline">Here's where you stand</div>
+  <a class="back-btn" href="/" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span class="hot" data-i18n="ht.yourTakes">YOUR</span> <span class="cold" data-i18n="ht.takesWord">TAKES</span></div>
+  <div class="tagline" data-i18n="ht.heresWhereYouStand">Here's where you stand</div>
   <div id="local-vote-log" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem;"></div>
-  <button class="btn-primary" onclick="showPhase('phase-local-setup')">PLAY AGAIN</button>
+  <button class="btn-primary" onclick="showPhase('phase-local-setup')" data-i18n="playAgain">PLAY AGAIN</button>
 </div>
 
 <!-- ── MP VOTE ────────────────────────────────────────────────── -->
@@ -243,18 +243,18 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
   <div class="vote-row">
     <button class="vote-btn agree-btn" id="mp-agree-btn" onclick="mpVote('agree')">
-      <span class="vote-emoji">🔥</span>AGREE
+      <span class="vote-emoji">🔥</span><span data-i18n="ht.agree">AGREE</span>
     </button>
     <button class="vote-btn disagree-btn" id="mp-disagree-btn" onclick="mpVote('disagree')">
-      <span class="vote-emoji">💧</span>DISAGREE
+      <span class="vote-emoji">💧</span><span data-i18n="ht.disagree">DISAGREE</span>
     </button>
   </div>
-  <div class="waiting-msg" id="mp-vote-waiting" style="display:none;">Vote sent — waiting for others…</div>
-  <div id="mp-paused-banner" style="display:none;background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--accent);font-family:var(--font-display);font-size:24px;letter-spacing:2px;margin-top:1rem;">⏸ GAME PAUSED</div>
+  <div class="waiting-msg" id="mp-vote-waiting" style="display:none;" data-i18n="ht.voteSent">Vote sent — waiting for others…</div>
+  <div id="mp-paused-banner" style="display:none;background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--accent);font-family:var(--font-display);font-size:24px;letter-spacing:2px;margin-top:1rem;" data-i18n="gamePaused">⏸ GAME PAUSED</div>
   <div id="mp-host-actions" style="display:none;">
     <div style="display:flex;gap:8px;margin-top:1.5rem;">
-      <button class="btn-ghost" id="mp-pause-btn" onclick="mpTogglePause()" style="flex:1;">⏸ Pause</button>
-      <button class="btn-ghost" onclick="mpSend({type:'cancel_round'})" style="flex:1;">✕ Cancel</button>
+      <button class="btn-ghost" id="mp-pause-btn" onclick="mpTogglePause()" style="flex:1;"><span data-i18n="pause">⏸ Pause</span></button>
+      <button class="btn-ghost" onclick="mpSend({type:'cancel_round'})" style="flex:1;"><span data-i18n="cancelGame">✕ Cancel</span></button>
     </div>
   </div>
 </div>
@@ -274,19 +274,19 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
     <div id="mp-rev-majority"></div>
     <div class="points-earned" id="mp-rev-points"></div>
   </div>
-  <div class="waiting-msg" id="mp-rev-waiting">Next round coming up…</div>
+  <div class="waiting-msg" id="mp-rev-waiting" data-i18n="ht.nextRoundComing">Next round coming up…</div>
 </div>
 
 <!-- ── MP WAITING (hub flow) ──────────────────────────────────── -->
 <div class="phase" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="logo"><span class="hot">HOT</span> <span class="cold">TAKES</span></div>
-  <div class="tagline">Online — waiting for host</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="logo"><span class="hot" data-i18n="ht.hotWord">HOT</span> <span class="cold" data-i18n="ht.coldWord">TAKES</span></div>
+  <div class="tagline" data-i18n="ht.onlineWaiting">Online — waiting for host</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
 
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table style="width:100%;border-collapse:collapse;">
       <thead><tr>
         <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
@@ -298,34 +298,35 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
   </div>
 
   <div id="waiting-host-area" style="display:none;">
-    <div class="label">Rounds</div>
+    <div class="label" data-i18n="rounds">Rounds</div>
     <div class="rounds-row" id="waiting-rounds-row">
       <button class="round-btn" data-r="5" onclick="setWaitingRounds(5,this)">5</button>
       <button class="round-btn active" data-r="10" onclick="setWaitingRounds(10,this)">10</button>
       <button class="round-btn" data-r="15" onclick="setWaitingRounds(15,this)">15</button>
       <button class="round-btn" data-r="20" onclick="setWaitingRounds(20,this)">20</button>
     </div>
-    <button class="btn-primary" onclick="mpStartGame()">START GAME →</button>
+    <button class="btn-primary" onclick="mpStartGame()" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start the game…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHostGame">Waiting for host to start the game…</div>
 </div>
 
 <!-- ── MP RESULT ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-mp-result">
-  <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;">← HOME</a>
-  <div class="logo"><span class="hot">FINAL</span> <span class="cold">SCORES</span></div>
-  <div class="tagline">The majority has spoken</div>
+  <a class="back-btn" href="#" onclick="mpLeaveRoom();return false;" data-i18n="backHome">← HOME</a>
+  <div class="logo"><span class="hot" data-i18n="ht.finalScores">FINAL</span> <span class="cold" data-i18n="ht.scoresWord">SCORES</span></div>
+  <div class="tagline" data-i18n="ht.majoritySpoken">The majority has spoken</div>
   <div class="leaderboard" id="mp-leaderboard"></div>
   <div id="mp-result-hub-scores" style="display:none;margin-bottom:1rem;">
-    <div class="label" style="margin-top:1rem;">Global scores</div>
+    <div class="label" style="margin-top:1rem;" data-i18n="globalScores">Global scores</div>
     <div id="mp-result-hub-body"></div>
   </div>
-  <button class="btn-primary" id="mp-again-btn">BACK TO LOBBY</button>
-  <button class="btn-ghost" id="mp-return-hub-btn" style="display:none;" onclick="returnToHub()">↩ Return to Game Hub</button>
+  <button class="btn-primary" id="mp-again-btn" data-i18n="backToLobby">BACK TO LOBBY</button>
+  <button class="btn-ghost" id="mp-return-hub-btn" style="display:none;" onclick="returnToHub()" data-i18n="returnToHub">↩ Return to Game Hub</button>
 </div>
 
 </div>
 <script src="data/prompts.js"></script>
+<script src="/i18n.js"></script>
 <script>
 // ── STATE ─────────────────────────────────────────────────────
 let selectedMode = 'local';
@@ -405,7 +406,7 @@ function showLocalResult(){
       <span style="font-size:20px;">${v.vote==='agree'?'🔥':'💧'}</span>
       <div>
         <div style="font-size:13px;font-weight:600;">${v.text}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">${v.category} · ${v.vote==='agree'?'Agree':'Disagree'}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.08em;">${v.category} · ${v.vote==='agree'?t('ht.agreeVote'):t('ht.disagreeVote')}</div>
       </div>
     </div>`).join('');
   showPhase('phase-local-result');
@@ -437,7 +438,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent=players.length;
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hostName?'<span style="color:var(--accent);">👑</span>':'';
-    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    const you=p===myName?'<span class="you-tag">'+t('you')+'</span>':'';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
@@ -466,7 +467,7 @@ function mpWsConnect(cb){
   ws.onclose=()=>{
     if(myRoom&&myName&&reconnectAttempts<5){
       reconnectAttempts++;
-      notify('Connection lost, reconnecting…');
+      notify(t('connectionLost'));
       setTimeout(()=>mpWsConnect(()=>mpSend({type:'rejoin_room',code:myRoom,name:myName})),2000*reconnectAttempts);
     }
   };
@@ -510,13 +511,13 @@ function handleMsg(msg){
       }
       break;
     case 'new_host':
-      isHost=true; notify('You are now the host.');
+      isHost=true; notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
-    case 'player_offline': notify(msg.name+' disconnected…'); break;
-    case 'player_left': notify(msg.name+' left the room.'); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
+    case 'player_offline': notify(t('playerDisconnected',{name:msg.name})); break;
+    case 'player_left': notify(t('playerLeftRoom',{name:msg.name})); break;
     case 'hottakes_prompt':
       mpCurrentPrompt=msg; mpCurrentRound=msg.round; mpTotalRounds=msg.total;
       mpHasVoted=false; mpPaused=false; renderMpVote(msg); showPhase('phase-mp-vote');
@@ -528,7 +529,7 @@ function handleMsg(msg){
       document.getElementById('mp-paused-banner').style.display='block';
       document.getElementById('mp-agree-btn').disabled=true;
       document.getElementById('mp-disagree-btn').disabled=true;
-      if(isHost) document.getElementById('mp-pause-btn').textContent='▶ Resume'; break;
+      if(isHost) document.getElementById('mp-pause-btn').textContent=t('resume'); break;
     case 'game_resumed':
       mpPaused=false;
       document.getElementById('mp-paused-banner').style.display='none';
@@ -536,7 +537,7 @@ function handleMsg(msg){
         document.getElementById('mp-agree-btn').disabled=false;
         document.getElementById('mp-disagree-btn').disabled=false;
       }
-      if(isHost) document.getElementById('mp-pause-btn').textContent='⏸ Pause';
+      if(isHost) document.getElementById('mp-pause-btn').textContent=t('pause');
       startMpTimer(msg.timeLeftMs || msg.timeLeft*1000, 15000); break;
     case 'hottakes_reveal':
       clearMpTimer(); renderMpReveal(msg); showPhase('phase-mp-reveal'); break;
@@ -636,23 +637,23 @@ function renderMpReveal(msg){
 
   document.getElementById('mp-rev-split').innerHTML=`
     <div class="split-side agree-side">
-      <div class="split-label agree-side">🔥 Agree</div>
+      <div class="split-label agree-side">${t('ht.agreeLabel')}</div>
       <div class="split-pct">${agreePct}%</div>
       <div class="split-names">${agreeNames.map(esc).join(', ')||'—'}</div>
     </div>
     <div class="split-side disagree-side">
-      <div class="split-label disagree-side">💧 Disagree</div>
+      <div class="split-label disagree-side">${t('ht.disagreeLabel')}</div>
       <div class="split-pct">${100-agreePct}%</div>
       <div class="split-names">${disagreeNames.map(esc).join(', ')||'—'}</div>
     </div>`;
 
-  let majorityClass='tied', majorityText='TIE — no points this round';
+  let majorityClass='tied', majorityText=t('ht.tieNoPoints');
   const pointEarners=msg.pointEarners||[];
-  if(agreeNames.length>disagreeNames.length){majorityClass='agree';majorityText='🔥 AGREE wins the majority!';}
-  else if(disagreeNames.length>agreeNames.length){majorityClass='disagree';majorityText='💧 DISAGREE wins the majority!';}
+  if(agreeNames.length>disagreeNames.length){majorityClass='agree';majorityText=t('ht.agreeWins');}
+  else if(disagreeNames.length>agreeNames.length){majorityClass='disagree';majorityText=t('ht.disagreeWins');}
 
   document.getElementById('mp-rev-majority').innerHTML=`<div class="majority-badge ${majorityClass}">${majorityText}</div>`;
-  document.getElementById('mp-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> for: ${pointEarners.map(esc).join(', ')}`:'No points awarded.';
+  document.getElementById('mp-rev-points').innerHTML=pointEarners.length?`<b>+1 point</b> ${t('ht.pointFor',{names:pointEarners.map(esc).join(', ')})}`:t('ht.noPointsAwarded');
   renderMpScoreStrip('mp-rev-score-strip');
 }
 
@@ -677,8 +678,8 @@ function renderMpResult(msg){
   if(hubFlow){
     btn.style.display='none';
     hubBtn.style.display='block';
-    if(!isHost){hubBtn.textContent='Waiting for host to return to hub…';hubBtn.disabled=true;hubBtn.style.opacity='0.5';}
-    else{hubBtn.textContent='↩ Return to Game Hub';hubBtn.disabled=false;hubBtn.style.opacity='1';}
+    if(!isHost){hubBtn.textContent=t('waitingForHostHub');hubBtn.disabled=true;hubBtn.style.opacity='0.5';}
+    else{hubBtn.textContent=t('returnToHub');hubBtn.disabled=false;hubBtn.style.opacity='1';}
     const hsEntries=Object.entries(hubScores).sort((a,b)=>b[1]-a[1]);
     if(hsEntries.some(([,v])=>v>0)){
       document.getElementById('mp-result-hub-scores').style.display='block';
@@ -688,8 +689,8 @@ function renderMpResult(msg){
     }
   } else {
     btn.style.display='block'; hubBtn.style.display='none';
-    if(isHost){btn.textContent='PLAY AGAIN';btn.onclick=()=>mpSend({type:'new_game'});}
-    else{btn.textContent='BACK TO LOBBY';btn.onclick=()=>showPhase('phase-mp-waiting');}
+    if(isHost){btn.textContent=t('playAgain');btn.onclick=()=>mpSend({type:'new_game'});}
+    else{btn.textContent=t('backToLobby');btn.onclick=()=>showPhase('phase-mp-waiting');}
   }
   showPhase('phase-mp-result');
 }
@@ -721,6 +722,7 @@ function renderMpResult(msg){
     }
   }catch(_){}
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>

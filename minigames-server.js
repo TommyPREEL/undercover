@@ -943,6 +943,21 @@ function handleMessage(socket, raw, playerId) {
       break;
     }
 
+    case 'mil_fifty_fifty': {
+      if (!room || room.gameType !== 'millionaire' || room.phase !== 'playing') return;
+      const qi5 = room.millCurrentQi;
+      const q5 = room.millQuestions[qi5];
+      if (!q5) return;
+      const wrong5 = ['a','b','c','d'].filter(l => l !== q5.ans);
+      const shuffled5 = wrong5.sort(() => Math.random() - 0.5);
+      const toHide5 = shuffled5.slice(0, 2);
+      const player5 = room.players[playerId];
+      if (player5 && player5.socket) {
+        player5.socket.send(JSON.stringify({ type: 'mil_fifty_fifty_result', hide: toHide5 }));
+      }
+      break;
+    }
+
     case 'pause_game': {
       if (!room || room.host !== playerId) return;
       if (room.paused) return;
@@ -1169,6 +1184,7 @@ function handleMessage(socket, raw, playerId) {
         room.faRound++;
         if (room.faRound > 2) {
           room.faPhase = 'voting';
+          broadcast(room, { type: 'fa_stroke_done', stroke: room.faStrokes[room.faStrokes.length - 1] || null, currentDrawer: null, round: room.faRound });
           broadcast(room, { type: 'fa_vote_start', players: Object.values(room.players).map(p => p.name) });
           break;
         }

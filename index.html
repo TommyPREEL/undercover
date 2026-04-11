@@ -154,47 +154,48 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </style>
 </head>
 <body>
+<script src="/i18n.js"></script>
 <div id="toast"></div>
 
 <!-- Rules sidebar -->
-<button id="rules-toggle" onclick="openRules()">RULES</button>
+<button id="rules-toggle" onclick="openRules()" data-i18n="rules">RULES</button>
 <div id="rules-overlay" onclick="closeRules()"></div>
 <div id="rules-sidebar">
-  <div class="rules-header">RULES <button class="rules-close" onclick="closeRules()">✕</button></div>
+  <div class="rules-header"><span data-i18n="rules">RULES</span> <button class="rules-close" onclick="closeRules()">✕</button></div>
 
   <div class="rule-block">
     <div class="rule-title">🕵️ UNDERCOVER <span class="rule-tag" style="background:rgba(232,55,90,0.15);color:#e8375a;">Local/Online</span></div>
-    <div class="rule-body">Each player gets a secret word — most players share the same word, but <b>one or two are undercover</b> and get a related-but-different word. Take turns giving one-word clues, then vote to eliminate someone. Undercovers win if they survive to the end or correctly guess the majority word.</div>
+    <div class="rule-body" data-i18n="rules.undercover" data-i18n-html>Each player gets a secret word — most players share the same word, but <b>one or two are undercover</b> and get a related-but-different word. Take turns giving one-word clues, then vote to eliminate someone. Undercovers win if they survive to the end or correctly guess the majority word.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">💰 MILLIONAIRE <span class="rule-tag" style="background:rgba(245,197,66,0.15);color:#f5c542;">Solo/Online</span></div>
-    <div class="rule-body">Classic 15-question quiz in geek culture — anime, games, TV, movies. Pick the right answer from 4 choices and climb to <b>$1,000,000</b>. Use lifelines wisely: 50/50, phone a friend, ask the audience.</div>
+    <div class="rule-body" data-i18n="rules.millionaire" data-i18n-html>Classic 15-question quiz in geek culture — anime, games, TV, movies. Pick the right answer from 4 choices and climb to <b>$1,000,000</b>. Use lifelines wisely: 50/50, phone a friend, ask the audience.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">🔥 HOT TAKES <span class="rule-tag" style="background:rgba(155,89,182,0.15);color:#9b59b6;">Local/Online</span></div>
-    <div class="rule-body">Spicy geek opinions flash on screen — <b>Agree or Disagree</b>. Everyone votes secretly, then the reveal shows how split the group is. More points for being in the minority on spicy topics.</div>
+    <div class="rule-body" data-i18n="rules.hottakes" data-i18n-html>Spicy geek opinions flash on screen — <b>Agree or Disagree</b>. Everyone votes secretly, then the reveal shows how split the group is. More points for being in the minority on spicy topics.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">🎭 INSIDER <span class="rule-tag" style="background:rgba(34,211,238,0.15);color:#22d3ee;">Online</span></div>
-    <div class="rule-body">Everyone tries to guess a secret word by asking the host yes/no questions — but <b>one player (the Insider) already knows</b> the word and subtly steers the group. After the word is found, players vote to identify the Insider. Get caught and you lose.</div>
+    <div class="rule-body" data-i18n="rules.insider" data-i18n-html>Everyone tries to guess a secret word by asking the host yes/no questions — but <b>one player (the Insider) already knows</b> the word and subtly steers the group. After the word is found, players vote to identify the Insider. Get caught and you lose.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">🔍 PROFILER <span class="rule-tag" style="background:rgba(167,139,250,0.15);color:#a78bfa;">Online</span></div>
-    <div class="rule-body">Two teams. Each team is secretly assigned an <b>anime character trait</b> (e.g. "can transform", "pervert", "antagonist"). Teams take turns naming anime characters — the opposing team votes YES or NO whether the character matches their hidden trait. First team to <b>correctly guess the enemy's trait</b> wins 500 pts.</div>
+    <div class="rule-body" data-i18n="rules.profiler" data-i18n-html>Two teams. Each team is secretly assigned an <b>anime character trait</b> (e.g. "can transform", "pervert", "antagonist"). Teams take turns naming anime characters — the opposing team votes YES or NO whether the character matches their hidden trait. First team to <b>correctly guess the enemy's trait</b> wins 500 pts.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">🎨 FAKE ARTIST <span class="rule-tag" style="background:rgba(244,114,182,0.15);color:#f472b6;">Online</span></div>
-    <div class="rule-body">Everyone knows the secret word and draws it one stroke at a time on a shared canvas — <b>except the Fake Artist</b>, who has no idea. After 2 rounds, players vote for who they think is fake. If caught, the Fake Artist still wins by guessing the word correctly.</div>
+    <div class="rule-body" data-i18n="rules.fakeArtist" data-i18n-html>Everyone knows the secret word and draws it one stroke at a time on a shared canvas — <b>except the Fake Artist</b>, who has no idea. After 2 rounds, players vote for who they think is fake. If caught, the Fake Artist still wins by guessing the word correctly.</div>
   </div>
 
   <div class="rule-block">
     <div class="rule-title">📡 WAVELENGTH <span class="rule-tag" style="background:rgba(52,211,153,0.15);color:#34d399;">Online</span></div>
-    <div class="rule-body">Two teams alternate. Each round, a <b>spectrum</b> appears (e.g. Cold ↔ Hot) and the Psychic secretly sees a target position on it. The Psychic gives a one-word clue — teammates drag the dial to where they think the target is. Closer = more points. <b>First to 10 points wins.</b></div>
+    <div class="rule-body" data-i18n="rules.wavelength" data-i18n-html>Two teams alternate. Each round, a <b>spectrum</b> appears (e.g. Cold ↔ Hot) and the Psychic secretly sees a target position on it. The Psychic gives a one-word clue — teammates drag the dial to where they think the target is. Closer = more points. <b>First to 10 points wins.</b></div>
   </div>
 </div>
 
@@ -202,32 +203,32 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="orb orb-2"></div>
 <div class="container">
   <div class="logo">GAME<span>ROOM</span></div>
-  <div class="tagline" id="main-tagline">Pick a game &amp; play</div>
+  <div class="tagline" id="main-tagline" data-i18n="hub.tagline">Pick a game &amp; play</div>
 
   <!-- ── LANDING VIEW ── -->
   <div id="view-landing">
 
     <!-- Hub section -->
     <div class="hub-section">
-      <div class="section-label">Play together</div>
+      <div class="section-label" data-i18n="hub.playTogether">Play together</div>
 
       <!-- Entry panel: name + buttons -->
       <div id="panel-entry" class="panel active">
-        <input class="hub-input" id="hub-name" placeholder="Your name…" maxlength="20" autocomplete="off"/>
+        <input class="hub-input" id="hub-name" placeholder="Your name…" maxlength="20" autocomplete="off" data-i18n="hub.namePlaceholder" data-i18n-attr="placeholder"/>
         <div class="hub-btn-row">
-          <button class="btn-hub primary" onclick="hubCreate()">＋ Create Lobby</button>
-          <button class="btn-hub" onclick="showJoinPanel()">→ Join Lobby</button>
+          <button class="btn-hub primary" onclick="hubCreate()" data-i18n="hub.createLobby">＋ Create Lobby</button>
+          <button class="btn-hub" onclick="showJoinPanel()" data-i18n="hub.joinLobby">→ Join Lobby</button>
         </div>
         <div class="hub-error" id="entry-error"></div>
       </div>
 
       <!-- Join panel: code input -->
       <div id="panel-join" class="panel">
-        <input class="hub-input" id="hub-join-name" placeholder="Your name…" maxlength="20" autocomplete="off"/>
-        <input class="hub-input" id="hub-code" placeholder="Room code…" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;font-family:var(--font-display);font-size:20px;"/>
+        <input class="hub-input" id="hub-join-name" placeholder="Your name…" maxlength="20" autocomplete="off" data-i18n="hub.namePlaceholder" data-i18n-attr="placeholder"/>
+        <input class="hub-input" id="hub-code" placeholder="Room code…" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:4px;font-family:var(--font-display);font-size:20px;" data-i18n="hub.roomCodePlaceholder" data-i18n-attr="placeholder"/>
         <div class="hub-btn-row">
-          <button class="btn-hub" onclick="showEntryPanel()">← Back</button>
-          <button class="btn-hub primary" onclick="hubJoin()">Join →</button>
+          <button class="btn-hub" onclick="showEntryPanel()" data-i18n="hub.back">← Back</button>
+          <button class="btn-hub primary" onclick="hubJoin()" data-i18n="hub.join">Join →</button>
         </div>
         <div class="hub-error" id="join-error"></div>
       </div>
@@ -235,40 +236,40 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <!-- Public lobbies list -->
       <div id="panel-lobbies" style="margin-top:12px;">
         <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
-          <span>Open lobbies</span>
-          <span id="lobby-refresh" style="cursor:pointer;font-size:10px;color:var(--muted);" onclick="fetchLobbies()">↺ refresh</span>
+          <span data-i18n="hub.openLobbies">Open lobbies</span>
+          <span id="lobby-refresh" style="cursor:pointer;font-size:10px;color:var(--muted);" onclick="fetchLobbies()" data-i18n="hub.refresh">↺ refresh</span>
         </div>
-        <div id="lobby-list-container"><div class="no-lobbies">Loading…</div></div>
+        <div id="lobby-list-container"><div class="no-lobbies" data-i18n="hub.loading">Loading…</div></div>
       </div>
     </div>
 
     <!-- Solo game cards -->
-    <div class="section-label">Play solo / local</div>
+    <div class="section-label" data-i18n="hub.playSolo">Play solo / local</div>
     <div class="games-grid">
       <a class="game-card" href="/games/undercover/">
         <div class="game-icon">🕵️</div>
         <div class="game-info">
-          <div class="game-title">UNDERCOVER</div>
-          <div class="game-desc">Find the spy before they fool everyone. Social deduction with anime, Pokémon &amp; more.</div>
-          <div class="game-tag">2–12 players · Local</div>
+          <div class="game-title" data-i18n="game.undercover">UNDERCOVER</div>
+          <div class="game-desc" data-i18n="card.undercover.desc">Find the spy before they fool everyone. Social deduction with anime, Pokémon &amp; more.</div>
+          <div class="game-tag" data-i18n="card.undercover.tag">2–12 players · Local</div>
         </div>
         <div class="game-arrow">→</div>
       </a>
       <a class="game-card" href="/games/millionaire/" style="--accent:#f5c542;">
         <div class="game-icon">💰</div>
         <div class="game-info">
-          <div class="game-title">MILLIONAIRE</div>
-          <div class="game-desc">15 questions, $1,000,000 on the line. Geek edition — video games, anime, TV &amp; more.</div>
-          <div class="game-tag">1 player · Local</div>
+          <div class="game-title" data-i18n="game.millionaire">MILLIONAIRE</div>
+          <div class="game-desc" data-i18n="card.millionaire.desc">15 questions, $1,000,000 on the line. Geek edition — video games, anime, TV &amp; more.</div>
+          <div class="game-tag" data-i18n="card.millionaire.tag">1 player · Local</div>
         </div>
         <div class="game-arrow">→</div>
       </a>
       <a class="game-card" href="/games/hottakes/" style="--accent:#9b59b6;">
         <div class="game-icon">🔥</div>
         <div class="game-info">
-          <div class="game-title">HOT TAKES</div>
-          <div class="game-desc">Agree or disagree on spicy geek opinions. Vote secretly, reveal together, score points.</div>
-          <div class="game-tag">1 player · Local</div>
+          <div class="game-title" data-i18n="game.hottakes">HOT TAKES</div>
+          <div class="game-desc" data-i18n="card.hottakes.desc">Agree or disagree on spicy geek opinions. Vote secretly, reveal together, score points.</div>
+          <div class="game-tag" data-i18n="card.hottakes.tag">1 player · Local</div>
         </div>
         <div class="game-arrow">→</div>
       </a>
@@ -279,28 +280,28 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- ── HUB LOBBY VIEW ── -->
   <div id="view-hub" class="hub-view">
     <div class="hub-code-big" id="hub-code-display">----</div>
-    <div class="hub-code-label">Room code — share with friends
-      <button onclick="copyCode()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;margin-left:8px;">🔗 copy</button>
+    <div class="hub-code-label"><span data-i18n="hub.roomCode">Room code — share with friends</span>
+      <button onclick="copyCode()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;margin-left:8px;" data-i18n="hub.copy">🔗 copy</button>
     </div>
 
-    <div class="section-label">Players (<span id="hub-player-count">0</span>)</div>
+    <div class="section-label"><span data-i18n="players">Players</span> (<span id="hub-player-count">0</span>)</div>
     <div id="hub-player-list" class="player-list"></div>
 
     <!-- Global scores (hidden until 1+ game played) -->
     <div id="hub-scores-section" style="display:none;">
-      <div class="section-label">Global scores</div>
+      <div class="section-label" data-i18n="globalScores">Global scores</div>
       <table class="scores-table" id="hub-scores-table">
-        <thead><tr><th>#</th><th>Player</th><th style="text-align:right;">Points</th></tr></thead>
+        <thead><tr><th data-i18n="hashSymbol">#</th><th data-i18n="player">Player</th><th style="text-align:right;" data-i18n="points">Points</th></tr></thead>
         <tbody id="hub-scores-body"></tbody>
       </table>
     </div>
 
     <!-- Chat -->
     <div class="chat-wrap">
-      <div class="section-label">Chat</div>
+      <div class="section-label" data-i18n="hub.chat">Chat</div>
       <div class="chat-feed" id="chat-feed"></div>
       <div class="chat-input-row">
-        <input class="chat-input" id="chat-input" placeholder="Say something…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <input class="chat-input" id="chat-input" placeholder="Say something…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()" data-i18n="hub.chatPlaceholder" data-i18n-attr="placeholder"/>
         <button class="chat-emoji-btn" onclick="toggleEmojiPicker(event)">😊</button>
         <button class="chat-send" onclick="sendChat()">↑</button>
         <div class="emoji-picker" id="emoji-picker"></div>
@@ -309,7 +310,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
     <!-- Host controls -->
     <div id="hub-host-area" style="display:none;">
-      <div class="section-label">Choose a game</div>
+      <div class="section-label" data-i18n="hub.chooseGame">Choose a game</div>
       <div class="game-sel-row">
         <button class="game-sel-btn active" data-game="undercover" onclick="selectGame('undercover',this)">
           <span class="gs-icon">🕵️</span><span class="gs-name">UNDERCOVER</span>
@@ -334,28 +335,28 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </button>
       </div>
 
-      <button class="btn-launch" id="btn-launch" onclick="launchGame()">LAUNCH →</button>
+      <button class="btn-launch" id="btn-launch" onclick="launchGame()" data-i18n="hub.launch">LAUNCH →</button>
       <div class="launch-hint" id="launch-hint"></div>
-      <button id="btn-privacy" onclick="togglePrivacy()" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;">🔒 Lobby is private</button>
+      <button id="btn-privacy" onclick="togglePrivacy()" style="width:100%;margin-top:8px;padding:10px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all 0.15s;" data-i18n="hub.lobbyPrivate">🔒 Lobby is private</button>
     </div>
 
     <div id="hub-guest-area" style="display:none;">
-      <button id="btn-ready" onclick="toggleReady()">✓ Ready</button>
-      <div class="guest-waiting">Waiting for host to launch a game…</div>
+      <button id="btn-ready" onclick="toggleReady()" data-i18n="hub.ready">✓ Ready</button>
+      <div class="guest-waiting" data-i18n="waitingForHostLaunch">Waiting for host to launch a game…</div>
     </div>
 
-    <button class="btn-leave" onclick="hubLeave()">← Leave lobby</button>
+    <button class="btn-leave" onclick="hubLeave()" data-i18n="hub.leaveLobby">← Leave lobby</button>
   </div>
 </div>
 
 <!-- ── Session Recap Modal ──────────────────────────────────── -->
 <div id="recap-overlay" onclick="closeRecap()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;"></div>
 <div id="recap-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:28px 32px;min-width:280px;max-width:360px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
-  <div style="font-family:var(--font-display);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Last game</div>
+  <div style="font-family:var(--font-display);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;" data-i18n="hub.lastGame">Last game</div>
   <div id="recap-game-name" style="font-family:var(--font-display);font-size:32px;letter-spacing:3px;color:var(--gold);margin-bottom:20px;"></div>
-  <div class="section-label" style="margin-bottom:8px;">Points earned</div>
+  <div class="section-label" style="margin-bottom:8px;" data-i18n="pointsEarned">Points earned</div>
   <div id="recap-scores" style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;"></div>
-  <button onclick="closeRecap()" style="width:100%;padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:14px;letter-spacing:2px;cursor:pointer;">CONTINUE</button>
+  <button onclick="closeRecap()" style="width:100%;padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-display);font-size:14px;letter-spacing:2px;cursor:pointer;" data-i18n="hub.continue">CONTINUE</button>
 </div>
 
 <script>
@@ -442,14 +443,14 @@ function fetchLobbies() {
 }
 function renderLobbies(lobbies) {
   const c = document.getElementById('lobby-list-container');
-  if (!lobbies.length) { c.innerHTML = '<div class="no-lobbies">No open lobbies right now</div>'; return; }
+  if (!lobbies.length) { c.innerHTML = '<div class="no-lobbies">' + t('hub.noLobbies') + '</div>'; return; }
   c.innerHTML = lobbies.map(l => `
     <div class="lobby-item">
       <div class="lobby-item-info">
         <div class="lobby-item-code">${l.code}</div>
-        <div class="lobby-item-meta">Host: ${esc(l.host)} · ${l.playerCount} player${l.playerCount !== 1 ? 's' : ''}</div>
+        <div class="lobby-item-meta">${t('hub.hostPrefix',{host:esc(l.host),count:l.playerCount,s:l.playerCount!==1?'s':''})}</div>
       </div>
-      <button class="lobby-join-btn" onclick="quickJoin('${l.code}')">Join</button>
+      <button class="lobby-join-btn" onclick="quickJoin('${l.code}')">${t('hub.joinBtn')}</button>
     </div>
   `).join('');
 }
@@ -462,7 +463,7 @@ function quickJoin(code) {
 // ── Create / Join ─────────────────────────────────────────────
 function hubCreate() {
   const name = document.getElementById('hub-name').value.trim();
-  if (!name) { document.getElementById('entry-error').textContent = 'Enter your name.'; return; }
+  if (!name) { document.getElementById('entry-error').textContent = t('hub.enterName'); return; }
   myName = name;
   localStorage.setItem('profiler_hub_name', name);
   document.getElementById('entry-error').textContent = '';
@@ -471,8 +472,8 @@ function hubCreate() {
 function hubJoin() {
   const name = document.getElementById('hub-join-name').value.trim();
   const code = document.getElementById('hub-code').value.trim().toUpperCase();
-  if (!name) { document.getElementById('join-error').textContent = 'Enter your name.'; return; }
-  if (!code) { document.getElementById('join-error').textContent = 'Enter a room code.'; return; }
+  if (!name) { document.getElementById('join-error').textContent = t('hub.enterName'); return; }
+  if (!code) { document.getElementById('join-error').textContent = t('hub.enterCode'); return; }
   myName = name;
   localStorage.setItem('profiler_hub_name', name);
   document.getElementById('join-error').textContent = '';
@@ -493,14 +494,14 @@ function hubLeave() {
 function showLanding() {
   document.getElementById('view-landing').style.display = 'block';
   document.getElementById('view-hub').style.display = 'none';
-  document.getElementById('main-tagline').textContent = 'Pick a game & play';
+  document.getElementById('main-tagline').textContent = t('hub.tagline');
 }
 function showHubView(code) {
   if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
   document.getElementById('view-landing').style.display = 'none';
   document.getElementById('view-hub').style.display = 'block';
   document.getElementById('hub-code-display').textContent = code;
-  document.getElementById('main-tagline').textContent = 'Lobby — invite your friends';
+  document.getElementById('main-tagline').textContent = t('hub.lobbyTagline');
 }
 function renderHubState(msg) {
   hubPlayers = msg.players || [];
@@ -518,7 +519,7 @@ function renderHubState(msg) {
   if (entries.some(([, v]) => v > 0)) {
     document.getElementById('hub-scores-section').style.display = 'block';
     document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
-      `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+      `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ` <span style="font-size:10px;color:var(--gold);">${t('you')}</span>` : ''}</td><td class="pts">${pts}</td></tr>`
     ).join('');
   }
 
@@ -565,11 +566,11 @@ function updatePrivacyBtn() {
   const btn = document.getElementById('btn-privacy');
   if (!btn) return;
   if (lobbyIsPrivate) {
-    btn.textContent = '🔒 Lobby is private';
+    btn.textContent = t('hub.lobbyPrivate');
     btn.style.color = 'var(--muted)';
     btn.style.borderColor = 'var(--border2)';
   } else {
-    btn.textContent = '🌐 Lobby is public';
+    btn.textContent = t('hub.lobbyPublic');
     btn.style.color = 'var(--accent)';
     btn.style.borderColor = 'var(--accent)';
   }
@@ -577,7 +578,7 @@ function updatePrivacyBtn() {
 function copyCode() {
   const url = `${location.origin}/?room=${myRoom}&name=`;
   navigator.clipboard.writeText(`${location.origin}/?room=${myRoom}`).catch(() => {});
-  notify('Link copied!');
+  notify(t('hub.linkCopied'));
 }
 
 // ── Navigate to game ──────────────────────────────────────────
@@ -621,7 +622,7 @@ function handleMsg(msg) {
       if (entries.some(([, v]) => v > 0)) {
         document.getElementById('hub-scores-section').style.display = 'block';
         document.getElementById('hub-scores-body').innerHTML = entries.map(([name, pts], i) =>
-          `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</td><td class="pts">${pts}</td></tr>`
+          `<tr><td class="rank">${i + 1}</td><td>${esc(name)}${name === myName ? ` <span style="font-size:10px;color:var(--gold);">${t('you')}</span>` : ''}</td><td class="pts">${pts}</td></tr>`
         ).join('');
       }
       break;
@@ -638,17 +639,17 @@ function handleMsg(msg) {
       hubHostName = msg.name;
       document.getElementById('hub-host-area').style.display = isHost ? 'block' : 'none';
       document.getElementById('hub-guest-area').style.display = isHost ? 'none' : 'block';
-      notify(isHost ? 'You are now the host.' : `${msg.name} is now the host.`);
+      notify(isHost ? t('youAreHost') : t('playerIsHost',{name:msg.name}));
       break;
     case 'player_left':
       playSound('leave');
-      notify(`${msg.name} left the lobby.`);
+      notify(t('playerLeft',{name:msg.name}));
       break;
     case 'player_offline':
       hubPlayers = hubPlayers.filter(p => p !== msg.name);
       document.getElementById('hub-player-count').textContent = hubPlayers.length;
       renderPlayerList(hubPlayers, hubHostName);
-      notify(`${msg.name} disconnected…`);
+      notify(t('playerDisconnected',{name:msg.name}));
       break;
     case 'kicked':
       playSound('kicked');
@@ -657,15 +658,15 @@ function handleMsg(msg) {
       myRoom = ''; myName = ''; isHost = false;
       clearChat();
       showLanding();
-      notify('You were kicked from the lobby.');
+      notify(t('hub.kicked'));
       break;
     case 'player_joined':
       playSound('join');
-      notify(`${msg.name} joined the lobby.`);
+      notify(t('playerJoined',{name:msg.name}));
       break;
     case 'player_online':
       playSound('join');
-      notify(`${msg.name} reconnected ↩`);
+      notify(t('playerReconnected',{name:msg.name}));
       break;
     case 'chat_message':
       if (msg.name !== myName) playSound('chat');
@@ -676,8 +677,8 @@ function handleMsg(msg) {
       updatePrivacyBtn();
       break;
     case 'hub_error':
-      document.getElementById('entry-error').textContent = msg.msg || 'Error.';
-      document.getElementById('join-error').textContent = msg.msg || 'Error.';
+      document.getElementById('entry-error').textContent = msg.msg || t('error');
+      document.getElementById('join-error').textContent = msg.msg || t('error');
       break;
   }
 }
@@ -734,7 +735,7 @@ function renderPlayerList(players, hostName) {
     row.className = 'player-row';
     const isReady = hubReadySet.has(p);
     const crown = p === hostName ? '<span class="crown">👑</span>' : '';
-    const you = p === myName ? '<span class="you-tag">YOU</span>' : '';
+    const you = p === myName ? `<span class="you-tag">${t('you')}</span>` : '';
     const readyMark = p !== hostName
       ? `<span class="ready-check${isReady ? '' : ' hidden'}">✓</span>`
       : '';
@@ -761,7 +762,7 @@ function updateReadyUI() {
   if (btn) {
     const amReady = hubReadySet.has(myName);
     btn.classList.toggle('ready', amReady);
-    btn.textContent = amReady ? '✓ Ready — click to unready' : '✓ Ready';
+    btn.textContent = amReady ? t('hub.readyUnready') : t('hub.ready');
   }
   // Host launch button — locked until all non-host players are ready
   const launchBtn = document.getElementById('btn-launch');
@@ -773,11 +774,11 @@ function updateReadyUI() {
     launchBtn.disabled = !allReady;
     launchBtn.style.opacity = allReady ? '1' : '0.45';
     if (guests.length === 0) {
-      hint.textContent = 'No other players yet.';
+      hint.textContent = t('hub.noPlayers');
     } else if (!allReady) {
-      hint.textContent = `Waiting for: ${notReady.map(n => esc(n)).join(', ')}`;
+      hint.textContent = t('hub.waitingFor',{names:notReady.map(n => esc(n)).join(', ')});
     } else {
-      hint.textContent = 'All players ready!';
+      hint.textContent = t('hub.allReady');
     }
   }
 }
@@ -807,9 +808,10 @@ const GAME_LABELS = {
   undercover: 'UNDERCOVER', millionaire: 'MILLIONAIRE', hottakes: 'HOT TAKES',
   insider: 'INSIDER', profiler: 'PROFILER', fake_artist: 'FAKE ARTIST', wavelength: 'WAVELENGTH',
 };
+function gameLabel(key) { return t('game.' + key.replace('_','')) || GAME_LABELS[key] || key.toUpperCase(); }
 function showRecap(recap) {
   if (!recap || !recap.scores || !recap.scores.length) return;
-  document.getElementById('recap-game-name').textContent = GAME_LABELS[recap.game] || recap.game.toUpperCase();
+  document.getElementById('recap-game-name').textContent = gameLabel(recap.game);
   const max = recap.scores[0].pts;
   document.getElementById('recap-scores').innerHTML = recap.scores.map((e, i) => {
     const pct = max > 0 ? Math.round((e.pts / max) * 100) : 0;
@@ -819,7 +821,7 @@ function showRecap(recap) {
         <span style="font-size:16px;width:24px;text-align:center;">${medal || (i+1)}</span>
         <div style="flex:1;">
           <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:3px;">
-            <span>${esc(e.name)}${e.name === myName ? ' <span style="font-size:10px;color:var(--gold);">YOU</span>' : ''}</span>
+            <span>${esc(e.name)}${e.name === myName ? ` <span style="font-size:10px;color:var(--gold);">${t('you')}</span>` : ''}</span>
             <span style="color:var(--gold);">+${e.pts}</span>
           </div>
           <div style="height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;">
@@ -892,7 +894,16 @@ function closeRules() {
   document.getElementById('rules-sidebar').classList.remove('open');
   document.getElementById('rules-overlay').classList.remove('open');
 }
-
+// ── Lang change: refresh dynamic parts ────────────────────
+window.addEventListener('langchange', () => {
+  updatePrivacyBtn();
+  updateReadyUI();
+  if (myRoom) {
+    document.getElementById('main-tagline').textContent = t('hub.lobbyTagline');
+  } else {
+    document.getElementById('main-tagline').textContent = t('hub.tagline');
+  }
+});
 // ── Toast ─────────────────────────────────────────────────────
 function notify(msg) {
   const t = document.getElementById('toast');

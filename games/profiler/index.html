@@ -114,21 +114,21 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <!-- ── NO HUB MESSAGE ─────────────────────────────────────────── -->
 <div id="no-hub-msg" style="display:none;padding:3rem 0;text-align:center;">
-  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🔍 PROFILER</div>
-  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;">This game requires a multiplayer lobby.</div>
-  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;">GO TO HOME</a>
+  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🔍 <span data-i18n="pro.title">PROFILER</span></div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;" data-i18n="requiresLobby">This game requires a multiplayer lobby.</div>
+  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;" data-i18n="goToHome">GO TO HOME</a>
 </div>
 
 <!-- ── WAITING SCREEN ─────────────────────────────────────────── -->
 <div class="phase active" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="section-title">🔍 <span style="color:var(--accent)">PROFILER</span></div>
-  <div class="section-sub">2 teams · guess the hidden anime trait</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="section-title">🔍 <span style="color:var(--accent)" data-i18n="pro.title">PROFILER</span></div>
+  <div class="section-sub" data-i18n="pro.subtitle">2 teams · guess the hidden anime trait</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
 
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table class="hub-scores-table"><thead><tr>
       <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
       <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
@@ -137,25 +137,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
 
   <div id="waiting-host-area" style="display:none;">
-    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;">START GAME →</button>
+    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHost">Waiting for host to start…</div>
 </div>
 
 <!-- ── GAME SCREEN ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-game">
-  <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;">✕ CANCEL GAME</button>
+  <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;" data-i18n="pro.cancelUpper">✕ CANCEL GAME</button>
   <!-- criteria reveal at top for own team -->
   <div id="game-criteria-box" class="criteria-box"></div>
 
   <!-- Teams -->
   <div id="game-teams" class="teams-row" style="display:none;">
     <div class="team-box team-a">
-      <div class="team-label a">TEAM A</div>
+      <div class="team-label a" data-i18n="pro.teamA">TEAM A</div>
       <div id="game-team-a-members"></div>
     </div>
     <div class="team-box team-b">
-      <div class="team-label b">TEAM B</div>
+      <div class="team-label b" data-i18n="pro.teamB">TEAM B</div>
       <div id="game-team-b-members"></div>
     </div>
   </div>
@@ -163,18 +163,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div id="game-turn-badge" class="turn-badge a" style="display:none;"></div>
 
   <!-- log -->
-  <div class="label">Characters proposed</div>
+  <div class="label" data-i18n="pro.charsProposed">Characters proposed</div>
   <div id="game-log" class="log-feed"></div>
 
   <!-- voting panel (opposing team, when a char is pending) -->
   <div id="vote-panel" style="display:none;">
     <div class="vote-wrap">
-      <div class="criteria-label">Does this character match <b>your</b> criteria?</div>
+      <div class="criteria-label" data-i18n-html="pro.doesMatch">Does this character match <b>your</b> criteria?</div>
       <div id="vote-char-name" class="vote-char"></div>
       <div class="vote-info" id="vote-proposer-info"></div>
       <div class="vote-row">
-        <button class="yes-btn" onclick="castVote('yes')">YES ✓</button>
-        <button class="no-btn" onclick="castVote('no')">NO ✗</button>
+        <button class="yes-btn" onclick="castVote('yes')" data-i18n="pro.yesCheck">YES ✓</button>
+        <button class="no-btn" onclick="castVote('no')" data-i18n="pro.noX">NO ✗</button>
       </div>
     </div>
   </div>
@@ -182,26 +182,26 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- propose panel (active team) -->
   <div id="propose-panel" style="display:none;">
     <div class="propose-wrap">
-      <div class="propose-label">Your turn — propose a character</div>
+      <div class="propose-label" data-i18n="pro.yourTurnPropose">Your turn — propose a character</div>
       <div class="input-row">
-        <input id="propose-input" type="text" placeholder="Anime character name…" maxlength="80" autocomplete="off" onkeydown="if(event.key==='Enter')submitPropose()"/>
-        <button class="send-btn" onclick="submitPropose()">SEND</button>
+        <input id="propose-input" type="text" data-i18n="pro.charPlaceholder" data-i18n-attr="placeholder" placeholder="Anime character name…" maxlength="80" autocomplete="off" onkeydown="if(event.key==='Enter')submitPropose()"/>
+        <button class="send-btn" onclick="submitPropose()" data-i18n="pro.send">SEND</button>
       </div>
     </div>
-    <button class="guess-toggle" onclick="toggleGuess()">🎯 I know their criteria — GUESS IT</button>
+    <button class="guess-toggle" onclick="toggleGuess()" data-i18n="pro.iKnowCriteria">🎯 I know their criteria — GUESS IT</button>
     <div id="guess-area" style="display:none;margin-bottom:1rem;">
       <div class="propose-wrap" style="border-color:rgba(167,139,250,0.3);">
-        <div class="propose-label" style="color:var(--accent);">Guess the opposing team's criteria</div>
+        <div class="propose-label" style="color:var(--accent);" data-i18n="pro.guessOpposing">Guess the opposing team's criteria</div>
         <div class="input-row">
-          <input id="guess-input" type="text" placeholder="e.g. Has died and come back to life…" maxlength="100" autocomplete="off" onkeydown="if(event.key==='Enter')submitGuess()"/>
-          <button class="send-btn" onclick="submitGuess()" style="background:var(--accent);">GUESS</button>
+          <input id="guess-input" type="text" data-i18n="pro.guessPlaceholder" data-i18n-attr="placeholder" placeholder="e.g. Has died and come back to life…" maxlength="100" autocomplete="off" onkeydown="if(event.key==='Enter')submitGuess()"/>
+          <button class="send-btn" onclick="submitGuess()" style="background:var(--accent);" data-i18n="pro.guess">GUESS</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- waiting for opposing team to answer -->
-  <div id="waiting-vote-panel" style="display:none;" class="waiting-msg">Waiting for the other team to answer…</div>
+  <div id="waiting-vote-panel" style="display:none;" class="waiting-msg" data-i18n="pro.waitingOtherTeam">Waiting for the other team to answer…</div>
   <!-- spectator waiting -->
   <div id="waiting-turn-panel" style="display:none;" class="waiting-msg" style="padding:20px 0;"></div>
 </div>
@@ -209,13 +209,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- ── RESULT SCREEN ──────────────────────────────────────────── -->
 <div class="phase" id="phase-result">
   <div style="text-align:center;margin-bottom:2rem;">
-    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Winner</div>
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" data-i18n="pro.winner">Winner</div>
     <div id="result-winner" style="font-family:var(--font-display);font-size:52px;letter-spacing:3px;"></div>
-    <div class="result-badge win" id="result-badge">CORRECT!</div>
+    <div class="result-badge win" id="result-badge" data-i18n="pro.correct">CORRECT!</div>
     <div id="result-guesser" style="font-size:13px;color:var(--muted);margin-top:4px;"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Criteria revealed</div>
+    <div class="label" data-i18n="pro.criteriaRevealed">Criteria revealed</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div style="background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.3);border-radius:var(--radius-sm);padding:14px;text-align:center;">
         <div style="font-size:11px;color:var(--team-a);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">Team A</div>
@@ -228,24 +228,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Points earned</div>
+    <div class="label" data-i18n="pointsEarned">Points earned</div>
     <div id="result-scores"></div>
   </div>
   <div id="result-hub-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <div id="result-hub-scores"></div>
   </div>
   <div id="result-host-btns" style="display:none;">
-    <button class="btn-primary" onclick="mpSend({type:'new_game'})">PLAY AGAIN</button>
-    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-primary" onclick="mpSend({type:'new_game'})" data-i18n="playAgain">PLAY AGAIN</button>
+    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
   <div id="result-guest-btns" style="display:none;">
-    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ws=null, myRoom='', myName='', isHost=false, hubFlow=false, hubScores={}, hostName='';
@@ -264,7 +265,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent=players.length;
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hName?'<span style="color:var(--accent)">👑</span>':'';
-    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    const you=p===myName?`<span class="you-tag">${t('you')}</span>`:'';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
@@ -291,9 +292,9 @@ function startGame(msg){
   // Criteria box
   const box=document.getElementById('game-criteria-box');
   box.innerHTML=`
-    <div class="criteria-label">YOUR TEAM'S CRITERIA (TEAM ${myTeam})</div>
+    <div class="criteria-label">${t('pro.yourCriteria',{team:myTeam})}</div>
     <div class="criteria-text ${myTeam.toLowerCase()}">${esc(myCriteria)}</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:8px;">Keep it secret — the other team must guess this.</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;">${t('pro.keepSecret')}</div>
   `;
   document.getElementById('game-log').innerHTML='';
   document.getElementById('game-cancel-btn').style.display=isHost?'inline-flex':'none';
@@ -315,10 +316,10 @@ function renderTurnState(){
   const isMyTurn=activeTurn===myTeam;
   if(isMyTurn){
     badge.className='turn-badge yours';
-    badge.textContent='YOUR TURN — propose a character';
+    badge.textContent=t('pro.yourTurnBadge');
   } else {
     badge.className='turn-badge '+(activeTurn.toLowerCase());
-    badge.textContent=`Team ${activeTurn}'s turn`;
+    badge.textContent=t('pro.teamTurn',{team:activeTurn});
   }
   // panels
   document.getElementById('propose-panel').style.display='none';
@@ -330,7 +331,7 @@ function renderTurnState(){
     document.getElementById('guess-area').style.display='none';
   } else {
     document.getElementById('waiting-turn-panel').style.display='block';
-    document.getElementById('waiting-turn-panel').textContent=`Team ${activeTurn} is thinking…`;
+    document.getElementById('waiting-turn-panel').textContent=t('pro.teamThinking',{team:activeTurn});
   }
 }
 
@@ -342,7 +343,7 @@ function addLogEntry(entry){
   div.innerHTML=`
     <div style="display:flex;flex-direction:column;flex:1;gap:2px;">
       <span class="log-char">${esc(entry.char)}</span>
-      <span class="log-proposer">by ${esc(entry.proposer)} · Team ${team}</span>
+      <span class="log-proposer">${t('pro.proposedBy',{name:esc(entry.proposer),team})}</span>
     </div>
     <span class="log-answer ${entry.answer}">${entry.answer?entry.answer.toUpperCase():'…'}</span>
   `;
@@ -382,13 +383,13 @@ function showResult(msg){
   const winColor=winTeam==='A'?'var(--team-a)':'var(--team-b)';
   document.getElementById('result-winner').textContent='TEAM '+winTeam;
   document.getElementById('result-winner').style.color=winColor;
-  document.getElementById('result-guesser').textContent=`${msg.guesser} guessed it correctly!`;
+  document.getElementById('result-guesser').textContent=t('pro.guessedCorrectly',{name:msg.guesser});
   document.getElementById('result-criteria-a').textContent=msg.criteriaA||'';
   document.getElementById('result-criteria-b').textContent=msg.criteriaB||'';
   const scores=msg.scores||{};
   document.getElementById('result-scores').innerHTML=Object.keys(scores).length
-    ?Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
-    :'<div style="color:var(--muted);font-size:13px;">No points this round</div>';
+    ?Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} ${t('uc.pts')}</span></div>`).join('')
+    :`<div style="color:var(--muted);font-size:13px;">${t('pro.noPointsRound')}</div>`;
   const hs=msg.hubScores||{};
   const hsE=Object.entries(hs).sort((a,b)=>b[1]-a[1]);
   if(hsE.some(([,v])=>v>0)){
@@ -454,16 +455,16 @@ function handleMsg(msg){
     case 'game_launching':
       if(msg.gameType==='hub'){ location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName); } break;
     case 'new_host':
-      isHost=true; hostName=msg.name||''; notify('You are now the host.');
+      isHost=true; hostName=msg.name||''; notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       document.getElementById('waiting-back-btn').style.display='inline-flex';
       break;
-    case 'player_left': notify(msg.name+' left the room.'); break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_left': notify(t('playerLeftRoom',{name:msg.name})); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
     case 'player_offline':
       mpPlayers=mpPlayers.filter(p=>p!==msg.name);
-      notify(msg.name+' disconnected…');
+      notify(t('playerDisconnected',{name:msg.name}));
       renderWaitingScreen({players:mpPlayers,host:hostName,hubScores});
       break;
     case 'profiler_start':
@@ -479,14 +480,14 @@ function handleMsg(msg){
       if(weAreOpposing){
         document.getElementById('vote-panel').style.display='block';
         document.getElementById('vote-char-name').textContent=msg.character;
-        document.getElementById('vote-proposer-info').textContent=`Proposed by ${msg.proposer}`;
+        document.getElementById('vote-proposer-info').textContent=t('pro.proposedBy',{name:msg.proposer,team:teamA.includes(msg.proposer)?'A':'B'});
         document.querySelectorAll('.vote-row button').forEach(b=>b.disabled=false);
         badge.className='turn-badge '+(proposingTeam.toLowerCase());
-        badge.textContent=`Team ${proposingTeam} proposed — your vote!`;
+        badge.textContent=t('pro.proposedVote',{team:proposingTeam});
       } else {
         document.getElementById('waiting-vote-panel').style.display='block';
         badge.className='turn-badge yours';
-        badge.textContent='Waiting for their answer…';
+        badge.textContent=t('pro.waitingAnswer');
       }
       break;
     }
@@ -500,7 +501,7 @@ function handleMsg(msg){
     }
     case 'profiler_wrong_guess':
       activeTurn=msg.activeTurn;
-      notify(`${msg.guesser} guessed wrong: "${msg.guess}"`);
+      notify(t('pro.guessedWrong',{name:msg.guesser,guess:msg.guess}));
       renderTurnState();
       break;
     case 'back_to_lobby':
@@ -543,6 +544,7 @@ function handleMsg(msg){
     }
   };
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>

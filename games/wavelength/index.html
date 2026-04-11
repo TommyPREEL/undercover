@@ -83,20 +83,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="container">
 
 <div id="no-hub-msg" style="display:none;padding:3rem 0;text-align:center;">
-  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">📡 WAVELENGTH</div>
-  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;">This game requires a multiplayer lobby.</div>
-  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#000;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;">GO TO HOME</a>
+  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">📡 <span data-i18n="wl.title">WAVELENGTH</span></div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;" data-i18n="requiresLobby">This game requires a multiplayer lobby.</div>
+  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#000;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;" data-i18n="goToHome">GO TO HOME</a>
 </div>
 
 <!-- WAITING -->
 <div class="phase active" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="section-title">📡 <span style="color:var(--accent)">WAVELENGTH</span></div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;">First team to 10 pts wins</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="section-title">📡 <span style="color:var(--accent)" data-i18n="wl.title">WAVELENGTH</span></div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;" data-i18n="wl.subtitle">First team to 10 pts wins</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table class="hub-scores-table"><thead><tr>
       <th style="font-size:10px;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
       <th style="font-size:10px;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
@@ -104,24 +104,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </tr></thead><tbody id="waiting-hub-scores-body"></tbody></table>
   </div>
   <div id="waiting-host-area" style="display:none;">
-    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;">START GAME →</button>
+    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHost">Waiting for host to start…</div>
 </div>
 
 <!-- GAME -->
 <div class="phase" id="phase-game">
-  <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;">✕ CANCEL</button>
+  <button class="back-btn" id="game-cancel-btn" onclick="cancelGame()" style="display:none;" data-i18n="cancelUpper">✕ CANCEL</button>
 
   <!-- Scores -->
   <div class="teams-grid">
     <div class="team-box a">
-      <div class="team-label a">TEAM A</div>
+      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
       <div class="team-score a"><span id="score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
       <div id="members-a" style="font-size:11px;color:var(--muted);"></div>
     </div>
     <div class="team-box b">
-      <div class="team-label b">TEAM B</div>
+      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
       <div class="team-score b"><span id="score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
       <div id="members-b" style="font-size:11px;color:var(--muted);"></div>
     </div>
@@ -132,7 +132,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
   <!-- Target (psychic only) -->
   <div id="target-reveal-box" style="display:none;background:rgba(250,204,21,0.07);border:1px solid rgba(250,204,21,0.3);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:1rem;text-align:center;">
-    <div style="font-size:11px;color:#facc15;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">Secret target position</div>
+    <div style="font-size:11px;color:#facc15;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;" data-i18n="wl.secretTarget">Secret target position</div>
     <div id="target-value" style="font-family:var(--font-display);font-size:36px;color:#facc15;"></div>
   </div>
 
@@ -153,27 +153,27 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
   <!-- Clue box -->
   <div class="clue-box" id="clue-box" style="display:none;">
-    <div class="label">The psychic's clue</div>
+    <div class="label" data-i18n="wl.psychicClue">The psychic's clue</div>
     <div class="clue-text" id="clue-display"></div>
   </div>
 
   <!-- Psychic input -->
   <div id="psychic-input-area" style="display:none;">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">You are the psychic. Give a one-word clue that hints at the target's position on the spectrum.</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;" data-i18n="wl.psychicInstruction">You are the psychic. Give a one-word clue that hints at the target's position on the spectrum.</div>
     <div class="input-row">
-      <input id="clue-input" type="text" placeholder="One word clue…" maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')submitClue()"/>
-      <button class="send-btn" onclick="submitClue()">SEND</button>
+      <input id="clue-input" type="text" placeholder="One word clue…" maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')submitClue()" data-i18n="wl.cluePlaceholder" data-i18n-attr="placeholder"/>
+      <button class="send-btn" onclick="submitClue()" data-i18n="wl.send">SEND</button>
     </div>
   </div>
 
   <!-- Guesser controls -->
   <div id="guesser-area" style="display:none;">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Drag the dial to match your team's clue, then lock in!</div>
-    <button class="btn-primary" id="lock-btn" onclick="lockGuess()">LOCK IN →</button>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;" data-i18n="wl.dragDial">Drag the dial to match your team's clue, then lock in!</div>
+    <button class="btn-primary" id="lock-btn" onclick="lockGuess()" data-i18n="wl.lockIn">LOCK IN →</button>
   </div>
 
   <!-- Waiting states -->
-  <div id="waiting-clue" class="waiting-msg" style="display:none;">Waiting for the psychic to give a clue…</div>
+  <div id="waiting-clue" class="waiting-msg" style="display:none;" data-i18n="wl.waitingPsychic">Waiting for the psychic to give a clue…</div>
   <div id="waiting-guess" class="waiting-msg" style="display:none;"></div>
   <div id="waiting-next" style="display:none;text-align:center;margin-top:1rem;"></div>
 </div>
@@ -181,17 +181,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- REVEAL -->
 <div class="phase" id="phase-reveal">
   <div style="text-align:center;margin-bottom:2rem;">
-    <div class="label">Points scored</div>
+    <div class="label" data-i18n="wl.pointsScored">Points scored</div>
     <div class="pts-badge" id="reveal-pts"></div>
     <div id="reveal-sub" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
   </div>
   <div class="teams-grid">
     <div class="team-box a">
-      <div class="team-label a">TEAM A</div>
+      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
       <div class="team-score a"><span id="reveal-score-a">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
     </div>
     <div class="team-box b">
-      <div class="team-label b">TEAM B</div>
+      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
       <div class="team-score b"><span id="reveal-score-b">0</span><span style="font-size:14px;color:var(--muted);font-family:var(--font-body);">/10</span></div>
     </div>
   </div>
@@ -206,47 +206,48 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
   </div>
   <div id="reveal-host-next" style="display:none;margin-top:1rem;">
-    <button class="btn-primary" onclick="nextRound()">NEXT ROUND →</button>
+    <button class="btn-primary" onclick="nextRound()" data-i18n="wl.nextRound">NEXT ROUND →</button>
   </div>
-  <div id="reveal-guest-next" class="waiting-msg" style="display:none;">Waiting for host to start next round…</div>
+  <div id="reveal-guest-next" class="waiting-msg" style="display:none;" data-i18n="wl.waitingHostNext">Waiting for host to start next round…</div>
 </div>
 
 <!-- RESULT -->
 <div class="phase" id="phase-result">
   <div style="text-align:center;margin-bottom:2rem;">
-    <div class="label">Winner</div>
+    <div class="label" data-i18n="wl.winner">Winner</div>
     <div id="result-winner" style="font-family:var(--font-display);font-size:52px;letter-spacing:3px;"></div>
     <div id="result-sub2" style="font-size:13px;color:var(--muted);margin-top:4px;"></div>
   </div>
   <div class="teams-grid">
     <div class="team-box a">
-      <div class="team-label a">TEAM A</div>
+      <div class="team-label a" data-i18n="wl.teamA">TEAM A</div>
       <div class="team-score a" id="final-score-a">0</div>
     </div>
     <div class="team-box b">
-      <div class="team-label b">TEAM B</div>
+      <div class="team-label b" data-i18n="wl.teamB">TEAM B</div>
       <div class="team-score b" id="final-score-b">0</div>
     </div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Points earned</div>
+    <div class="label" data-i18n="pointsEarned">Points earned</div>
     <div id="result-scores"></div>
   </div>
   <div id="result-hub-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <div id="result-hub-scores"></div>
   </div>
   <div id="result-host-btns" style="display:none;">
-    <button class="btn-primary" onclick="mpSend({type:'new_game'})">PLAY AGAIN</button>
-    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-primary" onclick="mpSend({type:'new_game'})" data-i18n="playAgain">PLAY AGAIN</button>
+    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
   <div id="result-guest-btns" style="display:none;">
-    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ws=null, myRoom='', myName='', isHost=false, hubFlow=false, hubScores={}, hostName='';
@@ -266,7 +267,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent=players.length;
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hName?'<span style="color:var(--accent)">👑</span>':'';
-    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    const you=p===myName?`<span class="you-tag">${t('you')}</span>`:'';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
@@ -334,7 +335,7 @@ function renderGameState(msg){
   if(msg.teamB) document.getElementById('members-b').textContent=msg.teamB.join(', ');
 
   const teamColor=activeTeam==='A'?'var(--team-a)':'var(--team-b)';
-  document.getElementById('round-info').innerHTML=`<span style="color:${teamColor};font-weight:700;">Team ${activeTeam}</span>'s turn · Psychic: <b>${esc(msg.psychic)}</b>`;
+  document.getElementById('round-info').innerHTML=t('wl.teamTurnPsychic',{team:`<span style="color:${teamColor};font-weight:700;">${activeTeam}</span>`,name:esc(msg.psychic)});
 
   if(isPsychic){
     document.getElementById('target-reveal-box').style.display='block';
@@ -352,7 +353,7 @@ function renderGameState(msg){
   document.getElementById('waiting-guess').style.display='none';
   if(!isPsychic){
     if(isActiveTeam){ document.getElementById('waiting-clue').style.display='block'; }
-    else { document.getElementById('waiting-guess').style.display='block'; document.getElementById('waiting-guess').textContent=`Team ${activeTeam} is guessing…`; }
+    else { document.getElementById('waiting-guess').style.display='block'; document.getElementById('waiting-guess').textContent=t('wl.waitingTeam',{team:activeTeam}); }
   }
   document.getElementById('game-cancel-btn').style.display=isHost?'inline-flex':'none';
   showPhase('phase-game');
@@ -366,7 +367,7 @@ function submitClue(){
   inp.value=''; inp.disabled=true;
   document.getElementById('psychic-input-area').style.display='none';
   document.getElementById('waiting-guess').style.display='block';
-  document.getElementById('waiting-guess').textContent='Clue sent — waiting for your team to guess…';
+  document.getElementById('waiting-guess').textContent=t('wl.clueSent');
 }
 
 function onClueGiven(msg){
@@ -383,7 +384,7 @@ function onClueGiven(msg){
 function lockGuess(){
   document.getElementById('guesser-area').style.display='none';
   document.getElementById('waiting-guess').style.display='block';
-  document.getElementById('waiting-guess').textContent='Locked in — waiting for reveal…';
+  document.getElementById('waiting-guess').textContent=t('wl.lockedIn');
   document.getElementById('spectrum-track').classList.add('readonly');
   mpSend({type:'wl_lock'});
 }
@@ -391,7 +392,7 @@ function lockGuess(){
 function showReveal(msg){
   document.getElementById('reveal-pts').textContent='+'+msg.pts+' pts';
   document.getElementById('reveal-sub').textContent=
-    msg.pts===4?'Bullseye! 🎯':msg.pts===3?'Very close! 🔥':msg.pts===2?'Close!':msg.pts===1?'Almost…':'Miss!';
+    msg.pts===4?t('wl.bullseye'):msg.pts===3?t('wl.veryClose'):msg.pts===2?t('wl.close'):msg.pts===1?t('wl.almost'):t('wl.miss');
   document.getElementById('reveal-score-a').textContent=msg.scoreA||0;
   document.getElementById('reveal-score-b').textContent=msg.scoreB||0;
   const rh=document.getElementById('reveal-handle');
@@ -408,15 +409,15 @@ function nextRound(){mpSend({type:'wl_next_round'});}
 function showResult(msg){
   const winTeam=msg.winner;
   const winColor=winTeam==='A'?'var(--team-a)':'var(--team-b)';
-  document.getElementById('result-winner').textContent='TEAM '+winTeam+' WINS!';
+  document.getElementById('result-winner').textContent=t('wl.teamWins',{team:winTeam});
   document.getElementById('result-winner').style.color=winColor;
-  document.getElementById('result-sub2').textContent='First to reach 10 points!';
+  document.getElementById('result-sub2').textContent=t('wl.firstTo10');
   document.getElementById('final-score-a').textContent=msg.scoreA||0;
   document.getElementById('final-score-b').textContent=msg.scoreB||0;
   const scores=msg.wlScores||{};
   document.getElementById('result-scores').innerHTML=Object.keys(scores).length
     ?Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
-    :'<div style="color:var(--muted);font-size:13px;">No points</div>';
+    :`<div style="color:var(--muted);font-size:13px;">${t('wl.noPoints')}</div>`;
   const hs=msg.hubScores||{};
   const hsE=Object.entries(hs).sort((a,b)=>b[1]-a[1]);
   if(hsE.some(([,v])=>v>0)){
@@ -465,16 +466,16 @@ function handleMsg(msg){
     case 'game_launching':
       if(msg.gameType==='hub'){location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName);} break;
     case 'new_host':
-      isHost=true;hostName=msg.name||'';notify('You are now the host.');
+      isHost=true;hostName=msg.name||'';notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       document.getElementById('waiting-back-btn').style.display='inline-flex';
       break;
-    case 'player_left': notify(msg.name+' left.'); break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_left': notify(t('playerLeftShort',{name:msg.name})); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
     case 'player_offline':
       mpPlayers=mpPlayers.filter(p=>p!==msg.name);
-      notify(msg.name+' disconnected…');
+      notify(t('playerDisconnected',{name:msg.name}));
       renderWaitingScreen({players:mpPlayers,host:hostName,hubScores});
       break;
     case 'wl_start':
@@ -521,6 +522,7 @@ function handleMsg(msg){
     }
   };
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>

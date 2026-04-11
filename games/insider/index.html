@@ -119,21 +119,21 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <!-- ── NO HUB MESSAGE ─────────────────────────────────────────── -->
 <div id="no-hub-msg" style="display:none;padding:3rem 0;text-align:center;">
-  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🎭 THE INSIDER</div>
-  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;">This game requires a multiplayer lobby.</div>
-  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#000;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;">GO TO HOME</a>
+  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🎭 <span data-i18n="ins.title">THE INSIDER</span></div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;" data-i18n="requiresLobby">This game requires a multiplayer lobby.</div>
+  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#000;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;" data-i18n="goToHome">GO TO HOME</a>
 </div>
 
 <!-- ── WAITING SCREEN ─────────────────────────────────────────── -->
 <div class="phase active" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="section-title">🎭 THE <span style="color:var(--accent)">INSIDER</span></div>
-  <div class="section-sub">Hidden identity — yes/no questions</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="section-title">🎭 THE <span style="color:var(--accent)" data-i18n="ins.insiderWord">INSIDER</span></div>
+  <div class="section-sub" data-i18n="ins.subtitle">Hidden identity — yes/no questions</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
 
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table class="hub-scores-table"><thead><tr>
       <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
       <th style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
@@ -142,18 +142,18 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
 
   <div id="waiting-host-area" style="display:none;">
-    <div class="label">Category</div>
+    <div class="label" data-i18n="category">Category</div>
     <div class="cat-row">
-      <button class="cat-btn active" data-cat="random" onclick="selectCat('random',this)">🎲 Random</button>
-      <button class="cat-btn" data-cat="videogames" onclick="selectCat('videogames',this)">🎮 Games</button>
-      <button class="cat-btn" data-cat="anime_chars" onclick="selectCat('anime_chars',this)">⚔️ Anime Chars</button>
-      <button class="cat-btn" data-cat="anime" onclick="selectCat('anime',this)">📺 Anime</button>
-      <button class="cat-btn" data-cat="pokemon" onclick="selectCat('pokemon',this)">⚡ Pokémon</button>
-      <button class="cat-btn" data-cat="objects" onclick="selectCat('objects',this)">🎯 Objects</button>
+      <button class="cat-btn active" data-cat="random" onclick="selectCat('random',this)">🎲 <span data-i18n="ins.random">Random</span></button>
+      <button class="cat-btn" data-cat="videogames" onclick="selectCat('videogames',this)">🎮 <span data-i18n="ins.games">Games</span></button>
+      <button class="cat-btn" data-cat="anime_chars" onclick="selectCat('anime_chars',this)">⚔️ <span data-i18n="ins.animeChars">Anime Chars</span></button>
+      <button class="cat-btn" data-cat="anime" onclick="selectCat('anime',this)">📺 <span data-i18n="ins.anime">Anime</span></button>
+      <button class="cat-btn" data-cat="pokemon" onclick="selectCat('pokemon',this)">⚡ <span data-i18n="ins.pokemon">Pokémon</span></button>
+      <button class="cat-btn" data-cat="objects" onclick="selectCat('objects',this)">🎯 <span data-i18n="ins.objects">Objects</span></button>
     </div>
-    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;">START GAME →</button>
+    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHost">Waiting for host to start…</div>
 </div>
 
 <!-- ── ROLE REVEAL ─────────────────────────────────────────────── -->
@@ -164,85 +164,86 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="role-word" id="role-word"></div>
     <div class="role-hint" id="role-hint"></div>
   </div>
-  <div class="role-countdown">Starting in <span id="role-count">6</span>s…</div>
-  <button class="btn-primary" onclick="readyToPlay()" style="margin-top:.75rem;">GOT IT →</button>
+  <div class="role-countdown" id="role-countdown">Starting in <span id="role-count">6</span>s…</div>
+  <button class="btn-primary" onclick="readyToPlay()" style="margin-top:.75rem;" data-i18n="ins.gotIt">GOT IT →</button>
 </div>
 
 <!-- ── QUESTIONS PHASE ────────────────────────────────────────── -->
 <div class="phase" id="phase-questions">
   <div class="timer-wrap"><div class="timer-bar" id="q-timer-bar" style="width:100%"></div></div>
   <div class="q-timer-row">
-    <div class="label" style="margin-bottom:0;">FIND THE WORD</div>
+    <div class="label" style="margin-bottom:0;" data-i18n="ins.findTheWord">FIND THE WORD</div>
     <div class="q-timer-text" id="q-timer-text">3:00</div>
   </div>
   <div id="q-category-tag" style="text-align:center;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;"></div>
   <div id="q-master-word" class="q-master-word" style="display:none;"></div>
-  <div id="q-insider-word" class="q-insider-word" style="display:none;">THE WORD: <span id="q-insider-word-val"></span></div>
+  <div id="q-insider-word" class="q-insider-word" style="display:none;"><span data-i18n="ins.theWord">THE WORD:</span> <span id="q-insider-word-val"></span></div>
   <div id="q-feed" class="q-feed">
-    <div class="q-empty" id="q-empty-msg">No questions yet — be the first to ask!</div>
+    <div class="q-empty" id="q-empty-msg" data-i18n="ins.noQuestions">No questions yet — be the first to ask!</div>
   </div>
   <div id="q-input-area">
     <div class="q-input-row">
-      <input id="q-ask-input" type="text" placeholder="Ask a yes/no question…" maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')submitQuestion()"/>
-      <button class="q-send-btn" onclick="submitQuestion()">ASK</button>
+      <input id="q-ask-input" type="text" data-i18n="ins.askPlaceholder" data-i18n-attr="placeholder" placeholder="Ask a yes/no question…" maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')submitQuestion()"/>
+      <button class="q-send-btn" onclick="submitQuestion()" data-i18n="ins.ask">ASK</button>
     </div>
-    <button class="q-guess-toggle" onclick="toggleGuess()">🎯 I know the word — GUESS</button>
+    <button class="q-guess-toggle" onclick="toggleGuess()" data-i18n="ins.iKnowWord">🎯 I know the word — GUESS</button>
     <div id="q-guess-area" style="display:none;">
       <div class="q-input-row">
-        <input id="q-guess-input" type="text" placeholder="Your guess…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')submitGuess()"/>
-        <button class="q-send-btn" onclick="submitGuess()" style="border-color:var(--accent);color:var(--accent);">GUESS</button>
+        <input id="q-guess-input" type="text" data-i18n="ins.yourGuess" data-i18n-attr="placeholder" placeholder="Your guess…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')submitGuess()"/>
+        <button class="q-send-btn" onclick="submitGuess()" style="border-color:var(--accent);color:var(--accent);" data-i18n="ins.ask">GUESS</button>
       </div>
     </div>
   </div>
   <div id="q-host-note" style="display:none;">
-    <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);">👁️ Answer questions above — tap YES / NO / MAYBE</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);" data-i18n="ins.masterNote2">👁️ Answer questions above — tap YES / NO / MAYBE</div>
   </div>
-  <button id="q-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;">✕ Cancel game</button>
+  <button id="q-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;" data-i18n="cancelGame">✕ Cancel game</button>
 </div>
 
 <!-- ── ACCUSATION ─────────────────────────────────────────────── -->
 <div class="phase" id="phase-accusation">
   <div class="timer-wrap"><div class="timer-bar" id="acc-timer-bar" style="width:100%"></div></div>
-  <div class="section-title">FIND THE <span style="color:var(--insider)">INSIDER</span></div>
+  <div class="section-title"><span data-i18n="ins.findInsider">FIND THE</span> <span style="color:var(--insider)" data-i18n="ins.insiderWord">INSIDER</span></div>
   <div class="acc-info" id="acc-info"></div>
   <div id="acc-vote-count" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:1rem;"></div>
   <div id="acc-grid" class="acc-grid"></div>
-  <div id="acc-master-note" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--muted);font-size:13px;">👁️ You are the Master — observe the vote.</div>
-  <div id="acc-voted-note" style="display:none;" class="waiting-msg">Vote cast — waiting for others…</div>
-  <button id="acc-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;">✕ Cancel game</button>
+  <div id="acc-master-note" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--muted);font-size:13px;" data-i18n="ins.masterObserve">👁️ You are the Master — observe the vote.</div>
+  <div id="acc-voted-note" style="display:none;" class="waiting-msg" data-i18n="ins.voteCastWaiting">Vote cast — waiting for others…</div>
+  <button id="acc-cancel-btn" onclick="cancelGame()" style="display:none;margin-top:1.5rem;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-family:var(--font-body);font-size:13px;cursor:pointer;" data-i18n="cancelGame">✕ Cancel game</button>
 </div>
 
 <!-- ── RESULT ─────────────────────────────────────────────────── -->
 <div class="phase" id="phase-result">
   <div style="text-align:center;margin-bottom:2rem;">
-    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">The Insider was</div>
+    <div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" data-i18n="ins.insiderWas">The Insider was</div>
     <div id="result-name" style="font-family:var(--font-display);font-size:56px;letter-spacing:3px;"></div>
     <div id="result-outcome" style="display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;"></div>
   </div>
-  <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.5rem;">Word: <b id="result-word" style="color:var(--text);"></b></div>
+  <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.5rem;"><span data-i18n="ins.wordLabel">Word:</span> <b id="result-word" style="color:var(--text);"></b></div>
   <div id="result-votes-section" style="margin-bottom:1.5rem;">
-    <div class="label">Votes</div>
+    <div class="label" data-i18n="votes">Votes</div>
     <div id="result-votes"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Points earned</div>
+    <div class="label" data-i18n="pointsEarned">Points earned</div>
     <div id="result-scores"></div>
   </div>
   <div id="result-hub-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <div id="result-hub-scores"></div>
   </div>
   <div id="result-host-btns" style="display:none;">
-    <button class="btn-primary" onclick="mpSend({type:'new_game'})">PLAY AGAIN</button>
-    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-primary" onclick="mpSend({type:'new_game'})" data-i18n="playAgain">PLAY AGAIN</button>
+    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
   <div id="result-guest-btns" style="display:none;">
-    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ws = null, myRoom = '', myName = '', isHost = false;
@@ -285,7 +286,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent = players.length;
   document.getElementById('waiting-player-list').innerHTML = players.map(p=>{
     const crown = p===hName ? '<span style="color:var(--accent)">👑</span>' : '';
-    const you = p===myName ? '<span class="you-tag">YOU</span>' : '';
+    const you = p===myName ? `<span class="you-tag">${t('you')}</span>` : '';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display = isHost?'block':'none';
@@ -318,24 +319,24 @@ function showRoleReveal(msg){
   const hint = document.getElementById('role-hint');
   card.className = 'role-card ' + myRole;
   if(myRole === 'master'){
-    badge.textContent = '👁️ MASTER'; badge.className = 'role-badge master';
-    title.textContent = 'You answer all questions honestly.';
+    badge.textContent = '👁️ ' + t('ins.master'); badge.className = 'role-badge master';
+    title.textContent = t('ins.masterDesc');
     word.textContent = myWord; word.className = 'role-word master';
-    hint.textContent = 'There is a secret Insider among the players who already knows this word.';
+    hint.textContent = t('ins.masterNote');
   } else if(myRole === 'insider'){
-    badge.textContent = '🕵️ THE INSIDER'; badge.className = 'role-badge insider';
-    title.textContent = 'You already know the word.';
+    badge.textContent = '🕵️ ' + t('ins.insider'); badge.className = 'role-badge insider';
+    title.textContent = t('ins.insiderDesc');
     word.textContent = myWord; word.className = 'role-word insider';
-    hint.textContent = "Help the group guess the word without revealing you already know it. Don't get caught!";
+    hint.textContent = t('ins.insiderNote');
   } else {
-    badge.textContent = '👤 CIVILIAN'; badge.className = 'role-badge civilian';
-    title.textContent = "You don't know the word. Find it!";
+    badge.textContent = '👤 ' + t('ins.civilian'); badge.className = 'role-badge civilian';
+    title.textContent = t('ins.civilianDesc');
     word.textContent = '???'; word.className = 'role-word civilian';
-    hint.textContent = 'Ask yes/no questions to find the word. Then find the Insider hiding among you.';
+    hint.textContent = t('ins.civilianNote');
   }
   showPhase('phase-role-reveal');
+  document.getElementById('role-countdown').innerHTML = t('ins.startingIn',{secs:'<span id="role-count">6</span>'});
   let count = 6;
-  document.getElementById('role-count').textContent = count;
   clearInterval(roleCountdown);
   roleCountdown = setInterval(()=>{
     count--;
@@ -350,7 +351,7 @@ function readyToPlay(){ clearInterval(roleCountdown); startQuestionsPhase(); }
 function cancelGame(){ mpSend({type:'cancel_round'}); }
 
 function startQuestionsPhase(){
-  document.getElementById('q-feed').innerHTML = '<div class="q-empty" id="q-empty-msg">No questions yet — be the first to ask!</div>';
+  document.getElementById('q-feed').innerHTML = `<div class="q-empty" id="q-empty-msg">${t('ins.noQuestions')}</div>`;
   document.getElementById('q-master-word').style.display = myRole==='master' ? 'block' : 'none';
   if(myRole==='master') document.getElementById('q-master-word').textContent = myWord;
   document.getElementById('q-insider-word').style.display = myRole==='insider' ? 'block' : 'none';
@@ -360,7 +361,7 @@ function startQuestionsPhase(){
   document.getElementById('q-host-note').style.display = myRole==='master' ? 'block' : 'none';
   document.getElementById('q-guess-area').style.display = 'none';
   document.getElementById('q-cancel-btn').style.display = isHost ? 'block' : 'none';
-  document.getElementById('q-category-tag').textContent = myCategory ? 'Category: ' + myCategory : '';
+  document.getElementById('q-category-tag').textContent = myCategory ? t('category') + ': ' + myCategory : '';
   qEndTime = Date.now() + Q_TOTAL_MS;
   startQTimer();
   showPhase('phase-questions');
@@ -434,7 +435,7 @@ function answerQ(id, answer){ mpSend({type:'insider_answer', questionId:id, answ
 function startAccusation(guesser, word){
   clearInterval(qTimerInterval);
   myVote = null;
-  document.getElementById('acc-info').innerHTML = `<b>${esc(guesser)}</b> guessed the word! Now vote for who you think is the Insider.`;
+  document.getElementById('acc-info').innerHTML = `<b>${esc(guesser)}</b> ${t('ins.guessedWord')}`;
   const grid = document.getElementById('acc-grid');
   if(myRole === 'master'){
     grid.style.display = 'none';
@@ -479,10 +480,10 @@ function showResult(msg){
   document.getElementById('result-word').textContent = msg.word;
   const outcome = document.getElementById('result-outcome');
   if(msg.insiderCaught){
-    outcome.textContent = 'CAUGHT'; outcome.style.cssText = 'display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;background:rgba(34,211,238,0.1);border:1px solid var(--accent);color:var(--accent)';
+    outcome.textContent = t('ins.caught'); outcome.style.cssText = 'display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;background:rgba(34,211,238,0.1);border:1px solid var(--accent);color:var(--accent)';
     document.getElementById('result-name').style.color = 'var(--accent)';
   } else {
-    outcome.textContent = msg.timeOut ? 'TIME OUT' : 'ESCAPED';
+    outcome.textContent = msg.timeOut ? t('ins.timeOut') : t('ins.escaped');
     outcome.style.cssText = 'display:inline-block;margin-top:8px;padding:6px 22px;border-radius:20px;font-family:var(--font-display);font-size:24px;letter-spacing:2px;background:rgba(249,115,22,0.1);border:1px solid var(--insider);color:var(--insider)';
     document.getElementById('result-name').style.color = 'var(--insider)';
   }
@@ -494,8 +495,8 @@ function showResult(msg){
   }).join('');
   const scores = msg.scores || {};
   document.getElementById('result-scores').innerHTML = Object.keys(scores).length
-    ? Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
-    : '<div style="color:var(--muted);font-size:13px;">No points this round</div>';
+    ? Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} ${t('uc.pts')}</span></div>`).join('')
+    : `<div style="color:var(--muted);font-size:13px;">${t('ins.noPoints')}</div>`;
   const hs = msg.hubScores || {};
   const hsEntries = Object.entries(hs).sort((a,b)=>b[1]-a[1]);
   if(hsEntries.some(([,v])=>v>0)){
@@ -543,7 +544,7 @@ function handleMsg(msg){
       } else if(msg.insiderPhase==='accusation'){
         startAccusation(msg.wordGuessedBy||'?',msg.word||'?');
         const voteCount=Object.keys(msg.votes||{}).length;
-        if(voteCount) document.getElementById('acc-vote-count').textContent=voteCount+' voted';
+        if(voteCount) document.getElementById('acc-vote-count').textContent=t('ins.voted',{count:voteCount,total:mpPlayers.length});
       }
       break;
     }
@@ -557,16 +558,16 @@ function handleMsg(msg){
     case 'game_launching':
       if(msg.gameType==='hub'){ location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName); } break;
     case 'new_host':
-      isHost=true; hostName=msg.name||''; notify('You are now the host.');
+      isHost=true; hostName=msg.name||''; notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       document.getElementById('waiting-back-btn').style.display='inline-flex';
       break;
-    case 'player_left': notify(msg.name+' left the room.'); break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_left': notify(t('playerLeftRoom',{name:msg.name})); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
     case 'player_offline':
       mpPlayers=mpPlayers.filter(p=>p!==msg.name);
-      notify(msg.name+' disconnected…');
+      notify(t('playerDisconnected',{name:msg.name}));
       renderWaitingScreen({players:mpPlayers,host:hostName,hubScores});
       break;
     case 'insider_start':
@@ -576,14 +577,14 @@ function handleMsg(msg){
     case 'insider_answered':
       revealAnswer(msg.id, msg.answer); break;
     case 'insider_wrong_guess':
-      addWrongGuess(msg.player, msg.word); notify(msg.player+' guessed wrong!'); break;
+      addWrongGuess(msg.player, msg.word); notify(t('ins.guessedWrong',{name:msg.player})); break;
     case 'insider_word_guessed':
       clearInterval(qTimerInterval);
       startAccusation(msg.guesser, msg.word); break;
     case 'insider_vote_update': {
       const voted = Object.keys(msg.votes||{}).length;
       const el = document.getElementById('acc-vote-count');
-      if(el) el.textContent = voted+' / '+msg.total+' voted'; break;
+      if(el) el.textContent = t('ins.voted',{count:voted,total:msg.total}); break;
     }
     case 'insider_over':
       showResult(msg); break;
@@ -626,6 +627,7 @@ function handleMsg(msg){
     }
   };
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>

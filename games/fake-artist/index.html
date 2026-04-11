@@ -74,20 +74,20 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
 <div class="container">
 
 <div id="no-hub-msg" style="display:none;padding:3rem 0;text-align:center;">
-  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🎨 FAKE ARTIST</div>
-  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;">This game requires a multiplayer lobby.</div>
-  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;">GO TO HOME</a>
+  <div style="font-family:var(--font-display);font-size:36px;color:var(--accent);margin-bottom:8px;">🎨 <span data-i18n="fa.title">FAKE ARTIST</span></div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:2rem;" data-i18n="requiresLobby">This game requires a multiplayer lobby.</div>
+  <a href="/" style="display:inline-block;padding:14px 32px;background:var(--accent);color:#fff;font-family:var(--font-display);font-size:20px;letter-spacing:2px;border-radius:var(--radius);text-decoration:none;" data-i18n="goToHome">GO TO HOME</a>
 </div>
 
 <!-- WAITING -->
 <div class="phase active" id="phase-mp-waiting">
-  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;">← LOBBY</a>
-  <div class="section-title">🎨 <span style="color:var(--accent)">FAKE ARTIST</span></div>
-  <div class="section-sub">Draw together — find the impostor</div>
+  <a class="back-btn" id="waiting-back-btn" href="#" onclick="hubLeave();return false;" style="display:none;" data-i18n="backLobby">← LOBBY</a>
+  <div class="section-title">🎨 <span style="color:var(--accent)" data-i18n="fa.title">FAKE ARTIST</span></div>
+  <div class="section-sub" data-i18n="fa.subtitle">Draw together — find the impostor</div>
   <div class="label">Players (<span id="waiting-count">0</span>)</div>
   <div id="waiting-player-list" class="player-lobby-list"></div>
   <div id="waiting-hub-scores-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <table class="hub-scores-table"><thead><tr>
       <th style="font-size:10px;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">#</th>
       <th style="font-size:10px;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);">Player</th>
@@ -95,24 +95,24 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
     </tr></thead><tbody id="waiting-hub-scores-body"></tbody></table>
   </div>
   <div id="waiting-host-area" style="display:none;">
-    <div class="label">Category</div>
+    <div class="label" data-i18n="category">Category</div>
     <div class="cat-row">
-      <button class="cat-btn active" data-cat="objects" onclick="selectCat('objects',this)">🎯 Objects</button>
-      <button class="cat-btn" data-cat="animals" onclick="selectCat('animals',this)">🐾 Animals</button>
-      <button class="cat-btn" data-cat="food" onclick="selectCat('food',this)">🍜 Food</button>
-      <button class="cat-btn" data-cat="places" onclick="selectCat('places',this)">🏰 Places</button>
-      <button class="cat-btn" data-cat="anime" onclick="selectCat('anime',this)">⚔️ Anime</button>
+      <button class="cat-btn active" data-cat="objects" onclick="selectCat('objects',this)">🎯 <span data-i18n="fa.objects">Objects</span></button>
+      <button class="cat-btn" data-cat="animals" onclick="selectCat('animals',this)">🐾 <span data-i18n="fa.animals">Animals</span></button>
+      <button class="cat-btn" data-cat="food" onclick="selectCat('food',this)">🍜 <span data-i18n="fa.food">Food</span></button>
+      <button class="cat-btn" data-cat="places" onclick="selectCat('places',this)">🏰 <span data-i18n="fa.places">Places</span></button>
+      <button class="cat-btn" data-cat="anime" onclick="selectCat('anime',this)">⚔️ <span data-i18n="fa.anime">Anime</span></button>
     </div>
-    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;">START GAME →</button>
+    <button class="btn-primary" id="waiting-start-btn" onclick="mpStartGame()" disabled style="opacity:0.4;" data-i18n="startGameArrow">START GAME →</button>
   </div>
-  <div id="waiting-guest-area" style="display:none;" class="waiting-msg">Waiting for host to start…</div>
+  <div id="waiting-guest-area" style="display:none;" class="waiting-msg" data-i18n="waitingForHost">Waiting for host to start…</div>
 </div>
 
 <!-- DRAWING -->
 <div class="phase" id="phase-drawing">
-  <button class="back-btn" id="drawing-cancel-btn" onclick="cancelGame()" style="display:none;">✕ CANCEL</button>
+  <button class="back-btn" id="drawing-cancel-btn" onclick="cancelGame()" style="display:none;" data-i18n="cancelUpper">✕ CANCEL</button>
   <div id="word-reveal-box" class="word-reveal-box" style="margin-bottom:1rem;">
-    <div class="label">Your word</div>
+    <div class="label" data-i18n="fa.yourWord">Your word</div>
     <div id="word-display"></div>
     <div id="category-display" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
   </div>
@@ -127,35 +127,35 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
 <!-- VOTING -->
 <div class="phase" id="phase-voting">
   <div style="margin-bottom:1.5rem;">
-    <div class="section-title" style="font-size:32px;">WHO IS THE <span style="color:var(--accent)">FAKE?</span></div>
-    <div class="section-sub">Vote for the Fake Artist</div>
+    <div class="section-title" style="font-size:32px;"><span data-i18n="fa.whoIsFake">WHO IS THE</span> <span style="color:var(--accent)" data-i18n="fa.fakeQ">FAKE?</span></div>
+    <div class="section-sub" data-i18n="fa.voteForFake">Vote for the Fake Artist</div>
   </div>
   <div class="canvas-wrap spectator" style="margin-bottom:1.5rem;">
     <canvas id="vote-canvas" width="560" height="380"></canvas>
   </div>
   <div class="vote-grid" id="vote-grid"></div>
-  <div id="vote-waiting" class="waiting-msg" style="display:none;">Vote cast — waiting for others… (<span id="vote-count">0</span>/<span id="vote-total">0</span>)</div>
+  <div id="vote-waiting" class="waiting-msg" style="display:none;"></div>
 </div>
 
 <!-- FAKE GUESSING -->
 <div class="phase" id="phase-guessing">
   <div style="margin-bottom:1.5rem;">
-    <div class="section-title" style="font-size:32px;">YOU WERE <span style="color:var(--accent)">CAUGHT!</span></div>
-    <div class="section-sub">Guess the word to steal the win</div>
+    <div class="section-title" style="font-size:32px;"><span data-i18n="fa.youWereCaught">YOU WERE</span> <span style="color:var(--accent)" data-i18n="fa.caught">CAUGHT!</span></div>
+    <div class="section-sub" data-i18n="fa.guessToWin">Guess the word to steal the win</div>
   </div>
   <div class="canvas-wrap spectator" style="margin-bottom:1.5rem;">
     <canvas id="guess-canvas" width="560" height="380"></canvas>
   </div>
   <div id="guess-area-wrap">
     <div class="guess-wrap">
-      <div class="label">What was the word?</div>
+      <div class="label" data-i18n="fa.whatWasWord">What was the word?</div>
       <div class="input-row">
-        <input id="guess-word-input" type="text" placeholder="Your guess…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')submitFakeGuess()"/>
-        <button class="send-btn" onclick="submitFakeGuess()">GUESS</button>
+        <input id="guess-word-input" type="text" data-i18n="fa.yourGuess" data-i18n-attr="placeholder" placeholder="Your guess…" maxlength="60" autocomplete="off" onkeydown="if(event.key==='Enter')submitFakeGuess()"/>
+        <button class="send-btn" onclick="submitFakeGuess()" data-i18n="fa.guessBtn">GUESS</button>
       </div>
     </div>
   </div>
-  <div id="guess-waiting" class="waiting-msg" style="display:none;">The Fake Artist is guessing…</div>
+  <div id="guess-waiting" class="waiting-msg" style="display:none;" data-i18n="fa.fakeIsGuessing">The Fake Artist is guessing…</div>
 </div>
 
 <!-- RESULT -->
@@ -165,36 +165,37 @@ canvas{display:block;background:#0e0e18;touch-action:none;cursor:crosshair;}
     <div id="result-sub" style="font-size:13px;color:var(--muted);margin-top:6px;"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">The word was</div>
+    <div class="label" data-i18n="fa.wordWas">The word was</div>
     <div id="result-word" style="font-family:var(--font-display);font-size:32px;color:var(--accent);letter-spacing:2px;"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">The Fake Artist was</div>
+    <div class="label" data-i18n="fa.fakeArtistWas">The Fake Artist was</div>
     <div id="result-fake" style="font-family:var(--font-display);font-size:28px;letter-spacing:1px;"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Votes</div>
+    <div class="label" data-i18n="votes">Votes</div>
     <div id="result-votes"></div>
   </div>
   <div style="margin-bottom:1.5rem;">
-    <div class="label">Points earned</div>
+    <div class="label" data-i18n="pointsEarned">Points earned</div>
     <div id="result-scores"></div>
   </div>
   <div id="result-hub-section" style="display:none;margin-bottom:1.5rem;">
-    <div class="label">Global scores</div>
+    <div class="label" data-i18n="globalScores">Global scores</div>
     <div id="result-hub-scores"></div>
   </div>
   <div id="result-host-btns" style="display:none;">
-    <button class="btn-primary" onclick="mpSend({type:'new_game'})">PLAY AGAIN</button>
-    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-primary" onclick="mpSend({type:'new_game'})" data-i18n="playAgain">PLAY AGAIN</button>
+    <button class="btn-secondary" id="result-return-hub" onclick="returnToHub()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
   <div id="result-guest-btns" style="display:none;">
-    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;">RETURN TO LOBBY</button>
+    <button class="btn-secondary" id="result-guest-return" onclick="hubLeave()" style="display:none;" data-i18n="returnToLobby">RETURN TO LOBBY</button>
   </div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
+<script src="/i18n.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ws=null, myRoom='', myName='', isHost=false, hubFlow=false, hubScores={}, hostName='';
@@ -218,7 +219,7 @@ function renderWaitingScreen(msg){
   document.getElementById('waiting-count').textContent=players.length;
   document.getElementById('waiting-player-list').innerHTML=players.map(p=>{
     const crown=p===hName?'<span style="color:var(--accent)">👑</span>':'';
-    const you=p===myName?'<span class="you-tag">YOU</span>':'';
+    const you=p===myName?'<span class="you-tag">'+t('you')+'</span>':'';
     return `<div class="lobby-player">${crown}<span style="flex:1">${esc(p)}</span>${you}</div>`;
   }).join('');
   document.getElementById('waiting-host-area').style.display=isHost?'block':'none';
@@ -306,33 +307,33 @@ function startGame(msg){
   allStrokes=[];
   const wordBox=document.getElementById('word-display');
   if(isFake){
-    wordBox.innerHTML=`<div class="word-fake">❓ FAKE ARTIST</div>`;
-    document.getElementById('category-display').textContent='Category: '+msg.category+' — you don\'t know the word!';
+    wordBox.innerHTML=`<div class="word-fake">${t('fa.fakeArtist')}</div>`;
+    document.getElementById('category-display').textContent=t('fa.categoryNoWord',{cat:msg.category});
   } else {
     wordBox.innerHTML=`<div class="word-text">${esc(msg.word)}</div>`;
-    document.getElementById('category-display').textContent='Category: '+msg.category;
+    document.getElementById('category-display').textContent=t('fa.categoryLabel',{cat:msg.category});
   }
   document.getElementById('drawing-cancel-btn').style.display=isHost?'inline-flex':'none';
   showPhase('phase-drawing');
   drawCtx=setupCanvas('draw-canvas', true);
   drawCtx.clearRect(0,0,560,380);
-  document.getElementById('round-indicator').textContent='Round 1 of 2';
+  document.getElementById('round-indicator').textContent=t('fa.roundOf2',{n:1});
   updateTurnUI();
 }
 function updateTurnUI(round){
   const ind=document.getElementById('turn-indicator');
   if(currentDrawer===myName){
-    ind.textContent='✏️ YOUR TURN — draw one stroke!';
+    ind.textContent=t('fa.yourTurnDraw');
     ind.style.background='rgba(244,114,182,0.12)';
     ind.style.color='var(--accent)';
     ind.style.border='1px solid rgba(244,114,182,0.3)';
   } else {
-    ind.textContent=`${esc(currentDrawer)}'s turn…`;
+    ind.textContent=t('fa.otherTurnDraw',{name:currentDrawer});
     ind.style.background='var(--surface)';
     ind.style.color='var(--muted)';
     ind.style.border='1px solid var(--border)';
   }
-  if(round) document.getElementById('round-indicator').textContent=`Round ${round} of 2`;
+  if(round) document.getElementById('round-indicator').textContent=t('fa.roundOf2',{n:round});
 }
 function updatePlayerList(colorMap){
   const wrap=document.getElementById('players-turn-list');
@@ -354,7 +355,8 @@ function startVoting(players){
   grid.innerHTML=players.filter(p=>p!==myName).map(p=>
     `<button class="vote-btn" id="vbtn-${p.replace(/\W/g,'_')}" onclick="castVote('${esc(p)}')">${esc(p)}</button>`
   ).join('');
-  document.getElementById('vote-total').textContent=players.length-1;
+  document.getElementById('vote-waiting').textContent=t('fa.voteCastWaiting',{done:0,total:players.length-1});
+  document.getElementById('vote-waiting').style.display='none';
 }
 function castVote(target){
   document.querySelectorAll('.vote-btn').forEach(b=>b.disabled=true);
@@ -389,14 +391,14 @@ function showResult(msg){
   const headline=document.getElementById('result-headline');
   const sub=document.getElementById('result-sub');
   if(msg.reason==='escaped'){
-    headline.textContent='FAKE ESCAPED!'; headline.style.color='#f87171';
-    sub.textContent='The fake artist was not caught.';
+    headline.textContent=t('fa.fakeEscaped'); headline.style.color='#f87171';
+    sub.textContent=t('fa.fakeNotCaught',{name:msg.fakeArtist});
   } else if(msg.reason==='guessed_word'){
-    headline.textContent='FAKE WINS!'; headline.style.color='#f87171';
-    sub.textContent=`${msg.fakeArtist} guessed the word correctly!`;
+    headline.textContent=t('fa.fakeWins'); headline.style.color='#f87171';
+    sub.textContent=t('fa.fakeGuessedCorrect',{name:msg.fakeArtist});
   } else {
-    headline.textContent='ARTISTS WIN!'; headline.style.color='#4ade80';
-    sub.textContent='The fake artist was caught and failed to guess the word.';
+    headline.textContent=t('fa.artistsWin'); headline.style.color='#4ade80';
+    sub.textContent=t('fa.artistsWinDesc');
   }
   const votes=msg.votes||{};
   document.getElementById('result-votes').innerHTML=Object.keys(votes).length
@@ -404,11 +406,11 @@ function showResult(msg){
       const correct=t===msg.fakeArtist;
       return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(v)}</span><span>${esc(t)} <span style="color:${correct?'#4ade80':'var(--muted)'};">${correct?'✓':'✗'}</span></span></div>`;
     }).join('')
-    :'<div style="color:var(--muted);font-size:13px;">No votes recorded</div>';
+    :'<div style="color:var(--muted);font-size:13px;">'+t('fa.noVotes')+'</div>';
   const scores=msg.scores||{};
   document.getElementById('result-scores').innerHTML=Object.keys(scores).length
     ?Object.entries(scores).map(([n,p])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${esc(n)}</span><span style="color:var(--accent);font-weight:700;">+${p} pts</span></div>`).join('')
-    :'<div style="color:var(--muted);font-size:13px;">No points this round</div>';
+    :'<div style="color:var(--muted);font-size:13px;">'+t('fa.noPointsRound')+'</div>';
   const hs=msg.hubScores||{};
   const hsE=Object.entries(hs).sort((a,b)=>b[1]-a[1]);
   if(hsE.some(([,v])=>v>0)){
@@ -447,11 +449,11 @@ function handleMsg(msg){
       allStrokes=msg.strokes||[]; colorMapGlobal=msg.colorMap||{};
       const wordBox=document.getElementById('word-display');
       if(isFake){
-        wordBox.innerHTML='<div class="word-fake">❓ FAKE ARTIST</div>';
-        document.getElementById('category-display').textContent='Category: '+msg.category+' — you don\'t know the word!';
+        wordBox.innerHTML='<div class="word-fake">'+t('fa.fakeArtist')+'</div>';
+        document.getElementById('category-display').textContent=t('fa.categoryNoWord',{cat:msg.category});
       } else {
         wordBox.innerHTML='<div class="word-text">'+esc(msg.word)+'</div>';
-        document.getElementById('category-display').textContent='Category: '+msg.category;
+        document.getElementById('category-display').textContent=t('fa.categoryLabel',{cat:msg.category});
       }
       document.getElementById('drawing-cancel-btn').style.display=isHost?'inline-flex':'none';
       if(msg.faPhase==='drawing'){
@@ -459,7 +461,7 @@ function handleMsg(msg){
         drawCtx=setupCanvas('draw-canvas',true);
         drawCtx.clearRect(0,0,560,380);
         redrawAll(drawCtx,allStrokes);
-        document.getElementById('round-indicator').textContent='Round '+msg.round+' of 2';
+        document.getElementById('round-indicator').textContent=t('fa.roundOf2',{n:msg.round});
         updateTurnUI(); updatePlayerList(colorMapGlobal);
       } else if(msg.faPhase==='voting'){
         startVoting(msg.players);
@@ -475,16 +477,16 @@ function handleMsg(msg){
     case 'game_launching':
       if(msg.gameType==='hub'){location.href='/?room='+msg.code+'&name='+encodeURIComponent(myName);} break;
     case 'new_host':
-      isHost=true;hostName=msg.name||'';notify('You are now the host.');
+      isHost=true;hostName=msg.name||'';notify(t('youAreHost'));
       document.getElementById('waiting-host-area').style.display='block';
       document.getElementById('waiting-guest-area').style.display='none';
       document.getElementById('waiting-back-btn').style.display='inline-flex';
       break;
-    case 'player_left': notify(msg.name+' left.'); break;
-    case 'player_online': notify(msg.name+' reconnected ↩'); break;
+    case 'player_left': notify(t('playerLeftShort',{name:msg.name})); break;
+    case 'player_online': notify(t('playerReconnected',{name:msg.name})); break;
     case 'player_offline':
       mpPlayers=mpPlayers.filter(p=>p!==msg.name);
-      notify(msg.name+' disconnected…');
+      notify(t('playerDisconnected',{name:msg.name}));
       renderWaitingScreen({players:mpPlayers,host:hostName,hubScores});
       break;
     case 'fa_start':
@@ -510,7 +512,7 @@ function handleMsg(msg){
     case 'fa_vote_start':
       startVoting(msg.players); break;
     case 'fa_vote_update':
-      document.getElementById('vote-count').textContent=Object.keys(msg.votes||{}).length;
+      document.getElementById('vote-waiting').textContent=t('fa.voteCastWaiting',{done:Object.keys(msg.votes||{}).length,total:mpPlayers.length-1});
       break;
     case 'fa_caught':
       startGuessing(isFake); break;
@@ -550,6 +552,7 @@ function handleMsg(msg){
     }
   };
 })();
+window.addEventListener('langchange',()=>{ applyLang(); });
 </script>
 </body>
 </html>
