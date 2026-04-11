@@ -6,6 +6,7 @@ COPY minigames-server.js .
 COPY index.html .
 COPY manifest.json .
 COPY sw.js .
+COPY favicon.svg .
 COPY icon-192.svg .
 COPY icon-512.svg .
 COPY games/ games/

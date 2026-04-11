@@ -1,6 +1,7 @@
 const CACHE = 'minigames-v1';
 const ASSETS = [
   '/',
+  '/favicon.svg',
   '/anime-undercover.html',
   '/manifest.json',
   '/icon-192.svg',
