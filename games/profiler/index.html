@@ -411,6 +411,7 @@ function showResult(msg){
 function mpSend(obj){ if(ws&&ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
 function mpLeaveRoom(){ mpSend({type:'leave_room'}); if(ws){ws.onclose=null;ws.close();ws=null;} location.href='/'; }
 function hubLeave(){
+  localStorage.removeItem('pro_session');
   if(isHost){ mpSend({type:'return_to_hub'}); }
   else{ if(ws){ws.onclose=null;ws.close();ws=null;} location.href='/?room='+myRoom+'&name='+encodeURIComponent(myName); }
 }
@@ -420,12 +421,14 @@ function handleMsg(msg){
   switch(msg.type){
     case 'joined':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      localStorage.setItem('pro_session',JSON.stringify({room:myRoom,name:myName}));
       showPhase('phase-mp-waiting'); break;
     case 'rejoin_ack':
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
       showPhase('phase-mp-waiting'); break;
     case 'profiler_rejoin': {
       myRoom=msg.code; myName=msg.name; isHost=msg.isHost;
+      localStorage.setItem('pro_session',JSON.stringify({room:myRoom,name:myName}));
       startGame(msg);
       // replay own team's log entries
       (msg.log||[]).filter(e=>teamA.includes(e.proposer)?'A'===myTeam:'B'===myTeam).forEach(addLogEntry);
@@ -507,8 +510,9 @@ function handleMsg(msg){
     case 'back_to_lobby':
       showPhase('phase-mp-waiting'); break;
     case 'profiler_over':
+      localStorage.removeItem('pro_session');
       showResult(msg); break;
-    case 'error': notify(msg.msg||'Error.'); break;
+    case 'error': localStorage.removeItem('pro_session'); notify(msg.msg||'Error.'); break;
   }
 }
 
@@ -518,6 +522,22 @@ function handleMsg(msg){
   const autoRoom=params.get('room');
   const autoName=params.get('name');
   if(!autoRoom||!autoName){
+    // Try session restore
+    try{
+      const s=JSON.parse(localStorage.getItem('pro_session'));
+      if(s&&s.room&&s.name){
+        myRoom=s.room; myName=s.name; hubFlow=true;
+        history.replaceState(null,'',location.pathname);
+        const proto=location.protocol==='https:'?'wss':'ws';
+        ws=new WebSocket(`${proto}://${location.host}`);
+        ws.onopen=()=>ws.send(JSON.stringify({type:'rejoin_room',code:myRoom,name:myName}));
+        ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(_){}};
+        ws.onerror=()=>{};
+        ws.onclose=()=>{if(myRoom&&myName&&reconnectAttempts<8){reconnectAttempts++;setTimeout(()=>{const p=location.protocol==='https:'?'wss':'ws';ws=new WebSocket(`${p}://${location.host}`);ws.onopen=()=>ws.send(JSON.stringify({type:'rejoin_room',code:myRoom,name:myName}));ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(_){}};ws.onerror=()=>{};},(reconnectAttempts<3?2000:5000)*reconnectAttempts);}};
+        showPhase('phase-mp-waiting');
+        return;
+      }
+    }catch(_){}
     document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active'));
     document.getElementById('no-hub-msg').style.display='block';
     return;

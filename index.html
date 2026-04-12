@@ -208,6 +208,16 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <!-- ── LANDING VIEW ── -->
   <div id="view-landing">
 
+    <!-- Rejoin banner (shown when a saved session exists) -->
+    <div id="rejoin-banner" style="display:none;background:rgba(232,55,90,0.08);border:1px solid rgba(232,55,90,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#e8375a;font-weight:600;margin-bottom:6px;">⚡ Session found</div>
+      <div id="rejoin-banner-text" style="font-size:14px;color:var(--text);margin-bottom:10px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="doHubRejoin()" style="flex:1;padding:10px;background:#e8375a;border:none;border-radius:8px;color:#fff;font-family:var(--font-display);font-size:16px;letter-spacing:1px;cursor:pointer;">REJOIN →</button>
+        <button onclick="dismissRejoin()" style="padding:10px 14px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;">✕</button>
+      </div>
+    </div>
+
     <!-- Hub section -->
     <div class="hub-section">
       <div class="section-label" data-i18n="hub.playTogether">Play together</div>
@@ -386,6 +396,16 @@ if (autoRoom && autoName) {
   history.replaceState(null, '', '/');
   connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName }));
 } else {
+  // Check for saved hub session
+  try {
+    const savedSession = JSON.parse(localStorage.getItem('hub_session'));
+    if (savedSession && savedSession.room && savedSession.name) {
+      const banner = document.getElementById('rejoin-banner');
+      document.getElementById('rejoin-banner-text').textContent = `Room ${savedSession.room} · ${savedSession.name}`;
+      banner.style.display = 'block';
+      window._pendingRejoin = savedSession;
+    }
+  } catch(_) {}
   fetchLobbies();
   pollInterval = setInterval(fetchLobbies, 8000);
 }
@@ -484,10 +504,23 @@ function hubLeave() {
   wsSend({ type: 'leave_room' });
   if (ws) { ws.onclose = null; ws.close(); ws = null; }
   myRoom = ''; myName = ''; isHost = false; hubReadySet = new Set();
+  localStorage.removeItem('hub_session');
   clearChat();
   showLanding();
   fetchLobbies();
   pollInterval = setInterval(fetchLobbies, 8000);
+}
+function doHubRejoin() {
+  const s = window._pendingRejoin;
+  if (!s) return;
+  document.getElementById('rejoin-banner').style.display = 'none';
+  myRoom = s.room; myName = s.name;
+  connectHub(() => wsSend({ type: 'hub_rejoin', code: myRoom, name: myName }));
+}
+function dismissRejoin() {
+  localStorage.removeItem('hub_session');
+  document.getElementById('rejoin-banner').style.display = 'none';
+  window._pendingRejoin = null;
 }
 
 // ── Hub view ──────────────────────────────────────────────────
@@ -610,6 +643,7 @@ function handleMsg(msg) {
       myRoom = msg.code;
       myName = msg.name;
       isHost = msg.isHost;
+      localStorage.setItem('hub_session', JSON.stringify({ room: myRoom, name: myName }));
       showHubView(msg.code);
       break;
     case 'hub_state':
@@ -677,6 +711,7 @@ function handleMsg(msg) {
       updatePrivacyBtn();
       break;
     case 'hub_error':
+      localStorage.removeItem('hub_session');
       document.getElementById('entry-error').textContent = msg.msg || t('error');
       document.getElementById('join-error').textContent = msg.msg || t('error');
       break;
