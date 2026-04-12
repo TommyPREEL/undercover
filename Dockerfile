@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY minigames-server.js .
 COPY index.html .
+COPY i18n.js .
 COPY manifest.json .
 COPY sw.js .
 COPY favicon.svg .
